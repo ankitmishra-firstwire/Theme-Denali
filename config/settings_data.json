@@ -10,6 +10,8 @@
 {
   "current": {
     "type_primary_font": "mono",
+    "min_page_margin": 29,
+    "background_color": "#FFFFFF",
     "content_for_index": []
   }
 }
