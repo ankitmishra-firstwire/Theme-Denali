@@ -1,0 +1,270 @@
+{{ 'featured-product.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'featured-product.js' | asset_url }}" defer></script>
+
+{% assign product = section.settings.product %}
+
+<section
+  id="FeaturedProduct-{{ section.id }}"
+  class="featured-product"
+  data-section-id="{{ section.id }}"
+>
+  <div class="featured-product__container page-width">
+
+    {% if product != blank %}
+      <div class="featured-product__grid">
+
+        <!-- Product images -->
+        <div class="featured-product__gallery">
+          <div class="featured-product__main-image">
+            {% if product.featured_media != blank %}
+              {{
+                product.featured_media.preview_image
+                | image_url: width: 1200
+                | image_tag:
+                  class: 'featured-product__image',
+                  loading: 'lazy',
+                  widths: '400, 600, 800, 1000, 1200',
+                  sizes: '(min-width: 990px) 50vw, 100vw',
+                  alt: product.featured_media.alt
+              }}
+            {% else %}
+              {{ 'product-1' | placeholder_svg_tag: 'featured-product__placeholder' }}
+            {% endif %}
+          </div>
+
+          {% if section.settings.show_vendor and product.vendor != blank %}
+            <p class="featured-product__vendor">
+              {{ product.vendor | escape }}
+            </p>
+          {% endif %}
+        </div>
+
+        <!-- Product information -->
+        <div class="featured-product__details">
+
+          {% if section.settings.subheading != blank %}
+            <p class="featured-product__subheading">
+              {{ section.settings.subheading | escape }}
+            </p>
+          {% endif %}
+
+          <h2 class="featured-product__title">
+            {{ product.title | escape }}
+          </h2>
+
+          {% if section.settings.show_rating %}
+            <div class="featured-product__rating">
+              <span aria-hidden="true">★★★★★</span>
+              <span class="featured-product__rating-note">
+                Customer reviews
+              </span>
+            </div>
+          {% endif %}
+
+          <div class="featured-product__price" data-product-price>
+            {% if product.selected_or_first_available_variant.compare_at_price
+              > product.selected_or_first_available_variant.price
+            %}
+              <span class="featured-product__compare-price">
+                {{ product.selected_or_first_available_variant.compare_at_price | money }}
+              </span>
+            {% endif %}
+
+            <span class="featured-product__current-price">
+              {{ product.selected_or_first_available_variant.price | money }}
+            </span>
+          </div>
+
+          {% if section.settings.show_description and product.description != blank %}
+            <div class="featured-product__description">
+              {{ product.description }}
+            </div>
+          {% endif %}
+
+          {% form 'product', product, id: 'FeaturedProductForm-' | append: section.id, class: 'featured-product__form' %}
+
+            <input
+              type="hidden"
+              name="id"
+              value="{{ product.selected_or_first_available_variant.id }}"
+              data-variant-id
+            >
+
+            {% unless product.has_only_default_variant %}
+              {% for option in product.options_with_values %}
+                <div class="featured-product__option">
+                  <label
+                    class="featured-product__label"
+                    for="FeaturedProductOption-{{ section.id }}-{{ forloop.index }}"
+                  >
+                    {{ option.name | escape }}
+                  </label>
+
+                  <select
+                    id="FeaturedProductOption-{{ section.id }}-{{ forloop.index }}"
+                    class="featured-product__select"
+                    data-option-position="{{ option.position }}"
+                  >
+                    {% for value in option.values %}
+                      <option
+                        value="{{ value | escape }}"
+                        {% if option.selected_value == value %}selected{% endif %}
+                      >
+                        {{ value | escape }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              {% endfor %}
+            {% endunless %}
+
+            <div class="featured-product__quantity">
+              <label
+                class="featured-product__label"
+                for="FeaturedProductQuantity-{{ section.id }}"
+              >
+                Quantity
+              </label>
+
+              <div class="featured-product__quantity-control">
+                <button
+                  type="button"
+                  data-quantity-minus
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+
+                <input
+                  id="FeaturedProductQuantity-{{ section.id }}"
+                  type="number"
+                  name="quantity"
+                  value="1"
+                  min="1"
+                  step="1"
+                  data-quantity-input
+                >
+
+                <button
+                  type="button"
+                  data-quantity-plus
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              name="add"
+              class="featured-product__add-button"
+              data-add-to-cart
+              {% unless product.selected_or_first_available_variant.available %}
+                disabled
+              {% endunless %}
+            >
+              <span data-button-text>
+                {% if product.selected_or_first_available_variant.available %}
+                  {{ section.settings.button_label | escape }}
+                {% else %}
+                  Sold out
+                {% endif %}
+              </span>
+            </button>
+
+            {% if section.settings.show_dynamic_checkout %}
+              {{ form | payment_button }}
+            {% endif %}
+
+            <p class="featured-product__message" data-product-message role="status"></p>
+
+          {% endform %}
+
+          {% if section.settings.show_view_product %}
+            <a
+              class="featured-product__view-link"
+              href="{{ product.url }}"
+            >
+              View product details →
+            </a>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <script type="application/json" data-product-variants>
+        {{ product.variants | json }}
+      </script>
+
+    {% else %}
+      <div class="featured-product__empty">
+        <h2>Select a product</h2>
+        <p>Choose a product in this section's settings to display it here.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured product",
+  "tag": "section",
+  "class": "section-featured-product",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "FEATURED PRODUCT"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show product description",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating placeholder",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show dynamic checkout button",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_product",
+      "label": "Show view product link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Add to cart button label",
+      "default": "Add to cart"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured product"
+    }
+  ]
+}
+{% endschema %}

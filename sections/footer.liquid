@@ -1,0 +1,21 @@
+<footer class="site-footer">
+  <div class="page-width footer-main">
+    <div class="footer-brand">
+      <a class="footer-brand-name" href="{{ routes.root_url }}">{{ section.settings.heading | default: shop.name | escape }}</a>
+      {% if section.settings.text != blank %}<p>{{ section.settings.text | escape }}</p>{% endif %}
+    </div>
+    {% if section.settings.menu != blank %}<nav aria-label="Footer navigation"><ul class="footer-menu list-unstyled">{% for link in section.settings.menu.links %}<li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>{% endfor %}</ul></nav>{% endif %}
+  </div>
+  <div class="page-width footer-bottom"><small>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}</small>{% if section.settings.show_powered_by %}<small>{{ powered_by_link }}</small>{% endif %}</div>
+</footer>
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Brand name" },
+    { "type": "textarea", "id": "text", "label": "Description", "default": "Thanks for visiting our store." },
+    { "type": "link_list", "id": "menu", "label": "Menu" },
+    { "type": "checkbox", "id": "show_powered_by", "label": "Show Shopify attribution", "default": false }
+  ]
+}
+{% endschema %}

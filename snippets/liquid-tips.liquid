@@ -1,0 +1,10 @@
+{% liquid
+  assign tip_count = tips.size
+  assign seed = 'now' | date: '%N' | modulo: tip_count
+%}
+<div class="highlight" data-liquid-tips data-tip-values="{% for tip in tips %}{{ tip | t | escape }}{% unless forloop.last %}|{% endunless %}{% endfor %}">
+  <h3>{{ 'hello_world.liquid_tips_title' | t }}</h3>
+  {% if tip_count > 0 %}<p class="highlight-description" data-tip-text>{{ tips[seed] | t }}</p>{% endif %}
+  <p><button type="button" data-refresh-tip>{{ 'hello_world.liquid_tips_refresh' | t }}</button></p>
+</div>
+<script src="{{ 'liquid-tips.js' | asset_url }}" defer></script>

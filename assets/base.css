@@ -1,0 +1,413 @@
+:root {
+    --text: #222;
+    --background: #fff;
+    --accent: #1f3b35;
+    --page-width: 1200px;
+    --section-spacing: clamp(40px, 6vw, 88px)
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    color: var(--text);
+    background: var(--background);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5
+}
+
+img,
+svg {
+    max-width: 100%;
+    height: auto
+}
+
+a {
+    color: inherit;
+    text-decoration: none
+}
+
+a:hover {
+    color: var(--accent)
+}
+
+.page-width {
+    width: min(var(--page-width), calc(100% - 40px));
+    margin-inline: auto
+}
+
+.section {
+    padding-block: var(--section-spacing)
+}
+
+.list-unstyled {
+    list-style: none;
+    margin: 0;
+    padding: 0
+}
+
+.announcement-bar {
+    padding: 9px 0;
+    text-align: center;
+    font-size: 13px
+}
+
+.site-header {
+    border-bottom: 1px solid #e8e8e8;
+    background: #fff
+}
+
+.header-inner {
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    gap: 28px
+}
+
+.header-logo {
+    flex-shrink: 0;
+    font-size: 23px;
+    font-weight: 700
+}
+
+.header-logo-image {
+    display: block;
+    width: auto;
+    max-width: 180px;
+    max-height: 58px;
+    object-fit: contain
+}
+
+.header-inner nav {
+    margin-left: auto
+}
+
+.header-menu {
+    display: flex;
+    gap: 22px
+}
+
+.header-menu a,
+.header-utilities a {
+    font-size: 14px
+}
+
+.header-utilities {
+    display: flex;
+    gap: 14px;
+    white-space: nowrap
+}
+
+.image-banner {
+    min-height: 500px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #d9ded9
+}
+
+.image-banner-image,
+.image-banner-shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%
+}
+
+.image-banner-image {
+    object-fit: cover
+}
+
+.image-banner-shade {
+    background: linear-gradient(90deg, rgba(0, 0, 0, .48), rgba(0, 0, 0, .04))
+}
+
+.image-banner-content {
+    position: relative;
+    z-index: 1;
+    padding-block: 70px;
+    color: #fff
+}
+
+.eyebrow {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase
+}
+
+.image-banner h1 {
+    max-width: 700px;
+    margin: 0 0 18px;
+    font-size: clamp(38px, 6vw, 72px);
+    line-height: 1.03;
+    letter-spacing: -.04em
+}
+
+.image-banner-text {
+    max-width: 540px;
+    margin-bottom: 25px;
+    font-size: 17px
+}
+
+.image-banner-text p {
+    margin: 0
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 12px 24px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700
+}
+
+.button:hover {
+    color: #fff;
+    opacity: .88
+}
+
+.button--outline {
+    background: transparent;
+    color: var(--accent)
+}
+
+.section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px
+}
+
+.section-heading h2,
+.rich-text-inner h2 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.15;
+    letter-spacing: -.03em
+}
+
+.text-link {
+    font-size: 13px;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 3px
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px 18px
+}
+
+.product-card {
+    min-width: 0
+}
+
+.product-card-media {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    background: #f3f3f0
+}
+
+.product-card-media img,
+.product-card-media .placeholder-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover
+}
+
+.product-card-info {
+    padding-top: 12px
+}
+
+.product-card-info h3 {
+    margin: 0 0 5px;
+    font-size: 14px;
+    font-weight: 500
+}
+
+.price {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px
+}
+
+.price-sale {
+    color: #a33131
+}
+
+.price-compare {
+    color: #777
+}
+
+.rich-text-section {
+    background: #f5f5f1;
+    text-align: center
+}
+
+.rich-text-inner {
+    max-width: 760px
+}
+
+.rich-text-inner h2 {
+    margin-bottom: 16px
+}
+
+.rich-text-copy {
+    max-width: 620px;
+    margin: 0 auto 24px;
+    color: #555
+}
+
+.rich-text-copy p {
+    margin-top: 0
+}
+
+.site-footer {
+    padding: 48px 0 20px;
+    background: #202522;
+    color: #fff
+}
+
+.footer-main {
+    display: flex;
+    justify-content: space-between;
+    gap: 36px;
+    padding-bottom: 34px
+}
+
+.footer-brand {
+    max-width: 380px
+}
+
+.footer-brand-name {
+    font-size: 22px;
+    font-weight: 700
+}
+
+.footer-brand p {
+    color: #d0d3d0;
+    font-size: 14px
+}
+
+.footer-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 22px
+}
+
+.footer-menu a {
+    color: #e2e4e2;
+    font-size: 13px
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 18px;
+    border-top: 1px solid #444a46;
+    color: #c8ccc9
+}
+
+.footer-bottom small {
+    font-size: 11px
+}
+
+@media(max-width:900px) {
+    .header-inner {
+        flex-wrap: wrap;
+        gap: 14px;
+        padding-block: 15px
+    }
+
+    .header-inner nav {
+        order: 3;
+        width: 100%;
+        overflow-x: auto
+    }
+
+    .header-menu {
+        gap: 18px;
+        padding-bottom: 3px
+    }
+
+    .header-utilities {
+        margin-left: auto
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px 12px
+    }
+}
+
+@media(max-width:560px) {
+    .page-width {
+        width: calc(100% - 28px)
+    }
+
+    .header-logo {
+        font-size: 20px
+    }
+
+    .header-logo-image {
+        max-width: 130px;
+        max-height: 45px
+    }
+
+    .header-utilities {
+        gap: 10px
+    }
+
+    .header-utilities a {
+        font-size: 12px
+    }
+
+    .image-banner {
+        min-height: 430px
+    }
+
+    .image-banner-shade {
+        background: rgba(0, 0, 0, .35)
+    }
+
+    .image-banner-content {
+        padding-block: 50px
+    }
+
+    .image-banner h1 {
+        font-size: 42px
+    }
+
+    .image-banner-text {
+        font-size: 15px
+    }
+
+    .section-heading {
+        align-items: start
+    }
+
+    .section-heading h2,
+    .rich-text-inner h2 {
+        font-size: 30px
+    }
+
+    .footer-main,
+    .footer-bottom {
+        flex-direction: column
+    }
+}

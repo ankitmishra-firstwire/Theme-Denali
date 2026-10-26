@@ -1,0 +1,311 @@
+{{ 'collection-bento.css' | asset_url | stylesheet_tag }}
+
+<section
+  id="CollectionBento-{{ section.id }}"
+  class="collection-bento"
+  style="
+    --bento-columns: {{ section.settings.columns }};
+    --bento-gap: {{ section.settings.gap }}px;
+    --bento-padding-top: {{ section.settings.padding_top }}px;
+    --bento-padding-bottom: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="collection-bento__container page-width">
+
+    {% if section.settings.heading != blank or section.settings.description != blank %}
+      <div class="collection-bento__header">
+        {% if section.settings.heading != blank %}
+          <h2 class="collection-bento__heading">
+            {{ section.settings.heading | escape }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.description != blank %}
+          <div class="collection-bento__description">
+            {{ section.settings.description }}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="collection-bento__grid collection-bento__grid--{{ section.settings.layout }}">
+      {% for block in section.blocks %}
+        {% assign collection = block.settings.collection %}
+
+        {% if collection != blank %}
+          {% assign card_title = block.settings.title | default: collection.title %}
+          {% assign card_image = block.settings.image | default: collection.featured_image %}
+          {% assign card_url = collection.url %}
+        {% else %}
+          {% assign card_title = block.settings.title %}
+          {% assign card_image = block.settings.image %}
+          {% assign card_url = block.settings.link %}
+        {% endif %}
+
+        {% if card_title != blank or card_image != blank %}
+          <a
+            class="collection-bento__card collection-bento__card--{{ block.settings.card_size }}"
+            href="{{ card_url | default: routes.all_products_collection_url }}"
+            aria-label="{{ card_title | escape }}"
+            {{ block.shopify_attributes }}
+          >
+            <div class="collection-bento__image-wrapper">
+              {% if card_image != blank %}
+                {{
+                  card_image
+                  | image_url: width: 1400
+                  | image_tag:
+                    class: 'collection-bento__image',
+                    loading: 'lazy',
+                    widths: '320, 480, 640, 900, 1200, 1400',
+                    sizes: '(min-width: 990px) 50vw, 100vw',
+                    alt: card_image.alt
+                }}
+              {% else %}
+                {{ 'collection-1' | placeholder_svg_tag: 'collection-bento__placeholder' }}
+              {% endif %}
+            </div>
+
+            {% if section.settings.show_overlay %}
+              <div class="collection-bento__overlay"></div>
+            {% endif %}
+
+            <div class="collection-bento__content collection-bento__content--{{ block.settings.text_position }}">
+              <div class="collection-bento__text">
+                {% if card_title != blank %}
+                  <h3 class="collection-bento__title">
+                    {{ card_title | escape }}
+                  </h3>
+                {% endif %}
+
+                {% if section.settings.show_product_count and collection != blank %}
+                  <span class="collection-bento__count">
+                    {{ collection.products_count }}
+                    {% if collection.products_count == 1 %}
+                      product
+                    {% else %}
+                      products
+                    {% endif %}
+                  </span>
+                {% endif %}
+              </div>
+
+              {% if section.settings.show_arrow %}
+                <span class="collection-bento__arrow" aria-hidden="true">
+                  &rarr;
+                </span>
+              {% endif %}
+            </div>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection bento",
+  "tag": "section",
+  "class": "section-collection-bento",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by collection"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Explore our collections and find your favorites.</p>"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Bento layout",
+      "default": "classic",
+      "options": [
+        {
+          "value": "classic",
+          "label": "Classic bento"
+        },
+        {
+          "value": "equal",
+          "label": "Equal grid"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Desktop columns",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Card spacing",
+      "min": 8,
+      "max": 32,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Show image overlay",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_count",
+      "label": "Show product count",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection_card",
+      "name": "Collection card",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image",
+          "info": "Optional. Overrides the collection image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom title",
+          "info": "Optional. Overrides the collection title."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Custom link",
+          "info": "Used when no collection is selected."
+        },
+        {
+          "type": "select",
+          "id": "card_size",
+          "label": "Card size",
+          "default": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            },
+            {
+              "value": "wide",
+              "label": "Wide"
+            },
+            {
+              "value": "tall",
+              "label": "Tall"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": "Text position",
+          "default": "bottom-left",
+          "options": [
+            {
+              "value": "bottom-left",
+              "label": "Bottom left"
+            },
+            {
+              "value": "bottom-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "top-left",
+              "label": "Top left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Collection bento",
+      "blocks": [
+        {
+          "type": "collection_card",
+          "settings": {
+            "card_size": "large"
+          }
+        },
+        {
+          "type": "collection_card",
+          "settings": {
+            "card_size": "normal"
+          }
+        },
+        {
+          "type": "collection_card",
+          "settings": {
+            "card_size": "normal"
+          }
+        },
+        {
+          "type": "collection_card",
+          "settings": {
+            "card_size": "wide"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,18 @@
+{% if section.settings.text != blank %}
+  <div class="announcement-bar" role="region" aria-label="Announcement">
+    <div class="page-width">{{ section.settings.text | escape }}</div>
+  </div>
+{% endif %}
+{% schema %}
+{
+  "name": "Announcement bar",
+  "settings": [
+    { "type": "text", "id": "text", "label": "Announcement text", "default": "Free shipping on orders over $50" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#1f3b35" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#ffffff" }
+  ]
+}
+{% endschema %}
+{% style %}
+  #shopify-section-{{ section.id }} .announcement-bar { background: {{ section.settings.background }}; color: {{ section.settings.text_color }}; }
+{% endstyle %}

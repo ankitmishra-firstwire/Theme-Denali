@@ -1,0 +1,31 @@
+<header class="site-header">
+  <div class="page-width header-inner">
+    <a class="header-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+      {% if section.settings.logo != blank %}
+        {{ section.settings.logo | image_url: width: 400 | image_tag: widths: '100, 150, 200, 300, 400', class: 'header-logo-image', alt: shop.name }}
+      {% else %}<span>{{ shop.name | escape }}</span>{% endif %}
+    </a>
+    <nav aria-label="Main navigation">
+      {% if section.settings.menu != blank %}<ul class="header-menu list-unstyled">
+        {% for link in section.settings.menu.links %}<li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>{% endfor %}
+      </ul>{% endif %}
+    </nav>
+    <div class="header-utilities">
+      {% if section.settings.show_search %}<a href="{{ routes.search_url }}">Search</a>{% endif %}
+      {% if section.settings.show_account and shop.customer_accounts_enabled %}<a href="{{ routes.account_url }}">Account</a>{% endif %}
+      {% if section.settings.show_cart %}<a href="{{ routes.cart_url }}">Cart ({{ cart.item_count }})</a>{% endif %}
+    </div>
+  </div>
+</header>
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "checkbox", "id": "show_search", "label": "Show search", "default": true },
+    { "type": "checkbox", "id": "show_account", "label": "Show account", "default": true },
+    { "type": "checkbox", "id": "show_cart", "label": "Show cart", "default": true }
+  ]
+}
+{% endschema %}
