@@ -1,4 +1,4 @@
-{% style %}
+{% comment %} {% style %}
   {% # Loads all font variantions with display: swap %}
   {{ settings.type_primary_font | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
@@ -14,5 +14,26 @@
     --color-background: {{ settings.background_color }};
     --color-foreground: {{ settings.foreground_color }};
     --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
+  }
+{% endstyle %} {% endcomment %}
+
+
+{% style %}
+  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
+
+  :root {
+    /* Typography */
+    --font-primary-family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
+    --font-primary-style: {{ settings.type_primary_font.style }};
+    --font-primary-weight: {{ settings.type_primary_font.weight }};
+
+    /* Colors */
+    --theme-background: {{ settings.background_color.red }}, {{ settings.background_color.green }}, {{ settings.background_color.blue }};
+    --theme-foreground: {{ settings.foreground_color.red }}, {{ settings.foreground_color.green }}, {{ settings.foreground_color.blue }};
+
+    /* Layout */
+    --theme-page-width: {{ settings.max_page_width }};
+    --theme-page-margin: {{ settings.min_page_margin }}px;
+    --theme-input-radius: {{ settings.input_corner_radius }}px;
   }
 {% endstyle %}

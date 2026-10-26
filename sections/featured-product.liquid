@@ -81,7 +81,9 @@
             </div>
           {% endif %}
 
-          {% form 'product', product, id: 'FeaturedProductForm-' | append: section.id, class: 'featured-product__form' %}
+          {% assign form_id = 'FeaturedProductForm-' | append: section.id %}
+
+{% form 'product', product, id: form_id, class: 'featured-product__form' %}
 
             <input
               type="hidden"

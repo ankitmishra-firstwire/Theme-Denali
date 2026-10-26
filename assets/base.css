@@ -10,6 +10,77 @@
     box-sizing: border-box
 }
 
+/* ========================================
+   GLOBAL TYPOGRAPHY
+======================================== */
+
+body {
+  font-family: var(--font-primary-family);
+  font-style: var(--font-primary-style);
+  font-weight: var(--font-primary-weight);
+
+  color: rgb(var(--theme-foreground));
+  background-color: rgb(var(--theme-background));
+}
+
+/* Headings */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-primary-family);
+  font-style: var(--font-primary-style);
+  font-weight: var(--font-primary-weight);
+  color: rgb(var(--theme-foreground));
+}
+
+/* Paragraphs and common text */
+
+p,
+li,
+label,
+input,
+textarea,
+select,
+button {
+  font-family: var(--font-primary-family);
+}
+
+/* ========================================
+   GLOBAL LAYOUT
+======================================== */
+
+.page-width {
+  width: 100%;
+  max-width: var(--theme-page-width);
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: var(--theme-page-margin);
+  padding-left: var(--theme-page-margin);
+}
+
+/* ========================================
+   FORM FIELDS
+======================================== */
+
+input,
+textarea,
+select {
+  border-radius: var(--theme-input-radius);
+}
+
+/* ========================================
+   LINKS
+======================================== */
+
+a {
+  color: inherit;
+}
+
+
 body {
     margin: 0;
     color: var(--text);
