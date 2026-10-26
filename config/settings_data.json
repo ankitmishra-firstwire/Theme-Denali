@@ -8,5 +8,8 @@
  * ------------------------------------------------------------
  */
 {
-  "current": {}
+  "current": {
+    "type_primary_font": "mono",
+    "content_for_index": []
+  }
 }
