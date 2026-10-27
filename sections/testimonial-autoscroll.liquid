@@ -1,0 +1,588 @@
+{%- comment -%}
+  Testimonials Columns
+  Single-file Shopify section: Liquid + CSS + JS + Schema.
+  No font family / size / weight is set here, so all text inherits from the theme.
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign badge_text = section.settings.badge_text
+  assign heading = section.settings.heading
+  assign subheading = section.settings.subheading
+  assign total_blocks = section.blocks.size
+-%}
+
+<style>
+  #tc-{{ sid }} {
+    --tc-bg: {{ section.settings.bg_color }};
+    --tc-badge-text: {{ section.settings.badge_text_color }};
+    --tc-badge-border: {{ section.settings.badge_border_color }};
+    --tc-badge-bg: {{ section.settings.badge_bg_color }};
+    --tc-heading: {{ section.settings.heading_color }};
+    --tc-sub: {{ section.settings.subheading_color }};
+    --tc-sub-opacity: {{ section.settings.subheading_opacity | divided_by: 100.0 }};
+    --tc-card-bg: {{ section.settings.card_bg_color }};
+    --tc-card-border: {{ section.settings.card_border_color }};
+    --tc-card-text: {{ section.settings.card_text_color }};
+    --tc-name: {{ section.settings.name_color }};
+    --tc-role: {{ section.settings.role_color }};
+    --tc-avatar-bg: {{ section.settings.avatar_bg_color }};
+    --tc-avatar-text: {{ section.settings.avatar_text_color }};
+    --tc-shadow-color: {{ section.settings.shadow_color }};
+
+    --tc-pt: {{ section.settings.padding_top }}px;
+    --tc-pb: {{ section.settings.padding_bottom }}px;
+    --tc-mt: {{ section.settings.margin_top }}px;
+    --tc-mb: {{ section.settings.margin_bottom }}px;
+    --tc-max-width: {{ section.settings.container_width }}px;
+    --tc-header-width: {{ section.settings.header_width }}px;
+    --tc-header-gap: {{ section.settings.header_gap }}px;
+    --tc-header-mb: {{ section.settings.header_bottom_space }}px;
+    --tc-badge-radius: {{ section.settings.badge_radius }}px;
+    --tc-badge-px: {{ section.settings.badge_padding_x }}px;
+    --tc-badge-py: {{ section.settings.badge_padding_y }}px;
+    --tc-badge-bw: {{ section.settings.badge_border_width }}px;
+    --tc-col-gap: {{ section.settings.column_gap }}px;
+    --tc-card-gap: {{ section.settings.card_gap }}px;
+    --tc-card-pad: {{ section.settings.card_padding }}px;
+    --tc-card-radius: {{ section.settings.card_radius }}px;
+    --tc-card-bw: {{ section.settings.card_border_width }}px;
+    --tc-card-max: {{ section.settings.card_max_width }}px;
+    --tc-avatar: {{ section.settings.avatar_size }}px;
+    --tc-avatar-radius: {{ section.settings.avatar_radius }}%;
+    --tc-author-gap: {{ section.settings.author_gap }}px;
+    --tc-text-gap: {{ section.settings.text_gap }}px;
+    --tc-shadow-x: {{ section.settings.shadow_x }}px;
+    --tc-shadow-y: {{ section.settings.shadow_y }}px;
+    --tc-shadow-blur: {{ section.settings.shadow_blur }}px;
+    --tc-shadow-spread: {{ section.settings.shadow_spread }}px;
+    --tc-max-h: {{ section.settings.max_height }}px;
+    --tc-fade: {{ section.settings.fade_size }}%;
+    --tc-dur-1: {{ section.settings.duration_col_1 }}s;
+    --tc-dur-2: {{ section.settings.duration_col_2 }}s;
+    --tc-dur-3: {{ section.settings.duration_col_3 }}s;
+  }
+
+  #tc-{{ sid }} {
+    background: var(--tc-bg);
+    padding-top: var(--tc-pt);
+    padding-bottom: var(--tc-pb);
+    margin-top: var(--tc-mt);
+    margin-bottom: var(--tc-mb);
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  #tc-{{ sid }} *,
+  #tc-{{ sid }} *::before,
+  #tc-{{ sid }} *::after {
+    box-sizing: border-box;
+  }
+
+  #tc-{{ sid }} .tc__container {
+    max-width: var(--tc-max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  #tc-{{ sid }} .tc__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: var(--tc-header-width);
+    margin: 0 auto;
+    gap: var(--tc-header-gap);
+  }
+
+  #tc-{{ sid }} .tc__badge {
+    display: inline-block;
+    color: var(--tc-badge-text);
+    background: var(--tc-badge-bg);
+    border: var(--tc-badge-bw) solid var(--tc-badge-border);
+    border-radius: var(--tc-badge-radius);
+    padding: var(--tc-badge-py) var(--tc-badge-px);
+  }
+
+  #tc-{{ sid }} .tc__heading {
+    margin: 0;
+    color: var(--tc-heading);
+  }
+
+  #tc-{{ sid }} .tc__subheading {
+    margin: 0;
+    color: var(--tc-sub);
+    opacity: var(--tc-sub-opacity);
+  }
+
+  #tc-{{ sid }} .tc__columns {
+    display: flex;
+    justify-content: center;
+    gap: var(--tc-col-gap);
+    margin-top: var(--tc-header-mb);
+    max-height: var(--tc-max-h);
+    overflow: hidden;
+  }
+
+  {%- if section.settings.enable_fade %}
+  #tc-{{ sid }} .tc__columns {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--tc-fade), #000 calc(100% - var(--tc-fade)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--tc-fade), #000 calc(100% - var(--tc-fade)), transparent);
+  }
+  {%- endif %}
+
+  #tc-{{ sid }} .tc__column {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: var(--tc-card-max);
+  }
+
+  #tc-{{ sid }} .tc__track {
+    display: flex;
+    flex-direction: column;
+    animation-name: tc-scroll-{{ sid }};
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  #tc-{{ sid }} .tc__column--1 .tc__track { animation-duration: var(--tc-dur-1); }
+  #tc-{{ sid }} .tc__column--2 .tc__track { animation-duration: var(--tc-dur-2); }
+  #tc-{{ sid }} .tc__column--3 .tc__track { animation-duration: var(--tc-dur-3); }
+
+  {%- if section.settings.reverse_middle %}
+  #tc-{{ sid }} .tc__column--2 .tc__track { animation-direction: reverse; }
+  {%- endif %}
+
+  {%- if section.settings.pause_on_hover %}
+  #tc-{{ sid }} .tc__columns:hover .tc__track { animation-play-state: paused; }
+  {%- endif %}
+
+  #tc-{{ sid }} .tc__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tc-card-gap);
+    padding-bottom: var(--tc-card-gap);
+    margin: 0;
+    list-style: none;
+  }
+
+  #tc-{{ sid }} .tc__card {
+    padding: var(--tc-card-pad);
+    background: var(--tc-card-bg);
+    color: var(--tc-card-text);
+    border: var(--tc-card-bw) solid var(--tc-card-border);
+    border-radius: var(--tc-card-radius);
+    box-shadow: var(--tc-shadow-x) var(--tc-shadow-y) var(--tc-shadow-blur) var(--tc-shadow-spread) var(--tc-shadow-color);
+    width: 100%;
+  }
+
+  #tc-{{ sid }} .tc__text {
+    margin: 0;
+    color: var(--tc-card-text);
+  }
+
+  #tc-{{ sid }} .tc__author {
+    display: flex;
+    align-items: center;
+    gap: var(--tc-author-gap);
+    margin-top: var(--tc-text-gap);
+  }
+
+  #tc-{{ sid }} .tc__avatar {
+    width: var(--tc-avatar);
+    height: var(--tc-avatar);
+    min-width: var(--tc-avatar);
+    border-radius: var(--tc-avatar-radius);
+    overflow: hidden;
+    background: var(--tc-avatar-bg);
+    color: var(--tc-avatar-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #tc-{{ sid }} .tc__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #tc-{{ sid }} .tc__meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  #tc-{{ sid }} .tc__name {
+    color: var(--tc-name);
+  }
+
+  #tc-{{ sid }} .tc__role {
+    color: var(--tc-role);
+  }
+
+  #tc-{{ sid }} .tc__empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--tc-sub);
+  }
+
+  @keyframes tc-scroll-{{ sid }} {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+  }
+
+  @media screen and (max-width: 989px) {
+    #tc-{{ sid }} .tc__column--3 { display: {% if section.settings.hide_third_on_tablet %}none{% else %}block{% endif %}; }
+  }
+
+  @media screen and (max-width: 749px) {
+    #tc-{{ sid }} .tc__column--2 { display: {% if section.settings.hide_second_on_mobile %}none{% else %}block{% endif %}; }
+    #tc-{{ sid }} .tc__column--3 { display: {% if section.settings.hide_second_on_mobile %}none{% else %}{% if section.settings.hide_third_on_tablet %}none{% else %}block{% endif %}{% endif %}; }
+    #tc-{{ sid }} .tc__container { padding: 0 {{ section.settings.mobile_side_padding }}px; }
+    #tc-{{ sid }} .tc__column { max-width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tc-{{ sid }} .tc__track { animation: none; }
+    #tc-{{ sid }} .tc__columns { overflow-y: auto; }
+  }
+</style>
+
+<section
+  id="tc-{{ sid }}"
+  class="tc"
+  data-tc-section
+  data-section-id="{{ sid }}"
+  data-section-type="testimonials-columns"
+>
+  <div class="tc__container">
+    {%- if badge_text != blank or heading != blank or subheading != blank -%}
+      <div class="tc__header" data-tc-header>
+        {%- if badge_text != blank -%}
+          <div class="tc__badge">{{ badge_text | escape }}</div>
+        {%- endif -%}
+        {%- if heading != blank -%}
+          <h2 class="tc__heading">{{ heading | escape }}</h2>
+        {%- endif -%}
+        {%- if subheading != blank -%}
+          <p class="tc__subheading">{{ subheading | escape }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if total_blocks > 0 -%}
+      <div class="tc__columns">
+        {%- for col in (0..2) -%}
+          {%- assign col_number = col | plus: 1 -%}
+          {%- assign col_has_items = false -%}
+          {%- for block in section.blocks -%}
+            {%- assign slot = forloop.index0 | modulo: 3 -%}
+            {%- if slot == col -%}{%- assign col_has_items = true -%}{%- endif -%}
+          {%- endfor -%}
+
+          {%- if col_has_items -%}
+            <div class="tc__column tc__column--{{ col_number }}" data-tc-column>
+              <div class="tc__track" data-tc-track>
+                {%- for pass in (1..2) -%}
+                  <ul class="tc__list"{% if pass == 2 %} aria-hidden="true"{% endif %}>
+                    {%- for block in section.blocks -%}
+                      {%- assign slot = forloop.index0 | modulo: 3 -%}
+                      {%- if slot == col -%}
+                        <li class="tc__card" {{ block.shopify_attributes }}>
+                          {%- if block.settings.text != blank -%}
+                            <p class="tc__text">{{ block.settings.text | escape }}</p>
+                          {%- endif -%}
+                          <div class="tc__author">
+                            <div class="tc__avatar">
+                              {%- if block.settings.image != blank -%}
+                                {{
+                                  block.settings.image
+                                  | image_url: width: 160
+                                  | image_tag: loading: 'lazy', widths: '80, 160', alt: block.settings.name
+                                }}
+                              {%- elsif block.settings.name != blank -%}
+                                <span>{{ block.settings.name | slice: 0 | upcase }}</span>
+                              {%- endif -%}
+                            </div>
+                            <div class="tc__meta">
+                              {%- if block.settings.name != blank -%}
+                                <span class="tc__name">{{ block.settings.name | escape }}</span>
+                              {%- endif -%}
+                              {%- if block.settings.role != blank -%}
+                                <span class="tc__role">{{ block.settings.role | escape }}</span>
+                              {%- endif -%}
+                            </div>
+                          </div>
+                        </li>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </ul>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <p class="tc__empty">{{ 'Add testimonial blocks to this section.' | escape }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.getElementById('tc-{{ sid }}');
+    if (!root) return;
+
+    var tracks = root.querySelectorAll('[data-tc-track]');
+    var header = root.querySelector('[data-tc-header]');
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* Fade-in header on scroll into view */
+    if (header && 'IntersectionObserver' in window && !reduceMotion) {
+      header.style.opacity = '0';
+      header.style.transform = 'translateY(20px)';
+      header.style.transition = 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s';
+
+      var headerObserver = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            header.style.opacity = '1';
+            header.style.transform = 'translateY(0)';
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+
+      headerObserver.observe(header);
+    }
+
+    /* Only animate columns while visible (saves CPU off-screen) */
+    if ('IntersectionObserver' in window && !reduceMotion) {
+      var trackObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var state = entry.isIntersecting ? 'running' : 'paused';
+          entry.target.querySelectorAll('[data-tc-track]').forEach(function (track) {
+            if (!(track.hasAttribute('data-tc-hover-paused'))) {
+              track.style.animationPlayState = state;
+            }
+          });
+        });
+      }, { threshold: 0 });
+
+      var columnsWrap = root.querySelector('.tc__columns');
+      if (columnsWrap) trackObserver.observe(columnsWrap);
+    }
+
+    /* Pause on touch hold for mobile */
+    {%- if section.settings.pause_on_hover %}
+    tracks.forEach(function (track) {
+      track.addEventListener('touchstart', function () {
+        track.setAttribute('data-tc-hover-paused', '');
+        track.style.animationPlayState = 'paused';
+      }, { passive: true });
+      track.addEventListener('touchend', function () {
+        track.removeAttribute('data-tc-hover-paused');
+        track.style.animationPlayState = 'running';
+      }, { passive: true });
+    });
+    {%- endif %}
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Testimonials Columns",
+  "tag": "div",
+  "class": "section-testimonials-columns",
+  "max_blocks": 24,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "Testimonials"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What our users say"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "See what our customers have to say about us."
+    },
+
+    {
+      "type": "header",
+      "content": "Section colors"
+    },
+    { "type": "color", "id": "bg_color", "label": "Section background", "default": "#ffffff" },
+    { "type": "color", "id": "badge_text_color", "label": "Badge text", "default": "#111111" },
+    { "type": "color", "id": "badge_bg_color", "label": "Badge background", "default": "#ffffff" },
+    { "type": "color", "id": "badge_border_color", "label": "Badge border", "default": "#e5e5e5" },
+    { "type": "color", "id": "heading_color", "label": "Heading", "default": "#111111" },
+    { "type": "color", "id": "subheading_color", "label": "Subheading", "default": "#111111" },
+    {
+      "type": "range",
+      "id": "subheading_opacity",
+      "label": "Subheading opacity",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 75
+    },
+
+    {
+      "type": "header",
+      "content": "Card colors"
+    },
+    { "type": "color", "id": "card_bg_color", "label": "Card background", "default": "#ffffff" },
+    { "type": "color", "id": "card_border_color", "label": "Card border", "default": "#e5e5e5" },
+    { "type": "color", "id": "card_text_color", "label": "Card text", "default": "#333333" },
+    { "type": "color", "id": "name_color", "label": "Author name", "default": "#111111" },
+    { "type": "color", "id": "role_color", "label": "Author role", "default": "#6b6b6b" },
+    { "type": "color", "id": "avatar_bg_color", "label": "Avatar placeholder background", "default": "#e5e5e5" },
+    { "type": "color", "id": "avatar_text_color", "label": "Avatar placeholder text", "default": "#111111" },
+    { "type": "color", "id": "shadow_color", "label": "Card shadow", "default": "#0000001a" },
+
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    { "type": "range", "id": "padding_top", "label": "Padding top", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "margin_top", "label": "Margin top", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "margin_bottom", "label": "Margin bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "container_width", "label": "Container max width", "min": 600, "max": 1920, "step": 20, "unit": "px", "default": 1200 },
+    { "type": "range", "id": "mobile_side_padding", "label": "Mobile side padding", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 16 },
+
+    {
+      "type": "header",
+      "content": "Header sizes"
+    },
+    { "type": "range", "id": "header_width", "label": "Header max width", "min": 240, "max": 900, "step": 10, "unit": "px", "default": 540 },
+    { "type": "range", "id": "header_gap", "label": "Space between header items", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 16 },
+    { "type": "range", "id": "header_bottom_space", "label": "Space below header", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "badge_radius", "label": "Badge corner radius", "min": 0, "max": 50, "step": 1, "unit": "px", "default": 8 },
+    { "type": "range", "id": "badge_padding_x", "label": "Badge horizontal padding", "min": 0, "max": 40, "step": 1, "unit": "px", "default": 16 },
+    { "type": "range", "id": "badge_padding_y", "label": "Badge vertical padding", "min": 0, "max": 20, "step": 1, "unit": "px", "default": 4 },
+    { "type": "range", "id": "badge_border_width", "label": "Badge border width", "min": 0, "max": 6, "step": 1, "unit": "px", "default": 1 },
+
+    {
+      "type": "header",
+      "content": "Columns and cards"
+    },
+    { "type": "range", "id": "max_height", "label": "Columns area max height", "min": 300, "max": 1400, "step": 100, "unit": "px", "default": 700 },
+
+    { "type": "range", "id": "column_gap", "label": "Gap between columns", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 24 },
+    { "type": "range", "id": "card_gap", "label": "Gap between cards", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 24 },
+    { "type": "range", "id": "card_max_width", "label": "Card max width", "min": 200, "max": 600, "step": 10, "unit": "px", "default": 320 },
+    { "type": "range", "id": "card_padding", "label": "Card padding", "min": 8, "max": 64, "step": 2, "unit": "px", "default": 40 },
+    { "type": "range", "id": "card_radius", "label": "Card corner radius", "min": 0, "max": 60, "step": 1, "unit": "px", "default": 24 },
+    { "type": "range", "id": "card_border_width", "label": "Card border width", "min": 0, "max": 8, "step": 1, "unit": "px", "default": 1 },
+    { "type": "range", "id": "text_gap", "label": "Space between text and author", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 20 },
+    { "type": "range", "id": "avatar_size", "label": "Avatar size", "min": 24, "max": 96, "step": 2, "unit": "px", "default": 40 },
+    { "type": "range", "id": "avatar_radius", "label": "Avatar roundness", "min": 0, "max": 50, "step": 1, "unit": "%", "default": 50 },
+    { "type": "range", "id": "author_gap", "label": "Space between avatar and name", "min": 0, "max": 32, "step": 1, "unit": "px", "default": 8 },
+
+    {
+      "type": "header",
+      "content": "Card shadow"
+    },
+    { "type": "range", "id": "shadow_x", "label": "Shadow horizontal offset", "min": -40, "max": 40, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "shadow_y", "label": "Shadow vertical offset", "min": -40, "max": 40, "step": 1, "unit": "px", "default": 10 },
+    { "type": "range", "id": "shadow_blur", "label": "Shadow blur", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 30 },
+    { "type": "range", "id": "shadow_spread", "label": "Shadow spread", "min": -40, "max": 40, "step": 1, "unit": "px", "default": 0 },
+
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    { "type": "range", "id": "duration_col_1", "label": "Column 1 duration", "min": 5, "max": 80, "step": 1, "unit": "s", "default": 15 },
+    { "type": "range", "id": "duration_col_2", "label": "Column 2 duration", "min": 5, "max": 80, "step": 1, "unit": "s", "default": 19 },
+    { "type": "range", "id": "duration_col_3", "label": "Column 3 duration", "min": 5, "max": 80, "step": 1, "unit": "s", "default": 17 },
+    { "type": "checkbox", "id": "reverse_middle", "label": "Reverse direction of column 2", "default": false },
+    { "type": "checkbox", "id": "pause_on_hover", "label": "Pause on hover / touch", "default": true },
+    { "type": "checkbox", "id": "enable_fade", "label": "Fade top and bottom edges", "default": true },
+    {
+      "type": "range",
+      "id": "fade_size",
+      "label": "Fade size",
+      "min": 5,
+      "max": 40,
+      "step": 1,
+      "unit": "%",
+      "default": 25
+    },
+
+    {
+      "type": "header",
+      "content": "Responsive"
+    },
+    { "type": "checkbox", "id": "hide_third_on_tablet", "label": "Hide column 3 on tablet", "default": true },
+    { "type": "checkbox", "id": "hide_second_on_mobile", "label": "Hide columns 2 and 3 on mobile", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Testimonial text",
+          "default": "This product streamlined our operations and made our team far more productive."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Author image"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Author name",
+          "default": "Customer Name"
+        },
+        {
+          "type": "text",
+          "id": "role",
+          "label": "Author role",
+          "default": "Job Title"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials Columns",
+      "blocks": [
+        { "type": "testimonial", "settings": { "text": "This ERP revolutionized our operations, streamlining finance and inventory. The cloud-based platform keeps us productive, even remotely.", "name": "Briana Patton", "role": "Operations Manager" } },
+        { "type": "testimonial", "settings": { "text": "Implementing this ERP was smooth and quick. The customizable, user-friendly interface made team training effortless.", "name": "Bilal Ahmed", "role": "IT Manager" } },
+        { "type": "testimonial", "settings": { "text": "The support team is exceptional, guiding us through setup and providing ongoing assistance, ensuring our satisfaction.", "name": "Saman Malik", "role": "Customer Support Lead" } },
+        { "type": "testimonial", "settings": { "text": "This ERP's seamless integration enhanced our business operations and efficiency. Highly recommend for its intuitive interface.", "name": "Omar Raza", "role": "CEO" } },
+        { "type": "testimonial", "settings": { "text": "Its robust features and quick support have transformed our workflow, making us significantly more efficient.", "name": "Zainab Hussain", "role": "Project Manager" } },
+        { "type": "testimonial", "settings": { "text": "The smooth implementation exceeded expectations. It streamlined processes, improving overall business performance.", "name": "Aliza Khan", "role": "Business Analyst" } },
+        { "type": "testimonial", "settings": { "text": "Our business functions improved with a user-friendly design and positive customer feedback.", "name": "Farhan Siddiqui", "role": "Marketing Director" } },
+        { "type": "testimonial", "settings": { "text": "They delivered a solution that exceeded expectations, understanding our needs and enhancing our operations.", "name": "Sana Sheikh", "role": "Sales Manager" } },
+        { "type": "testimonial", "settings": { "text": "Using this ERP, our online presence and conversions significantly improved, boosting business performance.", "name": "Hassan Ali", "role": "E-commerce Manager" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
