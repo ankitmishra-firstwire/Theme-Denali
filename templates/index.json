@@ -185,12 +185,120 @@
         "hide_third_on_tablet": true,
         "hide_second_on_mobile": true
       }
+    },
+    "grid_features_card_eLj7Tt": {
+      "type": "grid-features-card",
+      "blocks": {
+        "feature_VMLfrp": {
+          "type": "feature",
+          "settings": {
+            "icon": "zap",
+            "title": "Faaast",
+            "description": "It supports an entire helping developers and innovate."
+          }
+        },
+        "feature_TYjWex": {
+          "type": "feature",
+          "settings": {
+            "icon": "cpu",
+            "title": "Powerful",
+            "description": "It supports an entire helping developers and businesses."
+          }
+        },
+        "feature_MLiN6P": {
+          "type": "feature",
+          "settings": {
+            "icon": "fingerprint",
+            "title": "Security",
+            "description": "It supports an helping developers businesses."
+          }
+        },
+        "feature_hmgWEL": {
+          "type": "feature",
+          "settings": {
+            "icon": "pencil",
+            "title": "Customization",
+            "description": "It supports helping developers and businesses innovate."
+          }
+        },
+        "feature_VWwCd4": {
+          "type": "feature",
+          "settings": {
+            "icon": "settings",
+            "title": "Control",
+            "description": "It supports helping developers and businesses innovate."
+          }
+        },
+        "feature_fKayPq": {
+          "type": "feature",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Built for AI",
+            "description": "It supports helping developers and businesses innovate."
+          }
+        }
+      },
+      "block_order": [
+        "feature_VMLfrp",
+        "feature_TYjWex",
+        "feature_MLiN6P",
+        "feature_hmgWEL",
+        "feature_VWwCd4",
+        "feature_fKayPq"
+      ],
+      "name": "Grid Feature Cards",
+      "settings": {
+        "badge_text": "",
+        "heading": "Power. Speed. Control.",
+        "subheading": "Everything you need to build fast, secure, scalable apps.",
+        "bg_color": "#ffffff",
+        "heading_color": "#111111",
+        "subheading_color": "#6b6b6b",
+        "badge_text_color": "#111111",
+        "badge_bg_color": "#ffffff",
+        "badge_border_color": "#e5e5e5",
+        "border_color": "#d4d4d4",
+        "card_bg_color": "#ffffff",
+        "card_hover_bg_color": "#f7f7f7",
+        "title_color": "#111111",
+        "description_color": "#6b6b6b",
+        "icon_color": "#111111",
+        "icon_bg_color": "#00000000",
+        "show_pattern": true,
+        "pattern_color": "#00000014",
+        "pattern_size": 24,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "container_width": 1000,
+        "header_width": 720,
+        "header_gap": 16,
+        "header_bottom_space": 32,
+        "badge_radius": 8,
+        "columns_desktop": 3,
+        "columns_tablet": 2,
+        "columns_mobile": 1,
+        "border_width": 1,
+        "border_style": "dashed",
+        "grid_radius": 0,
+        "card_padding": 24,
+        "icon_box_size": 24,
+        "icon_size": 24,
+        "icon_stroke": 1,
+        "icon_box_radius": 0,
+        "title_top_space": 40,
+        "description_top_space": 12,
+        "animation_duration": 0.8,
+        "grid_delay": 0.4,
+        "animation_blur": 4,
+        "animation_shift": 8
+      }
     }
   },
   "order": [
     "banner",
     "featured_collection",
     "rich_text",
-    "testimonial_autoscroll_zJhxJe"
+    "testimonial_autoscroll_zJhxJe",
+    "grid_features_card_eLj7Tt"
   ]
 }
