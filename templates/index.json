@@ -1,8 +1,196 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
-    "banner": { "type": "image-banner", "settings": {} },
-    "featured_collection": { "type": "featured-collection", "settings": {} },
-    "rich_text": { "type": "rich-text", "settings": {} }
+    "banner": {
+      "type": "image-banner",
+      "settings": {
+        "subheading": "New collection",
+        "heading": "A fresh start",
+        "text": "<p>Discover your new everyday favourites.</p>",
+        "button_label": "Shop now",
+        "button_link": "",
+        "min_height": 500
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "subheading": "",
+        "heading": "Featured products",
+        "collection": "",
+        "products_to_show": 4,
+        "show_view_all": true
+      }
+    },
+    "rich_text": {
+      "type": "rich-text",
+      "settings": {
+        "subheading": "Our story",
+        "heading": "Thoughtfully made for everyday life",
+        "text": "<p>Share your brand story, values, or a message with your customers.</p>",
+        "button_label": "",
+        "button_link": ""
+      }
+    },
+    "testimonial_autoscroll_zJhxJe": {
+      "type": "testimonial-autoscroll",
+      "blocks": {
+        "testimonial_Cc9w8h": {
+          "type": "testimonial",
+          "settings": {
+            "text": "This ERP revolutionized our operations, streamlining finance and inventory. The cloud-based platform keeps us productive, even remotely.",
+            "name": "Briana Patton",
+            "role": "Operations Manager"
+          }
+        },
+        "testimonial_rYRzbF": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Implementing this ERP was smooth and quick. The customizable, user-friendly interface made team training effortless.",
+            "name": "Bilal Ahmed",
+            "role": "IT Manager"
+          }
+        },
+        "testimonial_yGrnTd": {
+          "type": "testimonial",
+          "settings": {
+            "text": "The support team is exceptional, guiding us through setup and providing ongoing assistance, ensuring our satisfaction.",
+            "name": "Saman Malik",
+            "role": "Customer Support Lead"
+          }
+        },
+        "testimonial_kqdz8E": {
+          "type": "testimonial",
+          "settings": {
+            "text": "This ERP's seamless integration enhanced our business operations and efficiency. Highly recommend for its intuitive interface.",
+            "name": "Omar Raza",
+            "role": "CEO"
+          }
+        },
+        "testimonial_rGdzMF": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Its robust features and quick support have transformed our workflow, making us significantly more efficient.",
+            "name": "Zainab Hussain",
+            "role": "Project Manager"
+          }
+        },
+        "testimonial_Fq47z6": {
+          "type": "testimonial",
+          "settings": {
+            "text": "The smooth implementation exceeded expectations. It streamlined processes, improving overall business performance.",
+            "name": "Aliza Khan",
+            "role": "Business Analyst"
+          }
+        },
+        "testimonial_UafMNF": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Our business functions improved with a user-friendly design and positive customer feedback.",
+            "name": "Farhan Siddiqui",
+            "role": "Marketing Director"
+          }
+        },
+        "testimonial_ELRt8k": {
+          "type": "testimonial",
+          "settings": {
+            "text": "They delivered a solution that exceeded expectations, understanding our needs and enhancing our operations.",
+            "name": "Sana Sheikh",
+            "role": "Sales Manager"
+          }
+        },
+        "testimonial_gm9Ayh": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Using this ERP, our online presence and conversions significantly improved, boosting business performance.",
+            "name": "Hassan Ali",
+            "role": "E-commerce Manager"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_Cc9w8h",
+        "testimonial_rYRzbF",
+        "testimonial_yGrnTd",
+        "testimonial_kqdz8E",
+        "testimonial_rGdzMF",
+        "testimonial_Fq47z6",
+        "testimonial_UafMNF",
+        "testimonial_ELRt8k",
+        "testimonial_gm9Ayh"
+      ],
+      "name": "Testimonials Columns",
+      "settings": {
+        "badge_text": "Testimonials",
+        "heading": "What our users say",
+        "subheading": "See what our customers have to say about us.",
+        "bg_color": "#ffffff",
+        "badge_text_color": "#111111",
+        "badge_bg_color": "#ffffff",
+        "badge_border_color": "#e5e5e5",
+        "heading_color": "#111111",
+        "subheading_color": "#111111",
+        "subheading_opacity": 75,
+        "card_bg_color": "#ffffff",
+        "card_border_color": "#e5e5e5",
+        "card_text_color": "#333333",
+        "name_color": "#111111",
+        "role_color": "#6b6b6b",
+        "avatar_bg_color": "#e5e5e5",
+        "avatar_text_color": "#111111",
+        "shadow_color": "#0000001a",
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "margin_top": 0,
+        "margin_bottom": 0,
+        "container_width": 1200,
+        "mobile_side_padding": 16,
+        "header_width": 540,
+        "header_gap": 16,
+        "header_bottom_space": 40,
+        "badge_radius": 8,
+        "badge_padding_x": 16,
+        "badge_padding_y": 4,
+        "badge_border_width": 1,
+        "max_height": 700,
+        "column_gap": 0,
+        "card_gap": 26,
+        "card_max_width": 600,
+        "card_padding": 40,
+        "card_radius": 24,
+        "card_border_width": 1,
+        "text_gap": 20,
+        "avatar_size": 40,
+        "avatar_radius": 50,
+        "author_gap": 8,
+        "shadow_x": 0,
+        "shadow_y": 10,
+        "shadow_blur": 30,
+        "shadow_spread": 0,
+        "duration_col_1": 15,
+        "duration_col_2": 19,
+        "duration_col_3": 17,
+        "reverse_middle": true,
+        "pause_on_hover": true,
+        "enable_fade": true,
+        "fade_size": 25,
+        "hide_third_on_tablet": true,
+        "hide_second_on_mobile": true
+      }
+    }
   },
-  "order": ["banner", "featured_collection", "rich_text"]
+  "order": [
+    "banner",
+    "featured_collection",
+    "rich_text",
+    "testimonial_autoscroll_zJhxJe"
+  ]
 }
