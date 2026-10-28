@@ -1,0 +1,1902 @@
+{%- liquid
+  assign sid = section.id
+  assign hanger = section.settings.hanger
+
+  assign default_fronts = 'https://cdn.21st.dev/assets/mirror/14/1485bf44725b18fcdba71bfae54d67d648ab3bff4b24215a042c0cc4c895a2e6.webp|https://cdn.21st.dev/assets/mirror/d7/d769f183472d0fd98a7aff2a643593748cd36ef9da1497d9bf6f0d87d1025a9b.webp|https://cdn.21st.dev/assets/mirror/47/470a7723cef068f81e8a4c09d1ab3f8630c61b734c2168b10f3858e45efbf31f.webp|https://cdn.21st.dev/assets/mirror/58/581b13c5ca241c653dc94d2c8048c92a60f022cfbaaf153261076d3a6655827e.webp|https://cdn.21st.dev/assets/mirror/51/51750ba098dd622df46695bca781b3f0ec336a36b93b070e638cc04455def6d6.webp|https://cdn.21st.dev/assets/mirror/8e/8e38660e2add9637c27846d9b8d620f2abb228a5a153ccfd7b1c808b6845e1f8.webp|https://cdn.21st.dev/assets/mirror/19/19fe43cb681195ae227e3164088d86a07a1b6e33cc54c6e35637374736a16894.webp|https://cdn.21st.dev/assets/mirror/84/84aa4b0e21ed11fcbc083647a607b94ee3a6c21cb66c114cfb1dad0792c15499.webp|https://cdn.21st.dev/assets/mirror/09/096002a95aba7de9c197de4cb5c78cbbe17c1677b19c547cc20c6dbef47a899c.webp|https://cdn.21st.dev/assets/mirror/72/7208c811f54e123dd7b1a5c1c3926f43ca832f6c4c20c45de10671ffd544409d.webp' | split: '|'
+  assign default_backs = 'https://cdn.21st.dev/assets/mirror/69/69937e656430ae33d950303e0d53051273e5b02189750ef1e7429ec4bbf95e20.webp|https://cdn.21st.dev/assets/mirror/fe/fec6f7e96b198cc5b9aad333ca2c4c10968a746d87f6dc11d9c118607b509058.webp|https://cdn.21st.dev/assets/mirror/9b/9be14e5dce879756775677e2d82dadc2ad9a1690b7df2f82de360cb3600d0ee5.webp|https://cdn.21st.dev/assets/mirror/d9/d9178d906d37268565cf10af3431aee543aacfc73610f7fa7b0fa4758c498cb3.webp|https://cdn.21st.dev/assets/mirror/e7/e75c4ac8fb7f14caae756338a31f81f1437bb312b78e0d7d906e9f956e7968fa.webp|https://cdn.21st.dev/assets/mirror/b9/b9214a6e009ce4b3044595a51ea010c299135bab5b26775c43d7175c86e77898.webp|https://cdn.21st.dev/assets/mirror/e0/e095182b1a7f04e600c5662aa871b4c055c294b152586817d84e312c22f744cf.webp|https://cdn.21st.dev/assets/mirror/01/01c299df56a29afca8dad4a64858bd506667338bfbd0435118e6c3698c7881b3.webp|https://cdn.21st.dev/assets/mirror/74/74408a7dbb4f4fc6761ebb8d6ed93187248cddf75e1c2e70d38d04dfdd328776.webp|https://cdn.21st.dev/assets/mirror/d3/d356989b7bc741c5cfc934cac34983dfb24d5d6a6b6e7b8b7f6b27cd3eceae69.webp' | split: '|'
+  assign default_sides = 'https://cdn.21st.dev/assets/mirror/83/838468c32f16b4acba62e4601276737411156052444712ff2534fefe994a7bed.webp|https://cdn.21st.dev/assets/mirror/b3/b3b6984ea94b8b8cd19fb15387e89dca457ac0f947115c2a54a33217e4fb4571.webp|https://cdn.21st.dev/assets/mirror/59/5984d5ca60fd1aeee7e688ec33c2219a1c537fcde90d2accab813c13985f8632.webp|https://cdn.21st.dev/assets/mirror/de/dee1c529600e0460413f1a9b07a29bedb7ea7dc96181fce5d9d6501231e6e45d.webp|https://cdn.21st.dev/assets/mirror/a2/a2eb2463d52146c341ede6bb9f6067e917a23eb29b7b1d1d4c40ac084a01c7ce.webp|https://cdn.21st.dev/assets/mirror/59/591872e42b483c43c1cd08a3ac4d7d40c0b5fa2bc585a36096faded2e696e84e.webp|https://cdn.21st.dev/assets/mirror/00/005a8e10be234bc40917f3153208b8196ba1610c53c987e39942da1f4a7cd808.webp|https://cdn.21st.dev/assets/mirror/9c/9ca38eeb156aae7d199d3c1ffb7947e395f77d1f094eea006c1b5fbb22352b4e.webp|https://cdn.21st.dev/assets/mirror/ed/eda3afca537071a80d7d82b3f0d1055b56f1f3263c20772224bae6660bf4072c.webp|https://cdn.21st.dev/assets/mirror/bf/bf94beeafb21f9cb21aa45057a67dc8a2e23ba95c7ac0f79dd27ba3ce4a1230c.webp' | split: '|'
+
+  if hanger == 'wood'
+    assign bar_stroke = 'url(#crh-wood-' | append: sid | append: ')'
+    assign bar_hi_opacity = '0.3'
+  else
+    assign bar_stroke = 'currentColor'
+    assign bar_hi_opacity = '0.14'
+  endif
+-%}
+
+{%- capture hook_svg -%}
+  <path d="M100,36 L100,-0.4 C100,-3.4 102.2,-4.2 103.9,-2.8 C104.9,-2 105.4,-1.2 105.6,-0.2" fill="none" stroke="#000" stroke-opacity="0.28" stroke-width="3.4" stroke-linecap="round" transform="translate(0.9 1.1)"/>
+  <path d="M100,36 L100,-0.4 C100,-3.4 102.2,-4.2 103.9,-2.8 C104.9,-2 105.4,-1.2 105.6,-0.2" fill="none" stroke="url(#crh-chrome-{{ sid }})" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M99.5,30 L99.5,-0.2 C99.5,-2.4 101,-3.2 102.4,-2.6" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="0.6" stroke-linecap="round"/>
+  <ellipse cx="105.9" cy="0.6" rx="1.9" ry="0.9" fill="#000" fill-opacity="0.4"/>
+  <rect x="96" y="27" width="8" height="9" rx="2" fill="url(#crh-chrome-{{ sid }})"/>
+  <rect x="97.2" y="28.2" width="2" height="6.6" rx="1" fill="#fff" fill-opacity="0.5"/>
+{%- endcapture -%}
+
+{%- capture hanger_svg -%}
+  {%- if hanger != 'none' -%}
+    <svg class="crh__hanger" aria-hidden="true" focusable="false" viewBox="0 0 200 310" preserveAspectRatio="xMidYMin meet">
+      <path d="M38,57 Q70,38 100,36 Q130,38 162,57" fill="none" stroke="#000" stroke-opacity="0.25" stroke-width="9.5" stroke-linecap="round" transform="translate(0.6 1.6)"/>
+      <path d="M38,57 Q70,38 100,36 Q130,38 162,57" fill="none" stroke="{{ bar_stroke }}" stroke-width="8.5" stroke-linecap="round"/>
+      {%- if hanger == 'wood' -%}
+        <path d="M38,57 Q70,38 100,36 Q130,38 162,57" fill="none" stroke="url(#crh-woodgrain-{{ sid }})" stroke-width="8.5" stroke-linecap="round"/>
+      {%- endif -%}
+      <path d="M40,54.5 Q71,35.5 100,33.5 Q129,35.5 160,54.5" fill="none" stroke="#fff" stroke-opacity="{{ bar_hi_opacity }}" stroke-width="1.1" stroke-linecap="round"/>
+      {{ hook_svg }}
+    </svg>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture side_hanger_svg -%}
+  {%- if hanger != 'none' -%}
+    <svg class="crh__hanger" aria-hidden="true" focusable="false" viewBox="0 0 200 310" preserveAspectRatio="xMidYMin meet">
+      <path d="M97.8,35 L102.2,35 L104.5,50 L95.5,50 Z" fill="{{ bar_stroke }}"/>
+      <path d="M98.6,36 L100,36 L100,49 L97.3,49 Z" fill="#fff" fill-opacity="0.22"/>
+      {{ hook_svg }}
+    </svg>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- style -%}
+  #shopify-section-{{ sid }} .crh-wrap {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    background: {{ section.settings.color_bg }};
+  }
+  #crh-{{ sid }},
+  #crh-modal-{{ sid }} {
+    --crh-bg: {{ section.settings.color_bg }};
+    --crh-fg: {{ section.settings.color_text }};
+    --crh-muted: {{ section.settings.color_muted }};
+    --crh-rail: {{ section.settings.color_rail }};
+    --crh-tag-bg: {{ section.settings.color_tag_bg }};
+    --crh-btn-bg: {{ section.settings.color_button_bg }};
+    --crh-btn-fg: {{ section.settings.color_button_text }};
+    --crh-max-w: {{ section.settings.max_width }}px;
+  }
+{%- endstyle -%}
+
+<style>
+  clothing-rail-hero { display: block; }
+
+  .crh {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    max-width: var(--crh-max-w);
+    margin: 0 auto;
+    overflow: hidden;
+    background: var(--crh-bg);
+    color: var(--crh-fg);
+  }
+  .crh__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 70% at 18% 0%, color-mix(in oklab, var(--crh-fg) 7%, transparent), transparent 62%),
+      linear-gradient(to bottom, transparent 55%, color-mix(in oklab, var(--crh-fg) 5%, transparent));
+  }
+  .crh__defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+  /* Header */
+  .crh .crh__header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 32px 24px 0;
+    text-align: center;
+  }
+  .crh .crh__eyebrow {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--crh-muted);
+  }
+  .crh .crh__heading {
+    margin: 0;
+    max-width: 900px;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    color: var(--crh-fg);
+  }
+  @media (min-width: 640px) { .crh .crh__heading { font-size: 30px; } }
+
+  /* Stage + rail */
+  .crh .crh__stage {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    margin-top: 20px;
+    overflow-x: clip;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .crh__rail { position: absolute; left: 0; right: 0; z-index: 0; pointer-events: none; }
+  .crh__rail-glow {
+    position: absolute; left: 0; right: 0; top: calc(100% + 1px); height: 12px;
+    border-radius: 999px; filter: blur(5px);
+    background: color-mix(in oklab, var(--crh-fg) 10%, transparent);
+  }
+  .crh__rail-bar {
+    position: absolute; inset: 0; border-radius: 999px;
+    background: linear-gradient(to bottom,
+      color-mix(in oklab, var(--crh-rail) 35%, white) 0%,
+      white 18%,
+      color-mix(in oklab, var(--crh-rail) 70%, white) 38%,
+      var(--crh-rail) 62%,
+      color-mix(in oklab, var(--crh-rail) 55%, black) 100%);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--crh-fg) 18%, transparent);
+  }
+  .crh__rail-texture {
+    position: absolute; inset: 0; border-radius: 999px; opacity: 0.4; mix-blend-mode: overlay;
+    background: repeating-linear-gradient(90deg, transparent 0 2px, color-mix(in oklab, white 40%, transparent) 2px 3px, transparent 3px 7px);
+  }
+  .crh__rail-bracket {
+    position: absolute; top: 50%; width: 16px; height: 28px; transform: translateY(-50%); border-radius: 3px;
+    background: linear-gradient(to right, color-mix(in oklab, var(--crh-rail) 60%, white), var(--crh-rail) 55%, color-mix(in oklab, var(--crh-rail) 60%, black));
+    box-shadow: 0 3px 6px color-mix(in oklab, var(--crh-fg) 18%, transparent);
+  }
+  .crh__rail-bracket--left { left: 6px; }
+  .crh__rail-bracket--right { right: 6px; }
+  .crh__rail-bracket::before,
+  .crh__rail-bracket::after {
+    content: ""; position: absolute; left: 50%; width: 4px; height: 4px; transform: translateX(-50%);
+    border-radius: 50%; background: color-mix(in oklab, var(--crh-fg) 35%, transparent);
+  }
+  .crh__rail-bracket::before { top: 4px; }
+  .crh__rail-bracket::after { bottom: 4px; }
+
+  /* Garments */
+  .crh .crh__garment {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    width: 194px;
+    height: 300px;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    min-height: 0;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .crh:not(.is-ready) .crh__garment { visibility: hidden; }
+  .crh .crh__garment:focus-visible { outline: 2px solid var(--crh-fg); outline-offset: 4px; }
+  .crh .crh__garment::before,
+  .crh .crh__garment::after { display: none; }
+
+  .crh__swing { position: absolute; inset: 0; transform-origin: 50% 1.29%; }
+  .crh__turn {
+    position: absolute; inset: 0; border-radius: 8px;
+    transform-style: preserve-3d;
+    transform: perspective(1100px) rotateY(-70deg);
+  }
+  .crh__side { position: absolute; inset: 0; transform: perspective(1100px) rotateY(0deg); }
+  .crh__face {
+    position: absolute; inset: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .crh__face--back { transform: rotateY(180deg); }
+  .crh__drape {
+    position: absolute; inset: 0; transform-origin: top;
+    transform: skewX(var(--drape, 0deg));
+  }
+  .crh__face--back .crh__drape { transform: skewX(calc(var(--drape, 0deg) * -1)); }
+
+  .crh__hanger {
+    position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+    color: color-mix(in oklab, var(--crh-fg) 85%, transparent);
+  }
+  .crh .crh__photo,
+  .crh-modal .crh__photo {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 8%;
+    width: 100%;
+    height: 92%;
+    max-width: none;
+    margin: 0;
+    object-fit: contain;
+    object-position: top;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .crh--hanger-none .crh__photo,
+  .crh-modal--hanger-none .crh__photo { top: 0; height: 100%; }
+
+  .crh__maskbox {
+    position: absolute; left: 0; right: 0; bottom: 0; top: 8%;
+    -webkit-mask-size: contain; mask-size: contain;
+    -webkit-mask-position: top center; mask-position: top center;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  }
+  .crh--hanger-none .crh__maskbox { top: 0; }
+  .crh__shade { background: #000; opacity: var(--shade, 0.2); pointer-events: none; }
+  .crh__shadow-wrap { position: absolute; inset: 0; pointer-events: none; filter: blur(var(--crh-shadow-blur, 6px)); }
+  .crh__shadow { display: block; background: #000; opacity: 0.16; }
+
+  /* Hang tag */
+  .crh__tag {
+    position: absolute; left: 50%; top: var(--crh-tag-top, 30px);
+    transform-origin: top; transform: rotate(-12deg); pointer-events: none;
+  }
+  .crh__tag-string {
+    display: block; width: 1px; height: 14px; transform: translateX(3px);
+    background: color-mix(in oklab, var(--crh-fg) 35%, transparent);
+  }
+  .crh__tag-label {
+    position: relative; display: block; transform: translateX(3px); white-space: nowrap;
+    padding: 8px 6px 4px; border-radius: 3px;
+    border: 1px solid color-mix(in oklab, var(--crh-fg) 10%, transparent);
+    background: var(--crh-tag-bg); color: var(--crh-fg);
+    font-size: 9px; font-weight: 600; line-height: 1; letter-spacing: 0.025em;
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--crh-fg) 18%, transparent);
+  }
+  .crh__tag-hole {
+    position: absolute; left: 50%; top: 3px; width: 3px; height: 3px; transform: translateX(-50%);
+    border-radius: 50%; background: color-mix(in oklab, var(--crh-fg) 30%, transparent);
+  }
+
+  /* Carousel dots */
+  .crh .crh__dots { position: relative; z-index: 10; display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
+  .crh .crh__dots[hidden] { display: none; }
+  .crh .crh__dot {
+    width: 6px; height: 6px; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 999px;
+    background: color-mix(in oklab, var(--crh-fg) 25%, transparent);
+    cursor: pointer; outline: none; box-shadow: none;
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  .crh .crh__dot:hover { background: color-mix(in oklab, var(--crh-fg) 45%, transparent); }
+  .crh .crh__dot.is-current { width: 24px; background: var(--crh-fg); }
+  .crh .crh__dot:focus-visible { box-shadow: 0 0 0 2px var(--crh-bg), 0 0 0 4px var(--crh-fg); }
+
+  /* Caption + call to action */
+  .crh .crh__footer {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    padding: 16px 24px 32px; text-align: center;
+  }
+  .crh .crh__caption { min-height: 52px; width: 100%; }
+  .crh .crh__caption-name { margin: 0; font-size: 14px; font-weight: 500; line-height: 1.4; color: var(--crh-fg); }
+  .crh .crh__caption-desc {
+    margin: 4px auto 0; max-width: 42ch; font-size: 13px; line-height: 1.6; color: var(--crh-muted);
+  }
+  .crh .crh__caption-desc[hidden] { display: none; }
+  .crh .crh__fade { animation: crh-fade 0.3s ease both; }
+  @keyframes crh-fade { from { opacity: 0; } to { opacity: 1; } }
+
+  .crh .crh__button {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 20px; border-radius: 999px;
+    background: var(--crh-btn-bg); color: var(--crh-btn-fg);
+    font-size: 14px; font-weight: 500; line-height: 1.2; text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .crh .crh__button:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12); }
+  .crh .crh__button:focus-visible { outline: 2px solid var(--crh-fg); outline-offset: 3px; }
+
+  .crh__empty { padding: 48px 24px; text-align: center; color: var(--crh-muted); font-size: 14px; }
+
+  /* Detail view */
+  .crh-modal {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    overflow-y: auto; padding: 24px;
+    color: var(--crh-fg);
+  }
+  .crh-modal[hidden] { display: none !important; }
+  .crh-modal__backdrop {
+    position: absolute; inset: 0;
+    background: color-mix(in oklab, var(--crh-bg) 90%, transparent);
+    -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .crh-modal.is-shown .crh-modal__backdrop { opacity: 1; }
+  .crh-modal .crh-modal__close {
+    position: absolute; right: 20px; top: 20px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 8px;
+    margin: 0; padding: 6px 12px; border: 0; border-radius: 999px; background: none; box-shadow: none;
+    font: inherit; font-size: 12px; font-weight: 500; letter-spacing: 0.025em; color: var(--crh-muted);
+    cursor: pointer; outline: none; opacity: 0; transition: opacity 0.3s ease, color 0.3s ease;
+  }
+  .crh-modal.is-shown .crh-modal__close { opacity: 1; }
+  .crh-modal .crh-modal__close:hover { color: var(--crh-fg); }
+  .crh-modal .crh-modal__close:focus-visible { box-shadow: 0 0 0 2px var(--crh-fg); }
+  .crh-modal__close svg { width: 14px; height: 14px; }
+
+  .crh-modal__grid {
+    position: relative; display: grid; align-items: center; gap: 40px;
+    width: 100%; max-width: 1024px; padding-top: 40px;
+  }
+  @media (min-width: 768px) {
+    .crh-modal__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 352px); }
+  }
+  .crh-modal__figure {
+    position: relative; margin: 0 auto; aspect-ratio: 200 / 310;
+    height: min(50vh, 560px); max-height: 100%; transform-origin: top center;
+  }
+  @media (min-width: 768px) { .crh-modal__figure { height: min(62vh, 560px); } }
+  .crh-modal__cord {
+    position: absolute; left: 50%; width: 3px; height: 40vh; transform: translateX(-50%); border-radius: 999px;
+    top: calc(-40vh + 1.29%);
+    background: linear-gradient(to right, color-mix(in oklab, var(--crh-rail) 50%, white), var(--crh-rail), color-mix(in oklab, var(--crh-rail) 50%, black));
+  }
+  .crh-modal__spin-area { position: absolute; inset: 0; perspective: 1400px; cursor: grab; touch-action: pan-y; }
+  .crh-modal__spin-area:active { cursor: grabbing; }
+  .crh-modal__spin { position: absolute; inset: 0; transform-style: preserve-3d; }
+  .crh-modal__face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+  .crh-modal__face--back { transform: rotateY(180deg); }
+
+  .crh-modal__info {
+    position: relative; display: flex; flex-direction: column; gap: 16px; text-align: center;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+  }
+  .crh-modal.is-shown .crh-modal__info { opacity: 1; transform: none; }
+  @media (min-width: 768px) { .crh-modal__info { text-align: left; } }
+  .crh-modal .crh-modal__counter {
+    margin: 0; font-size: 11px; letter-spacing: 0.2em; color: var(--crh-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .crh-modal .crh-modal__title {
+    margin: 0; font-size: 24px; font-weight: 500; line-height: 1.2; letter-spacing: -0.025em; color: var(--crh-fg);
+  }
+  @media (min-width: 640px) { .crh-modal .crh-modal__title { font-size: 30px; } }
+  .crh-modal .crh-modal__desc { margin: 0; font-size: 14px; line-height: 1.6; color: var(--crh-muted); }
+  .crh-modal .crh-modal__details {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none;
+  }
+  @media (min-width: 768px) { .crh-modal .crh-modal__details { justify-content: flex-start; } }
+  .crh-modal .crh-modal__details li {
+    margin: 0; padding: 4px 12px; border-radius: 999px; font-size: 12px; color: var(--crh-muted);
+    border: 1px solid color-mix(in oklab, var(--crh-fg) 15%, transparent);
+  }
+  .crh-modal .crh-modal__sides { display: inline-flex; justify-content: center; gap: 24px; margin-top: 8px; }
+  @media (min-width: 768px) { .crh-modal .crh-modal__sides { justify-content: flex-start; } }
+  .crh-modal .crh-modal__side-btn {
+    position: relative; margin: 0; padding: 0 0 6px; border: 0; background: none; box-shadow: none;
+    font: inherit; font-size: 14px; color: var(--crh-muted); cursor: pointer; outline: none;
+    transition: color 0.2s ease;
+  }
+  .crh-modal .crh-modal__side-btn:hover,
+  .crh-modal .crh-modal__side-btn.is-active { color: var(--crh-fg); }
+  .crh-modal .crh-modal__side-btn::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--crh-fg);
+    transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+  }
+  .crh-modal .crh-modal__side-btn.is-active::after { transform: scaleX(1); }
+  .crh-modal .crh-modal__side-btn:focus-visible { box-shadow: 0 0 0 2px var(--crh-fg); }
+  .crh-modal .crh-modal__link {
+    align-self: center; display: inline-flex; padding: 10px 20px; border-radius: 999px;
+    background: var(--crh-btn-bg); color: var(--crh-btn-fg);
+    font-size: 14px; font-weight: 500; text-decoration: none;
+  }
+  @media (min-width: 768px) { .crh-modal .crh-modal__link { align-self: flex-start; } }
+  .crh-modal .crh-modal__link[hidden],
+  .crh-modal [hidden] { display: none; }
+  .crh-modal .crh-modal__link:focus-visible { outline: 2px solid var(--crh-fg); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .crh .crh__fade { animation: none; }
+    .crh-modal__backdrop, .crh-modal__info, .crh-modal .crh-modal__close { transition: none; }
+  }
+</style>
+
+<div class="crh-wrap">
+  <clothing-rail-hero
+    id="crh-{{ sid }}"
+    class="crh{% if hanger == 'none' %} crh--hanger-none{% endif %}"
+    data-autoplay="{{ section.settings.autoplay }}"
+    data-interval="{{ section.settings.interval }}"
+    data-max-height="{{ section.settings.max_height }}"
+    data-caption="{{ section.settings.caption | escape }}"
+    aria-roledescription="clothing rail"
+  >
+    <svg class="crh__defs" aria-hidden="true" focusable="false" width="0" height="0">
+      <defs>
+        <linearGradient id="crh-wood-{{ sid }}" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#CBA08C"/>
+          <stop offset="0.45" stop-color="#804224"/>
+          <stop offset="1" stop-color="#482514"/>
+        </linearGradient>
+        <linearGradient id="crh-woodgrain-{{ sid }}" gradientUnits="userSpaceOnUse" spreadMethod="repeat" x1="0" x2="11" y1="0" y2="0.6">
+          <stop offset="0" stop-color="#000" stop-opacity="0"/>
+          <stop offset="0.45" stop-color="#000" stop-opacity="0.16"/>
+          <stop offset="0.6" stop-color="#fff" stop-opacity="0.08"/>
+          <stop offset="1" stop-color="#000" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="crh-chrome-{{ sid }}" gradientUnits="userSpaceOnUse" x1="98.5" x2="101.7" y1="0" y2="0">
+          <stop offset="0" stop-color="#B9B9B9"/>
+          <stop offset="0.35" stop-color="#FFFFFF"/>
+          <stop offset="0.78" stop-color="#535353"/>
+          <stop offset="1" stop-color="#A0A0A0"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div class="crh__bg" aria-hidden="true"></div>
+
+    {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+      <header class="crh__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="crh__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="crh__heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if section.blocks.size == 0 -%}
+      <p class="crh__empty">Add “Garment” blocks to fill the rail.</p>
+    {%- else -%}
+      {%- capture items_json -%}
+        [
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign idx = forloop.index0
+            assign d = idx | modulo: default_fronts.size
+            assign p = block.settings.product
+
+            assign g_name = block.settings.title
+            if g_name == blank and p != blank
+              assign g_name = p.title
+            endif
+            if g_name == blank
+              assign g_name = 'Piece ' | append: forloop.index
+            endif
+
+            assign g_tag = block.settings.tag
+            if g_tag == blank and p != blank and section.settings.show_price
+              assign g_tag = p.price | money_without_trailing_zeros | strip_html
+            endif
+
+            assign g_desc = block.settings.description
+            if g_desc == blank and p != blank
+              assign g_desc = p.description | strip_html | strip | truncatewords: 24
+            endif
+
+            assign g_url = block.settings.link
+            if g_url == blank and p != blank
+              assign g_url = p.url
+            endif
+
+            assign use_default = false
+            if block.settings.image != blank
+              assign front_src = block.settings.image | image_url: width: 600
+              assign front_lg = block.settings.image | image_url: width: 1000
+            elsif p != blank and p.featured_image != blank
+              assign front_src = p.featured_image | image_url: width: 600
+              assign front_lg = p.featured_image | image_url: width: 1000
+            else
+              assign front_src = default_fronts[d]
+              assign front_lg = default_fronts[d]
+              assign use_default = true
+            endif
+
+            if block.settings.back_image != blank
+              assign back_src = block.settings.back_image | image_url: width: 600
+              assign back_lg = block.settings.back_image | image_url: width: 1000
+            elsif use_default
+              assign back_src = default_backs[d]
+              assign back_lg = default_backs[d]
+            else
+              assign back_src = front_src
+              assign back_lg = front_lg
+            endif
+
+            if block.settings.side_image != blank
+              assign side_src = block.settings.side_image | image_url: width: 600
+            elsif use_default
+              assign side_src = default_sides[d]
+            else
+              assign side_src = ''
+            endif
+          -%}
+          {%- unless forloop.first -%},{%- endunless -%}
+          {"name":{{ g_name | json }},"description":{{ g_desc | json }},"details":{{ block.settings.details | json }},"tag":{{ g_tag | json }},"url":{{ g_url | json }},"front":{{ front_lg | json }},"back":{{ back_lg | json }}}
+        {%- endfor -%}
+        ]
+      {%- endcapture -%}
+      <script type="application/json" data-items>{{ items_json }}</script>
+
+      <div class="crh__stage" data-stage role="group" aria-label="{{ section.settings.heading | default: 'Clothing rail' | escape }}">
+        <div class="crh__rail" data-rail aria-hidden="true">
+          <div class="crh__rail-glow"></div>
+          <div class="crh__rail-bar"></div>
+          <div class="crh__rail-texture"></div>
+          <div class="crh__rail-bracket crh__rail-bracket--left"></div>
+          <div class="crh__rail-bracket crh__rail-bracket--right"></div>
+        </div>
+
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign idx = forloop.index0
+            assign d = idx | modulo: default_fronts.size
+            assign p = block.settings.product
+
+            assign g_name = block.settings.title
+            if g_name == blank and p != blank
+              assign g_name = p.title
+            endif
+            if g_name == blank
+              assign g_name = 'Piece ' | append: forloop.index
+            endif
+
+            assign g_tag = block.settings.tag
+            if g_tag == blank and p != blank and section.settings.show_price
+              assign g_tag = p.price | money_without_trailing_zeros | strip_html
+            endif
+
+            assign use_default = false
+            if block.settings.image != blank
+              assign front_src = block.settings.image | image_url: width: 600
+            elsif p != blank and p.featured_image != blank
+              assign front_src = p.featured_image | image_url: width: 600
+            else
+              assign front_src = default_fronts[d]
+              assign use_default = true
+            endif
+
+            if block.settings.back_image != blank
+              assign back_src = block.settings.back_image | image_url: width: 600
+            elsif use_default
+              assign back_src = default_backs[d]
+            else
+              assign back_src = front_src
+            endif
+
+            if block.settings.side_image != blank
+              assign side_src = block.settings.side_image | image_url: width: 600
+            elsif use_default
+              assign side_src = default_sides[d]
+            else
+              assign side_src = ''
+            endif
+
+            assign img_loading = 'eager'
+            if section.index > 2
+              assign img_loading = 'lazy'
+            endif
+          -%}
+          <button
+            type="button"
+            class="crh__garment"
+            data-garment
+            data-block-id="{{ block.id }}"
+            aria-label="{{ g_name | escape }}"
+            aria-describedby="crh-caption-{{ sid }}"
+            aria-pressed="false"
+            tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+            style="z-index: {{ 10 | plus: idx }};"
+            {{ block.shopify_attributes }}
+          >
+            <span class="crh__swing" data-swing>
+              <span class="crh__shadow-wrap" aria-hidden="true">
+                <span class="crh__shadow crh__maskbox" data-shadow style="-webkit-mask-image: url('{{ front_src | escape }}'); mask-image: url('{{ front_src | escape }}');"></span>
+              </span>
+
+              {%- if side_src != blank -%}
+                <span class="crh__side" data-side>
+                  {{ side_hanger_svg }}
+                  <img class="crh__photo" src="{{ side_src | escape }}" alt="" width="600" height="930" loading="{{ img_loading }}" draggable="false">
+                </span>
+              {%- endif -%}
+
+              <span class="crh__turn" data-turn style="opacity: {% if side_src != blank %}0{% else %}1{% endif %};">
+                <span class="crh__face">
+                  {{ hanger_svg }}
+                  <span class="crh__drape">
+                    <img class="crh__photo" src="{{ front_src | escape }}" alt="" width="600" height="930" loading="{{ img_loading }}" draggable="false">
+                    <span class="crh__shade crh__maskbox" style="-webkit-mask-image: url('{{ front_src | escape }}'); mask-image: url('{{ front_src | escape }}');"></span>
+                  </span>
+                </span>
+                <span class="crh__face crh__face--back">
+                  {{ hanger_svg }}
+                  <span class="crh__drape">
+                    <img class="crh__photo" src="{{ back_src | escape }}" alt="" width="600" height="930" loading="lazy" draggable="false">
+                    <span class="crh__shade crh__maskbox" style="-webkit-mask-image: url('{{ back_src | escape }}'); mask-image: url('{{ back_src | escape }}');"></span>
+                  </span>
+                </span>
+              </span>
+
+              {%- if g_tag != blank -%}
+                <span class="crh__tag" data-tag aria-hidden="true">
+                  <span class="crh__tag-string"></span>
+                  <span class="crh__tag-label"><span class="crh__tag-hole"></span>{{ g_tag | escape }}</span>
+                </span>
+              {%- endif -%}
+            </span>
+          </button>
+        {%- endfor -%}
+      </div>
+
+      <div class="crh__dots" data-dots role="group" aria-label="{{ section.settings.label_show | escape }}" hidden>
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign g_name = block.settings.title
+            if g_name == blank and block.settings.product != blank
+              assign g_name = block.settings.product.title
+            endif
+            if g_name == blank
+              assign g_name = 'Piece ' | append: forloop.index
+            endif
+          -%}
+          <button type="button" class="crh__dot" data-dot aria-label="{{ section.settings.label_show | append: ' ' | append: g_name | escape }}"></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="crh__footer">
+      <div class="crh__caption" id="crh-caption-{{ sid }}" aria-live="polite">
+        <p class="crh__caption-name" data-caption-name>{{ section.settings.caption | escape }}</p>
+        <p class="crh__caption-desc" data-caption-desc hidden></p>
+      </div>
+      {%- if section.settings.button_label != blank -%}
+        <a class="crh__button" href="{{ section.settings.button_link | default: '#' }}">{{ section.settings.button_label | escape }}</a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div
+        class="crh-modal{% if hanger == 'none' %} crh-modal--hanger-none{% endif %}"
+        id="crh-modal-{{ sid }}"
+        data-crh-modal
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="crh-modal-title-{{ sid }}"
+        hidden
+      >
+        <div class="crh-modal__backdrop" data-modal-close aria-hidden="true"></div>
+        <button type="button" class="crh-modal__close" data-modal-close data-modal-close-btn>
+          {{ section.settings.label_close | escape }}
+          <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+        <div class="crh-modal__grid">
+          <div class="crh-modal__figure" data-modal-figure>
+            <div class="crh-modal__cord" aria-hidden="true"></div>
+            <div class="crh-modal__spin-area" data-modal-spin-area>
+              <div class="crh-modal__spin" data-modal-spin>
+                <div class="crh-modal__face">
+                  {{ hanger_svg }}
+                  <img class="crh__photo" data-modal-front alt="" draggable="false">
+                </div>
+                <div class="crh-modal__face crh-modal__face--back">
+                  {{ hanger_svg }}
+                  <img class="crh__photo" data-modal-back alt="" draggable="false">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="crh-modal__info">
+            <p class="crh-modal__counter" data-modal-counter></p>
+            <h3 class="crh-modal__title" id="crh-modal-title-{{ sid }}" data-modal-title></h3>
+            <p class="crh-modal__desc" data-modal-desc></p>
+            <ul class="crh-modal__details" data-modal-details></ul>
+            <div class="crh-modal__sides" role="group" aria-label="{{ section.settings.label_front | append: ' / ' | append: section.settings.label_back | escape }}">
+              <button type="button" class="crh-modal__side-btn is-active" data-modal-side="front" aria-pressed="true">{{ section.settings.label_front | escape }}</button>
+              <button type="button" class="crh-modal__side-btn" data-modal-side="back" aria-pressed="false">{{ section.settings.label_back | escape }}</button>
+            </div>
+            <a class="crh-modal__link" data-modal-link href="#" hidden>{{ section.settings.label_view | escape }}</a>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </clothing-rail-hero>
+</div>
+
+<script>
+  (function () {
+    if (!window.customElements || window.customElements.get('clothing-rail-hero')) return;
+
+    var VB_H = 310;
+    var ASPECT = 200 / 310;
+    var HOOK_TOP = 4;
+    var RAIL_R = 4.6;
+    var REST = -70;
+    var PERSPECTIVE = 1100;
+    var GAP = 0.035;
+    var MIN_WIDE_H = 200;
+    var CAROUSEL_H = 340;
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function footprint(h, angle, sideW) {
+      if (sideW == null) sideW = 0.4;
+      var e = clamp(1 - angle / REST, 0, 1);
+      var ease = e * e * (3 - 2 * e);
+      return h * ASPECT * (sideW + (0.94 - sideW) * ease);
+    }
+    function lambert(angle) {
+      var r = (angle * Math.PI) / 180;
+      var diffuse = Math.max(0, Math.sin(r) * 0.42 + Math.cos(r) * 0.91);
+      return 0.66 + 0.34 * diffuse;
+    }
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    class ClothingRailHero extends HTMLElement {
+      connectedCallback() {
+        if (this._ready) return;
+        this.stage = this.querySelector('[data-stage]');
+        this.garments = Array.prototype.slice.call(this.querySelectorAll('[data-garment]'));
+        this.count = this.garments.length;
+        this.modal = this.modal || this.querySelector('[data-crh-modal]');
+        if (!this.stage || !this.count) return;
+        this._ready = true;
+
+        try { this.data = JSON.parse(this.querySelector('[data-items]').textContent); } catch (e) { this.data = []; }
+
+        this.rail = this.querySelector('[data-rail]');
+        this.captionName = this.querySelector('[data-caption-name]');
+        this.captionDesc = this.querySelector('[data-caption-desc]');
+        this.dotsWrap = this.querySelector('[data-dots]');
+        this.dots = Array.prototype.slice.call(this.querySelectorAll('[data-dot]'));
+        this.defaultCaption = this.dataset.caption || '';
+        this.autoplay = this.dataset.autoplay === 'true';
+        this.interval = parseFloat(this.dataset.interval) || 2600;
+        this.maxH = parseFloat(this.dataset.maxHeight) || 400;
+        this.reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        this.reduced = this.reducedQuery.matches;
+
+        this.parts = this.garments.map(function (el) {
+          return {
+            el: el,
+            swing: el.querySelector('[data-swing]'),
+            turn: el.querySelector('[data-turn]'),
+            side: el.querySelector('[data-side]'),
+            shadow: el.querySelector('[data-shadow]'),
+            tag: el.querySelector('[data-tag]')
+          };
+        });
+        this.sideWidths = this.parts.map(function (p) { return p.side ? 0.3 : 0.4; });
+
+        this.s = { x: [], vx: [], tx: [], turn: [], vturn: [], tturn: [], swing: [], vswing: [], tag: [], vtag: [], drag: -1, grab: 0, free: 0, last: 0, raf: 0 };
+        this.size = { width: 0, h: 300, carousel: false };
+        this.active = null;
+        this.focusIndex = 0;
+        this.carouselIndex = 0;
+        this.openIndex = null;
+        this.playing = this.autoplay;
+        this.pendingOpen = -1;
+        this.pointer = { id: -1, index: -1, x: 0, y: 0, moved: false, kind: '', swipe: 0, lastX: 0, lastT: 0, v: 0 };
+        this.timers = [];
+        this.autoTimer = 0;
+        this.brushed = false;
+        this.visible = false;
+        this.lastCaptionKey = null;
+
+        var self = this;
+        this.step = this.step.bind(this);
+        this.onReducedChange = function () { self.reduced = self.reducedQuery.matches; self.setTargets(); };
+        this.reducedQuery.addEventListener('change', this.onReducedChange);
+
+        this.stage.addEventListener('pointermove', this.onPointerMove.bind(this));
+        this.stage.addEventListener('pointerdown', this.onPointerDown.bind(this));
+        this.stage.addEventListener('pointerup', function (e) { self.finishPointer(e, false); });
+        this.stage.addEventListener('pointercancel', function (e) { self.finishPointer(e, true); });
+        this.stage.addEventListener('pointerleave', this.onPointerLeave.bind(this));
+        this.stage.addEventListener('keydown', this.onKeyDown.bind(this));
+
+        this.garments.forEach(function (el, i) {
+          el.addEventListener('focus', function () {
+            self.focusIndex = i;
+            if (self.pointer.id < 0) { self.stop(); self.choose(i); }
+          });
+          el.addEventListener('click', function (e) {
+            var pending = self.pendingOpen;
+            self.pendingOpen = -1;
+            if (e.detail === 0 || pending === i) self.open(i);
+          });
+        });
+
+        this.dots.forEach(function (dot, i) {
+          dot.addEventListener('click', function () { self.stop(); self.choose(i); });
+        });
+
+        this.addEventListener('shopify:block:select', function (e) {
+          var i = self.garments.findIndex(function (g) { return g.dataset.blockId === e.detail.blockId; });
+          if (i >= 0) { self.stop(); self.choose(i); }
+        });
+
+        this.setupModal();
+
+        this.resizeObserver = new ResizeObserver(function (entries) {
+          if (entries[0]) self.measure(entries[0].contentRect.width);
+        });
+        this.resizeObserver.observe(this.stage);
+        this.measure(this.stage.clientWidth);
+
+        this.intersectionObserver = new IntersectionObserver(function (entries) {
+          self.visible = entries[0].isIntersecting;
+          if (self.visible) {
+            if (!self.brushed) self.brush();
+            self.scheduleAutoplay();
+          }
+        });
+        this.intersectionObserver.observe(this);
+
+        this.updateActiveUI();
+        this.classList.add('is-ready');
+      }
+
+      disconnectedCallback() {
+        if (!this._ready) return;
+        this._ready = false;
+        cancelAnimationFrame(this.s.raf);
+        this.s.raf = 0;
+        clearTimeout(this.autoTimer);
+        this.timers.forEach(clearTimeout);
+        this.timers = [];
+        if (this.resizeObserver) this.resizeObserver.disconnect();
+        if (this.intersectionObserver) this.intersectionObserver.disconnect();
+        this.reducedQuery.removeEventListener('change', this.onReducedChange);
+        if (this.openIndex !== null) {
+          document.body.style.overflow = this.prevOverflow || '';
+          document.removeEventListener('keydown', this.onDocKey);
+        }
+        if (this.modal && this.modal.parentNode === document.body) this.modal.remove();
+      }
+
+      /* ---------- Layout ---------- */
+      measure(width) {
+        if (!width) return;
+        var sw = this.sideWidths;
+        var sideW = sw.reduce(function (a, b) { return a + b; }, 0) / Math.max(1, sw.length);
+        var restK = footprint(1, REST, sideW) + GAP;
+        var activeK = footprint(1, 0, sideW) + GAP;
+        var fit = (width - 24) / (this.count * restK + (activeK - restK));
+        var carousel = fit < MIN_WIDE_H;
+        var h = Math.round(carousel ? Math.min(CAROUSEL_H, Math.max(220, width * 0.86)) : Math.min(this.maxH, fit));
+        var old = this.size;
+        if (Math.abs(old.width - width) < 0.5 && old.carousel === carousel && Math.abs(old.h - h) < 0.5) return;
+        this.size = { width: width, h: h, carousel: carousel };
+        this.applyLayout();
+        this.setTargets();
+      }
+
+      applyLayout() {
+        var h = this.size.h;
+        var boxW = h * ASPECT;
+        var railY = Math.round(h * 0.07) + 10;
+        var railR = Math.max(3, Math.round((RAIL_R / VB_H) * h * 10) / 10);
+        this.railY = railY;
+        this.stage.style.height = Math.round(railY + h + h * 0.05 + 12) + 'px';
+        this.stage.style.setProperty('--crh-shadow-blur', Math.max(3, h * 0.022).toFixed(1) + 'px');
+        this.stage.style.setProperty('--crh-tag-top', ((32 / VB_H) * h).toFixed(1) + 'px');
+        if (this.rail) {
+          this.rail.style.top = (railY - railR) + 'px';
+          this.rail.style.height = (railR * 2) + 'px';
+        }
+        var top = (railY - (HOOK_TOP / VB_H) * h) + 'px';
+        this.garments.forEach(function (el) {
+          el.style.top = top;
+          el.style.width = boxW + 'px';
+          el.style.height = h + 'px';
+        });
+        this.dataset.mode = this.size.carousel ? 'carousel' : 'rail';
+        if (this.dotsWrap) this.dotsWrap.hidden = !(this.size.carousel && this.count > 1);
+        this.updateActiveUI();
+      }
+
+      targets(h, width, carousel, front) {
+        var sw = this.sideWidths;
+        var feet = this.parts.map(function (_, i) { return footprint(h, i === front ? 0 : REST, sw[i]) + h * GAP; });
+        var i;
+        if (carousel) {
+          var centre = front == null ? 0 : front;
+          var xs = feet.map(function () { return 0; });
+          xs[centre] = width / 2;
+          for (i = centre + 1; i < feet.length; i++) xs[i] = xs[i - 1] + (feet[i - 1] + feet[i]) / 2;
+          for (i = centre - 1; i >= 0; i--) xs[i] = xs[i + 1] - (feet[i + 1] + feet[i]) / 2;
+          return xs;
+        }
+        var total = feet.reduce(function (a, b) { return a + b; }, 0);
+        var cursor = (width - total) / 2;
+        return feet.map(function (f) { var x = cursor + f / 2; cursor += f; return x; });
+      }
+
+      setTargets() {
+        if (!this.size.width) return;
+        var s = this.s;
+        var carousel = this.size.carousel;
+        var front = carousel ? (this.active != null ? this.active : this.carouselIndex) : this.active;
+        var xs = this.targets(this.size.h, this.size.width, carousel, front);
+        var fresh = s.x.length !== this.count;
+        for (var i = 0; i < this.count; i++) {
+          s.tx[i] = xs[i] + (carousel ? this.pointer.swipe : 0);
+          s.tturn[i] = i === front ? 0 : REST;
+          if (fresh || this.reduced) {
+            s.x[i] = s.tx[i]; s.vx[i] = 0;
+            s.turn[i] = s.tturn[i]; s.vturn[i] = 0;
+            s.swing[i] = s.swing[i] || 0; s.vswing[i] = s.vswing[i] || 0;
+            s.tag[i] = 0; s.vtag[i] = 0;
+          }
+        }
+        if (fresh) for (var j = 0; j < this.count; j++) this.paint(j);
+        this.kick();
+      }
+
+      /* ---------- Rendering ---------- */
+      paint(i) {
+        var s = this.s;
+        var h = this.size.h;
+        var w = h * ASPECT;
+        var part = this.parts[i];
+        if (!part) return;
+        var angle = s.turn[i] == null ? REST : s.turn[i];
+        var swing = s.swing[i] || 0;
+        part.el.style.transform = 'translate3d(' + ((s.x[i] || 0) - w / 2).toFixed(2) + 'px,0,0)';
+        if (part.swing) part.swing.style.transform = 'rotate(' + swing.toFixed(3) + 'deg)';
+        var e = clamp(1 - angle / REST, 0, 1);
+        if (part.turn) {
+          part.turn.style.transform = 'perspective(' + PERSPECTIVE + 'px) rotateY(' + angle.toFixed(2) + 'deg)';
+          part.turn.style.opacity = part.side ? clamp((e - 0.44) / 0.12, 0, 1).toFixed(3) : '1';
+          var lag = clamp(-(s.vswing[i] || 0) * 0.018, -5, 5);
+          part.turn.style.setProperty('--drape', lag.toFixed(3) + 'deg');
+          part.turn.style.setProperty('--shade', (1 - lambert(angle)).toFixed(3));
+        }
+        if (part.side) {
+          part.side.style.opacity = clamp((0.56 - e) / 0.12, 0, 1).toFixed(3);
+          part.side.style.transform = 'perspective(' + PERSPECTIVE + 'px) rotateY(' + (Math.min(1, e * 2) * -84).toFixed(2) + 'deg)';
+        }
+        if (part.shadow) {
+          part.shadow.style.transform = 'translate3d(' + (w * 0.05).toFixed(1) + 'px,' + (h * 0.035).toFixed(1) + 'px,0) scaleX(' + Math.max(0.12, Math.abs(Math.cos((angle * Math.PI) / 180))).toFixed(3) + ')';
+        }
+        if (part.tag) part.tag.style.transform = 'rotate(' + (-12 + (s.tag[i] || 0)).toFixed(2) + 'deg)';
+      }
+
+      step(now) {
+        var s = this.s;
+        var n = this.count;
+        var sw = this.sideWidths;
+        var dt = s.last ? Math.min(0.034, (now - s.last) / 1000) : 1 / 60;
+        s.last = now;
+        var h = this.size.h, width = this.size.width, carousel = this.size.carousel;
+        var busy = false;
+        var sub = 2;
+        var sdt = dt / sub;
+        var i, k;
+
+        for (k = 0; k < sub; k++) {
+          for (i = 0; i < n; i++) {
+            var before = s.vx[i] || 0;
+            if (i !== s.drag) {
+              var restoring = now > s.free;
+              var stiff = restoring ? 130 : 0;
+              var damp = restoring ? 2 * Math.sqrt(130) * 0.86 : 3.2;
+              var ax = -stiff * ((s.x[i] || 0) - (s.tx[i] || 0)) - damp * before;
+              s.vx[i] = before + ax * sdt;
+              s.x[i] = (s.x[i] || 0) + s.vx[i] * sdt;
+            }
+            var accel = ((s.vx[i] || 0) - before) / sdt;
+            var ta = -150 * ((s.turn[i] || 0) - (s.tturn[i] || 0)) - 2 * Math.sqrt(150) * 0.78 * (s.vturn[i] || 0);
+            s.vturn[i] = (s.vturn[i] || 0) + ta * sdt;
+            s.turn[i] = (s.turn[i] || 0) + s.vturn[i] * sdt;
+            var sa = -24 * (s.swing[i] || 0) - 2.1 * (s.vswing[i] || 0) - clamp(accel, -6000, 6000) * 0.0045;
+            s.vswing[i] = (s.vswing[i] || 0) + sa * sdt;
+            s.swing[i] = clamp((s.swing[i] || 0) + s.vswing[i] * sdt, -12, 12);
+            var tagA = -46 * ((s.tag[i] || 0) - (s.swing[i] || 0) * 0.6) - 3.4 * (s.vtag[i] || 0) - (s.vswing[i] || 0) * 0.9;
+            s.vtag[i] = (s.vtag[i] || 0) + tagA * sdt;
+            s.tag[i] = clamp((s.tag[i] || 0) + s.vtag[i] * sdt, -30, 30);
+          }
+
+          // Hangers push each other along the rail
+          for (var pass = 0; pass < 2; pass++) {
+            for (i = 0; i < n - 1; i++) {
+              var a = s.x[i] || 0;
+              var b = s.x[i + 1] || 0;
+              var minGap = (footprint(h, s.turn[i] == null ? REST : s.turn[i], sw[i]) + footprint(h, s.turn[i + 1] == null ? REST : s.turn[i + 1], sw[i + 1])) / 2 + h * 0.012;
+              var overlap = minGap - (b - a);
+              if (overlap <= 0) continue;
+              if (i === s.drag) s.x[i + 1] = b + overlap;
+              else if (i + 1 === s.drag) s.x[i] = a - overlap;
+              else { s.x[i] = a - overlap / 2; s.x[i + 1] = b + overlap / 2; }
+              var va = s.vx[i] || 0;
+              var vb = s.vx[i + 1] || 0;
+              if (va > vb) {
+                var shared = (va + vb) / 2;
+                if (i !== s.drag) s.vx[i] = shared;
+                if (i + 1 !== s.drag) s.vx[i + 1] = shared;
+              }
+            }
+          }
+
+          // Rail ends
+          if (!carousel && n > 0) {
+            var edge = h * 0.06;
+            var first = edge + footprint(h, s.turn[0] == null ? REST : s.turn[0], sw[0]) / 2;
+            var last = width - edge - footprint(h, s.turn[n - 1] == null ? REST : s.turn[n - 1], sw[n - 1]) / 2;
+            if ((s.x[0] || 0) < first) { s.x[0] = first; s.vx[0] = Math.abs(s.vx[0] || 0) * 0.3; }
+            if ((s.x[n - 1] || 0) > last) { s.x[n - 1] = last; s.vx[n - 1] = -Math.abs(s.vx[n - 1] || 0) * 0.3; }
+          }
+        }
+
+        for (i = 0; i < n; i++) {
+          this.paint(i);
+          if (
+            Math.abs(s.vx[i] || 0) > 0.4 ||
+            (now > s.free && Math.abs((s.x[i] || 0) - (s.tx[i] || 0)) > 0.25) ||
+            Math.abs((s.turn[i] || 0) - (s.tturn[i] || 0)) > 0.05 ||
+            Math.abs(s.vturn[i] || 0) > 0.05 ||
+            Math.abs(s.swing[i] || 0) > 0.02 ||
+            Math.abs(s.vswing[i] || 0) > 0.05 ||
+            Math.abs(s.tag[i] || 0) > 0.05 ||
+            Math.abs(s.vtag[i] || 0) > 0.08
+          ) busy = true;
+        }
+        if (s.drag >= 0 || now < s.free) busy = true;
+
+        if (busy && this._ready) {
+          s.raf = requestAnimationFrame(this.step);
+        } else {
+          s.raf = 0; s.last = 0;
+          for (i = 0; i < n; i++) {
+            if (now > s.free) s.x[i] = s.tx[i] || 0;
+            s.swing[i] = 0; s.vswing[i] = 0; s.tag[i] = 0; s.vtag[i] = 0;
+            this.paint(i);
+          }
+        }
+      }
+
+      kick() {
+        var s = this.s;
+        if (this.reduced) {
+          for (var i = 0; i < this.count; i++) {
+            s.x[i] = s.tx[i] || 0;
+            s.turn[i] = s.tturn[i] == null ? REST : s.tturn[i];
+            s.vx[i] = 0; s.vturn[i] = 0; s.swing[i] = 0; s.vswing[i] = 0;
+            this.paint(i);
+          }
+          return;
+        }
+        if (!s.raf) { s.last = 0; s.raf = requestAnimationFrame(this.step); }
+      }
+
+      impulse(i, amount) {
+        if (this.reduced || i < 0 || i >= this.count) return;
+        this.s.vswing[i] = (this.s.vswing[i] || 0) + amount;
+        this.kick();
+      }
+
+      brush() {
+        this.brushed = true;
+        if (this.reduced) return;
+        var self = this;
+        for (var i = 0; i < this.count; i++) {
+          (function (idx) {
+            self.timers.push(setTimeout(function () { self.impulse(idx, 46 - idx * 2.5); }, 120 + idx * 55));
+          })(i);
+        }
+      }
+
+      /* ---------- Selection ---------- */
+      choose(index) {
+        if (this.active === index) return;
+        var old = this.active;
+        if (index !== null) { this.impulse(index - 1, -30); this.impulse(index + 1, 30); }
+        if (old !== null && old !== index) { this.impulse(old - 1, 14); this.impulse(old + 1, -14); }
+        if (index !== null) this.carouselIndex = index;
+        this.active = index;
+        this.updateActiveUI();
+        this.setTargets();
+        this.scheduleAutoplay();
+      }
+
+      updateActiveUI() {
+        var active = this.active;
+        var tabTarget = active != null ? active : this.focusIndex;
+        this.garments.forEach(function (el, i) {
+          var turned = active === i;
+          el.setAttribute('aria-pressed', turned ? 'true' : 'false');
+          el.tabIndex = i === tabTarget ? 0 : -1;
+          el.style.zIndex = turned ? 30 : 10 + i;
+          if (turned) el.setAttribute('data-front', ''); else el.removeAttribute('data-front');
+        });
+        this.dataset.active = active == null ? '' : String(active);
+
+        var carouselIndex = this.size.carousel ? (active != null ? active : this.carouselIndex) : null;
+        this.dots.forEach(function (dot, i) {
+          var current = carouselIndex === i;
+          dot.classList.toggle('is-current', current);
+          dot.setAttribute('aria-current', current ? 'true' : 'false');
+        });
+
+        var item = active == null ? null : this.data[active];
+        var key = item ? 'i' + active : 'caption';
+        if (key === this.lastCaptionKey) return;
+        this.lastCaptionKey = key;
+        if (this.captionName) {
+          this.captionName.textContent = item ? item.name : this.defaultCaption;
+          this.captionName.classList.remove('crh__fade');
+          void this.captionName.offsetWidth;
+          this.captionName.classList.add('crh__fade');
+        }
+        if (this.captionDesc) {
+          var desc = item && item.description ? item.description : '';
+          this.captionDesc.textContent = desc;
+          this.captionDesc.hidden = !desc;
+        }
+      }
+
+      stop() {
+        this.playing = false;
+        clearTimeout(this.autoTimer);
+      }
+
+      scheduleAutoplay() {
+        clearTimeout(this.autoTimer);
+        if (!this.playing || this.reduced || this.openIndex !== null || !this.count || !this.size.width) return;
+        var self = this;
+        this.autoTimer = setTimeout(function () {
+          if (!self.visible) { self.scheduleAutoplay(); return; }
+          var current = self.active;
+          self.choose(current === null ? 0 : (current + 1) % self.count);
+        }, this.active === null ? 1100 : this.interval);
+      }
+
+      /* ---------- Pointer + keyboard ---------- */
+      nearest(clientX, clientY) {
+        var box = this.stage.getBoundingClientRect();
+        var x = clientX - box.left;
+        var y = clientY - box.top;
+        var h = this.size.h;
+        if (y < 0 || y > h + 46) return null;
+        var s = this.s;
+        var best = null;
+        var distance = Infinity;
+        for (var i = 0; i < this.count; i++) {
+          var half = footprint(h, s.turn[i] == null ? REST : s.turn[i], this.sideWidths[i]) / 2 + 4;
+          var d = Math.abs(x - (s.x[i] || 0));
+          if (d < half && d < distance) { best = i; distance = d; }
+        }
+        return best;
+      }
+
+      onPointerMove(event) {
+        var p = this.pointer;
+        var s = this.s;
+        var stage = this.stage;
+        if (p.id === event.pointerId) {
+          var dx = event.clientX - p.x;
+          var now = performance.now();
+          if (!p.moved && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(event.clientY - p.y)) {
+            p.moved = true;
+            this.stop();
+            try { stage.setPointerCapture(event.pointerId); } catch (e) {}
+            if (!this.size.carousel && p.index >= 0) {
+              s.drag = p.index;
+              s.grab = (event.clientX - stage.getBoundingClientRect().left) - (s.x[p.index] || 0);
+            }
+          }
+          if (p.moved) {
+            var v = (event.clientX - p.lastX) / Math.max(1, now - p.lastT);
+            p.v = p.v * 0.6 + v * 0.4;
+            p.lastX = event.clientX;
+            p.lastT = now;
+            if (s.drag >= 0) {
+              s.vx[s.drag] = p.v * 1000;
+              s.x[s.drag] = event.clientX - stage.getBoundingClientRect().left - s.grab;
+              s.free = now + 900;
+              this.kick();
+            } else if (this.size.carousel) {
+              p.swipe = dx;
+              var front = this.active != null ? this.active : this.carouselIndex;
+              var xs = this.targets(this.size.h, this.size.width, true, front);
+              for (var i = 0; i < this.count; i++) s.tx[i] = xs[i] + dx;
+              this.kick();
+            }
+          }
+          return;
+        }
+        if (event.pointerType !== 'mouse' || this.size.carousel || this.openIndex !== null) return;
+        var hit = this.nearest(event.clientX, event.clientY);
+        var current = this.active;
+        if (current !== null && hit !== current) {
+          var box = stage.getBoundingClientRect();
+          var keep = Math.abs(event.clientX - box.left - (s.x[current] || 0)) < footprint(this.size.h, 0) / 2 + 14;
+          if (keep && (hit === null || Math.abs(event.clientY - box.top) < this.size.h + 40)) return;
+        }
+        if (hit !== null) { this.stop(); this.choose(hit); }
+      }
+
+      onPointerDown(event) {
+        if (event.button !== 0) return;
+        var hit = this.nearest(event.clientX, event.clientY);
+        var now = performance.now();
+        this.pendingOpen = -1;
+        this.pointer = { id: event.pointerId, index: hit == null ? -1 : hit, x: event.clientX, y: event.clientY, moved: false, kind: event.pointerType, swipe: 0, lastX: event.clientX, lastT: now, v: 0 };
+      }
+
+      finishPointer(event, cancelled) {
+        var p = this.pointer;
+        if (p.id !== event.pointerId) return;
+        var s = this.s;
+        try { if (this.stage.hasPointerCapture(event.pointerId)) this.stage.releasePointerCapture(event.pointerId); } catch (e) {}
+        p.id = -1;
+        if (s.drag >= 0) {
+          s.drag = -1;
+          s.free = performance.now() + 700;
+          this.kick();
+          return;
+        }
+        if (p.moved && this.size.carousel) {
+          var dx = event.clientX - p.x;
+          var current = this.active != null ? this.active : this.carouselIndex;
+          var dir = Math.abs(dx) > 40 || Math.abs(p.v) > 0.45 ? (dx < 0 ? 1 : -1) : 0;
+          p.swipe = 0;
+          var next = clamp(current + dir, 0, this.count - 1);
+          if (next === this.active) this.setTargets(); else this.choose(next);
+          for (var i = 0; i < this.count; i++) this.impulse(i, clamp(-p.v * 22, -30, 30));
+          return;
+        }
+        if (cancelled || p.moved || p.index < 0) return;
+        this.stop();
+        var touch = p.kind !== 'mouse';
+        if (touch && this.active !== p.index) this.choose(p.index);
+        else this.pendingOpen = p.index;
+      }
+
+      onPointerLeave(event) {
+        if (event.pointerType !== 'mouse' || this.pointer.id >= 0 || this.size.carousel || this.openIndex !== null) return;
+        var focusedGarment = false;
+        try {
+          var ae = document.activeElement;
+          focusedGarment = !!(ae && ae.matches && ae.matches('[data-garment]:focus-visible'));
+        } catch (e) {}
+        if (!focusedGarment) this.choose(null);
+      }
+
+      onKeyDown(event) {
+        var keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
+        if (keys.indexOf(event.key) === -1) return;
+        event.preventDefault();
+        this.stop();
+        var from = this.active != null ? this.active : this.focusIndex;
+        var next = event.key === 'Home' ? 0
+          : event.key === 'End' ? this.count - 1
+          : clamp(from + (event.key === 'ArrowRight' ? 1 : -1), 0, this.count - 1);
+        this.focusIndex = next;
+        this.choose(next);
+        this.garments[next].focus({ preventScroll: true });
+      }
+
+      /* ---------- Detail view ---------- */
+      setupModal() {
+        var m = this.modal;
+        if (!m) return;
+        var self = this;
+        if (m.parentNode !== document.body) document.body.appendChild(m);
+
+        this.mFigure = m.querySelector('[data-modal-figure]');
+        this.mSpinArea = m.querySelector('[data-modal-spin-area]');
+        this.mSpin = m.querySelector('[data-modal-spin]');
+        this.mFront = m.querySelector('[data-modal-front]');
+        this.mBack = m.querySelector('[data-modal-back]');
+        this.mCounter = m.querySelector('[data-modal-counter]');
+        this.mTitle = m.querySelector('[data-modal-title]');
+        this.mDesc = m.querySelector('[data-modal-desc]');
+        this.mDetails = m.querySelector('[data-modal-details]');
+        this.mLink = m.querySelector('[data-modal-link]');
+        this.mCloseBtn = m.querySelector('[data-modal-close-btn]');
+        this.mSideBtns = Array.prototype.slice.call(m.querySelectorAll('[data-modal-side]'));
+        this.angle = { value: 0, target: 0, velocity: 0, raf: 0, last: 0, dragging: false, startX: 0, startAngle: 0 };
+        this.side = 'front';
+
+        Array.prototype.forEach.call(m.querySelectorAll('[data-modal-close]'), function (el) {
+          el.addEventListener('click', function () { self.dismiss(); });
+        });
+        this.mSideBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () { self.turnTo(btn.dataset.modalSide); });
+        });
+        m.addEventListener('keydown', this.onModalKey.bind(this));
+        this.onDocKey = function (event) {
+          if (self.openIndex === null || m.contains(event.target)) return;
+          if (event.key === 'Escape') { event.preventDefault(); self.dismiss(); }
+          else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') self.turnTo(self.side === 'front' ? 'back' : 'front');
+          else if (event.key === 'Tab') { event.preventDefault(); self.mCloseBtn.focus(); }
+        };
+
+        var area = this.mSpinArea;
+        area.addEventListener('pointerdown', function (event) {
+          var a = self.angle;
+          a.dragging = true; a.startX = event.clientX; a.startAngle = a.value;
+          cancelAnimationFrame(a.raf); a.raf = 0; a.last = 0;
+          try { area.setPointerCapture(event.pointerId); } catch (e) {}
+        });
+        area.addEventListener('pointermove', function (event) {
+          var a = self.angle;
+          if (!a.dragging) return;
+          a.value = clamp(a.startAngle + (event.clientX - a.startX) * 0.45, a.startAngle - 220, a.startAngle + 220);
+          self.mSpin.style.transform = 'rotateY(' + a.value.toFixed(2) + 'deg)';
+        });
+        area.addEventListener('pointerup', function () {
+          var a = self.angle;
+          if (!a.dragging) return;
+          a.dragging = false;
+          var facing = ((a.value % 360) + 360) % 360;
+          self.turnTo(facing > 90 && facing < 270 ? 'back' : 'front');
+        });
+        area.addEventListener('pointercancel', function () {
+          self.angle.dragging = false;
+          self.turnTo(self.side);
+        });
+      }
+
+      setSide(side) {
+        this.side = side;
+        this.mSideBtns.forEach(function (btn) {
+          var on = btn.dataset.modalSide === side;
+          btn.classList.toggle('is-active', on);
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      }
+
+      spin() {
+        var a = this.angle;
+        var node = this.mSpin;
+        if (this.reduced) {
+          a.value = a.target;
+          node.style.transform = 'rotateY(' + a.value + 'deg)';
+          return;
+        }
+        var loop = function (now) {
+          var dt = a.last ? Math.min(0.034, (now - a.last) / 1000) : 1 / 60;
+          a.last = now;
+          var accel = -90 * (a.value - a.target) - 2 * Math.sqrt(90) * 0.82 * a.velocity;
+          a.velocity += accel * dt;
+          a.value += a.velocity * dt;
+          node.style.transform = 'rotateY(' + a.value.toFixed(2) + 'deg)';
+          if (Math.abs(a.value - a.target) < 0.05 && Math.abs(a.velocity) < 0.05) {
+            a.value = a.target;
+            node.style.transform = 'rotateY(' + a.value + 'deg)';
+            a.raf = 0; a.last = 0;
+            return;
+          }
+          a.raf = requestAnimationFrame(loop);
+        };
+        if (!a.raf) a.raf = requestAnimationFrame(loop);
+      }
+
+      turnTo(next) {
+        var a = this.angle;
+        var base = Math.round(a.value / 360) * 360;
+        a.target = base + (next === 'back' ? 180 : 0);
+        if (Math.abs(a.target - a.value) > 180) a.target -= 360 * Math.sign(a.target - a.value);
+        this.setSide(next);
+        this.spin();
+      }
+
+      lift(i, on) {
+        var part = this.parts[i];
+        if (part) part.el.style.visibility = on ? 'hidden' : '';
+      }
+
+      open(index) {
+        var m = this.modal;
+        var item = this.data[index];
+        if (!m || !item) return;
+        this.stop();
+        if (this.active !== index) {
+          this.active = index;
+          this.carouselIndex = index;
+          this.updateActiveUI();
+          this.setTargets();
+        }
+        this.openIndex = index;
+        this.closing = false;
+        if (this.closeAnim) { this.closeAnim.cancel(); this.closeAnim = null; }
+        if (this.openAnim) { this.openAnim.cancel(); this.openAnim = null; }
+
+        // Fill content
+        this.mCounter.textContent = pad(index + 1) + ' / ' + pad(this.count);
+        this.mTitle.textContent = item.name || '';
+        this.mDesc.textContent = item.description || '';
+        this.mDesc.hidden = !item.description;
+        this.mDetails.innerHTML = '';
+        var details = String(item.details || '').split(',').map(function (d) { return d.trim(); }).filter(Boolean);
+        var list = this.mDetails;
+        details.forEach(function (d) { var li = document.createElement('li'); li.textContent = d; list.appendChild(li); });
+        this.mDetails.hidden = details.length === 0;
+        if (item.url) { this.mLink.href = item.url; this.mLink.hidden = false; }
+        else { this.mLink.hidden = true; }
+        this.mFront.src = item.front;
+        this.mFront.alt = item.name || '';
+        this.mBack.src = item.back || item.front;
+
+        // Reset spin
+        cancelAnimationFrame(this.angle.raf);
+        this.angle = { value: 0, target: 0, velocity: 0, raf: 0, last: 0, dragging: false, startX: 0, startAngle: 0 };
+        this.mSpin.style.transform = 'rotateY(0deg)';
+        this.setSide('front');
+
+        m.hidden = false;
+        m.classList.remove('is-shown');
+        this.prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        this.mCloseBtn.focus({ preventScroll: true });
+        document.addEventListener('keydown', this.onDocKey);
+
+        var from = this.parts[index].turn.getBoundingClientRect();
+        if (!this.reduced && from.width > 0 && this.mFigure.animate) {
+          var to = this.mFigure.getBoundingClientRect();
+          var scale = from.height / to.height;
+          var dx = from.left + from.width / 2 - (to.left + to.width / 2);
+          var dy = from.top - to.top;
+          var liftY = Math.min(90, Math.abs(dy) * 0.25 + 30);
+          this.lift(index, true);
+          this.openAnim = this.mFigure.animate([
+            { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + scale + ')' },
+            { transform: 'translate(' + (dx * 0.4) + 'px,' + (dy * 0.4 - liftY) + 'px) scale(' + ((scale + 1) / 2 * 1.03) + ') rotate(' + (dx > 0 ? -2.5 : 2.5) + 'deg)', offset: 0.5 },
+            { transform: 'none' }
+          ], { duration: 680, easing: 'cubic-bezier(.22,.85,.3,1)' });
+        } else {
+          this.lift(index, true);
+        }
+        requestAnimationFrame(function () { m.classList.add('is-shown'); });
+        this.scheduleAutoplay();
+      }
+
+      dismiss() {
+        if (this.openIndex === null || this.closing) return;
+        this.closing = true;
+        this.modal.classList.remove('is-shown');
+        if (this.openAnim) { this.openAnim.cancel(); this.openAnim = null; }
+        var self = this;
+        var to = this.parts[this.openIndex].turn.getBoundingClientRect();
+        if (this.reduced || !to || to.width === 0 || !this.mFigure.animate) { this.finishClose(); return; }
+        var from = this.mFigure.getBoundingClientRect();
+        var scale = to.height / from.height;
+        var dx = to.left + to.width / 2 - (from.left + from.width / 2);
+        var dy = to.top - from.top;
+        this.closeAnim = this.mFigure.animate([
+          { transform: 'none' },
+          { transform: 'translate(' + (dx * 0.6) + 'px,' + (dy * 0.6 - 30) + 'px) scale(' + ((scale + 1) / 2) + ')', offset: 0.55 },
+          { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + scale + ')' }
+        ], { duration: 560, easing: 'cubic-bezier(.45,0,.55,1)', fill: 'forwards' });
+        this.closeAnim.onfinish = function () { self.finishClose(); };
+      }
+
+      finishClose() {
+        var index = this.openIndex;
+        if (index === null) return;
+        var m = this.modal;
+        m.hidden = true;
+        m.classList.remove('is-shown');
+        if (this.closeAnim) { this.closeAnim.cancel(); this.closeAnim = null; }
+        cancelAnimationFrame(this.angle.raf);
+        this.angle.raf = 0;
+        document.body.style.overflow = this.prevOverflow || '';
+        document.removeEventListener('keydown', this.onDocKey);
+        this.openIndex = null;
+        this.closing = false;
+        this.lift(index, false);
+        this.garments[index].focus({ preventScroll: true });
+        this.impulse(index, (index % 2 ? 1 : -1) * 44);
+      }
+
+      onModalKey(event) {
+        if (event.key === 'Escape') { event.preventDefault(); this.dismiss(); return; }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { this.turnTo(this.side === 'front' ? 'back' : 'front'); return; }
+        if (event.key !== 'Tab') return;
+        var controls = Array.prototype.slice.call(this.modal.querySelectorAll('button, a[href]')).filter(function (node) {
+          return !node.disabled && !node.hidden && node.offsetParent !== null;
+        });
+        var first = controls[0];
+        var last = controls[controls.length - 1];
+        if (!first || !last) return;
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    }
+
+    window.customElements.define('clothing-rail-hero', ClothingRailHero);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Clothing rail hero",
+  "tag": "section",
+  "class": "section-clothing-rail-hero",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "New season · Ten pieces on the rail"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "A clothing rail you can handle, right on the page."
+    },
+    {
+      "type": "text",
+      "id": "caption",
+      "label": "Caption",
+      "info": "Shown under the rail while no piece is turned to the front.",
+      "default": "Brush along the rail, slide a hanger, lift a piece to see the back."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop the edit"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Rail"
+    },
+    {
+      "type": "select",
+      "id": "hanger",
+      "label": "Hanger",
+      "info": "Choose “None” when your photos already show a hanger with its hook at the top.",
+      "options": [
+        { "value": "none", "label": "None (in photo)" },
+        { "value": "wood", "label": "Wood" },
+        { "value": "matte", "label": "Matte" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Turn pieces automatically",
+      "info": "Stops as soon as a visitor interacts.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "interval",
+      "min": 1500,
+      "max": 6000,
+      "step": 250,
+      "unit": "ms",
+      "label": "Time per piece",
+      "default": 2500
+    },
+    {
+      "type": "range",
+      "id": "max_height",
+      "min": 240,
+      "max": 480,
+      "step": 10,
+      "unit": "px",
+      "label": "Maximum garment height",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 800,
+      "max": 2000,
+      "step": 50,
+      "unit": "px",
+      "label": "Maximum section width",
+      "default": 1600
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show product price on the hang tag",
+      "info": "Used when a block has a product and no tag text.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Detail view labels"
+    },
+    {
+      "type": "text",
+      "id": "label_front",
+      "label": "Front",
+      "default": "Front"
+    },
+    {
+      "type": "text",
+      "id": "label_back",
+      "label": "Back",
+      "default": "Back"
+    },
+    {
+      "type": "text",
+      "id": "label_close",
+      "label": "Close",
+      "default": "Close"
+    },
+    {
+      "type": "text",
+      "id": "label_view",
+      "label": "Product link",
+      "default": "View product"
+    },
+    {
+      "type": "text",
+      "id": "label_show",
+      "label": "Carousel dot label",
+      "default": "Show"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_bg",
+      "label": "Background",
+      "default": "#FAFAF9"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text",
+      "default": "#0A0A0A"
+    },
+    {
+      "type": "color",
+      "id": "color_muted",
+      "label": "Secondary text",
+      "default": "#737373"
+    },
+    {
+      "type": "color",
+      "id": "color_rail",
+      "label": "Rail metal",
+      "default": "#8A8A8A"
+    },
+    {
+      "type": "color",
+      "id": "color_tag_bg",
+      "label": "Hang tag",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "color_button_bg",
+      "label": "Button background",
+      "default": "#0A0A0A"
+    },
+    {
+      "type": "color",
+      "id": "color_button_text",
+      "label": "Button text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "garment",
+      "name": "Garment",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product",
+          "info": "Optional. Fills in the name, price, description, link and photo when those fields are empty."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Name"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Hang tag",
+          "info": "A price or size, e.g. $48"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "text",
+          "id": "details",
+          "label": "Details",
+          "info": "Comma-separated, e.g. 240 gsm, Regular fit"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Photos",
+          "info": "Transparent cut-outs on a 200 × 310 portrait canvas work best. Use the same canvas and scale for all three. A demo garment is shown until you add a front photo."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Front"
+        },
+        {
+          "type": "image_picker",
+          "id": "back_image",
+          "label": "Back",
+          "info": "The front photo is reused when empty."
+        },
+        {
+          "type": "image_picker",
+          "id": "side_image",
+          "label": "Side",
+          "info": "Shown while the piece rests on the rail. When empty, the front photo is shown turned away."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 16,
+  "presets": [
+    {
+      "name": "Clothing rail hero",
+      "blocks": [
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Heavyweight tee · Bone",
+            "tag": "$48",
+            "description": "240 gsm organic cotton with a tonal DHxWHY embroidery on the chest.",
+            "details": "240 gsm, Regular fit, Tonal embroidery"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Graphic tee · CCgather",
+            "tag": "$52",
+            "description": "Black tee with the CCgather wordmark printed front and back.",
+            "details": "240 gsm, Regular fit, Screen print"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Oxford shirt · Sky",
+            "tag": "$74",
+            "description": "Pale sky oxford with a button-down collar and a tiny Maestiq embroidery.",
+            "details": "Oxford cotton, Button-down collar, Chest pocket"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Knit cardigan · Olive",
+            "tag": "$96",
+            "description": "Chunky olive wool cardigan with wooden buttons and ribbed trims.",
+            "details": "Lambswool, Wooden buttons, V-neck"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Hoodie · Maestiq",
+            "tag": "$88",
+            "description": "Heather fleece hoodie with the Maestiq wordmark across the chest.",
+            "details": "400 gsm fleece, Kangaroo pocket, Chest print"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Crewneck sweatshirt · Lilac",
+            "tag": "$78",
+            "description": "Muted lilac fleece crewneck with a raised DHxWHY puff print.",
+            "details": "400 gsm fleece, Ribbed trims, Puff print"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Piqué polo · Forest",
+            "tag": "$62",
+            "description": "Forest piqué polo with a bone CCgather embroidery on the chest.",
+            "details": "Piqué knit, Two-button placket, Embroidered"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Henley · Brick",
+            "tag": "$56",
+            "description": "Dusty brick henley with a three-button placket, worn in from day one.",
+            "details": "Slub cotton, Three buttons, Long sleeve"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Breton long sleeve",
+            "tag": "$58",
+            "description": "Classic ink-and-bone Breton stripe with a boat neck.",
+            "details": "220 gsm, Boat neck, Long sleeve"
+          }
+        },
+        {
+          "type": "garment",
+          "settings": {
+            "title": "Oversized tee · CCgather",
+            "tag": "$52",
+            "description": "Boxy ochre tee with a small chest mark and a large CCgather back print.",
+            "details": "Oversized, Dropped shoulder, Back print"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
