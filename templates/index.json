@@ -364,10 +364,166 @@
         "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
         "color_scheme": ""
       }
+    },
+    "clothing_rail_rule_npfJ73": {
+      "type": "clothing-rail-rule",
+      "blocks": {
+        "garment_HtznF9": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Heavyweight tee · Bone",
+            "tag": "$48",
+            "description": "240 gsm organic cotton with a tonal DHxWHY embroidery on the chest.",
+            "details": "240 gsm, Regular fit, Tonal embroidery",
+            "link": ""
+          }
+        },
+        "garment_7VP6EV": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Graphic tee · CCgather",
+            "tag": "$52",
+            "description": "Black tee with the CCgather wordmark printed front and back.",
+            "details": "240 gsm, Regular fit, Screen print",
+            "link": ""
+          }
+        },
+        "garment_DPrtka": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Oxford shirt · Sky",
+            "tag": "$74",
+            "description": "Pale sky oxford with a button-down collar and a tiny Maestiq embroidery.",
+            "details": "Oxford cotton, Button-down collar, Chest pocket",
+            "link": ""
+          }
+        },
+        "garment_tdArkj": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Knit cardigan · Olive",
+            "tag": "$96",
+            "description": "Chunky olive wool cardigan with wooden buttons and ribbed trims.",
+            "details": "Lambswool, Wooden buttons, V-neck",
+            "link": ""
+          }
+        },
+        "garment_7AmaF7": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Hoodie · Maestiq",
+            "tag": "$88",
+            "description": "Heather fleece hoodie with the Maestiq wordmark across the chest.",
+            "details": "400 gsm fleece, Kangaroo pocket, Chest print",
+            "link": ""
+          }
+        },
+        "garment_zPirrd": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Crewneck sweatshirt · Lilac",
+            "tag": "$78",
+            "description": "Muted lilac fleece crewneck with a raised DHxWHY puff print.",
+            "details": "400 gsm fleece, Ribbed trims, Puff print",
+            "link": ""
+          }
+        },
+        "garment_RXefE9": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Piqué polo · Forest",
+            "tag": "$62",
+            "description": "Forest piqué polo with a bone CCgather embroidery on the chest.",
+            "details": "Piqué knit, Two-button placket, Embroidered",
+            "link": ""
+          }
+        },
+        "garment_3dCX8c": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Henley · Brick",
+            "tag": "$56",
+            "description": "Dusty brick henley with a three-button placket, worn in from day one.",
+            "details": "Slub cotton, Three buttons, Long sleeve",
+            "link": ""
+          }
+        },
+        "garment_QtMW3f": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Breton long sleeve",
+            "tag": "$58",
+            "description": "Classic ink-and-bone Breton stripe with a boat neck.",
+            "details": "220 gsm, Boat neck, Long sleeve",
+            "link": ""
+          }
+        },
+        "garment_wwk9zJ": {
+          "type": "garment",
+          "settings": {
+            "product": "",
+            "title": "Oversized tee · CCgather",
+            "tag": "$52",
+            "description": "Boxy ochre tee with a small chest mark and a large CCgather back print.",
+            "details": "Oversized, Dropped shoulder, Back print",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "garment_HtznF9",
+        "garment_7VP6EV",
+        "garment_DPrtka",
+        "garment_tdArkj",
+        "garment_7AmaF7",
+        "garment_zPirrd",
+        "garment_RXefE9",
+        "garment_3dCX8c",
+        "garment_QtMW3f",
+        "garment_wwk9zJ"
+      ],
+      "name": "Clothing rail hero",
+      "settings": {
+        "eyebrow": "New season · Ten pieces on the rail",
+        "heading": "A clothing rail you can handle, right on the page.",
+        "caption": "Brush along the rail, slide a hanger, lift a piece to see the back.",
+        "button_label": "Shop the edit",
+        "button_link": "",
+        "hanger": "none",
+        "autoplay": true,
+        "interval": 2500,
+        "max_height": 400,
+        "max_width": 1600,
+        "show_price": true,
+        "label_front": "Front",
+        "label_back": "Back",
+        "label_close": "Close",
+        "label_view": "View product",
+        "label_show": "Show",
+        "color_bg": "#FAFAF9",
+        "color_text": "#0A0A0A",
+        "color_muted": "#737373",
+        "color_rail": "#8A8A8A",
+        "color_tag_bg": "#FFFFFF",
+        "color_button_bg": "#0A0A0A",
+        "color_button_text": "#FFFFFF",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
     }
   },
   "order": [
     "scroll_morph_hero_3prAnb",
+    "clothing_rail_rule_npfJ73",
     "slideshow",
     "featured_collection",
     "collection_bento",
