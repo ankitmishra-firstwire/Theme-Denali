@@ -10,9 +10,11 @@
 {
   "current": {
     "type_body_font": "work_sans_n4",
+    "max_page_width": "1440px",
+    "animations_reveal_on_scroll": true,
     "button_text_case": "uppercase",
-    "button_radius": 28,
-    "secondary_button_radius": 6,
+    "button_radius": 2,
+    "secondary_button_radius": 24,
     "secondary_button_border_width": 3,
     "content_for_index": [],
     "color_schemes": {
