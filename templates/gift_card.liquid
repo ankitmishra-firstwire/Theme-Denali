@@ -25,7 +25,7 @@
     {{ 'template-giftcard.css' | asset_url | stylesheet_tag }}
   </head>
 
-  <body class="template-gift-card color-scheme-1">
+  <body class="template-gift-card color-scheme-1 input-style-{{ settings.input_style }}">
     <main id="MainContent" class="gift-card" role="main">
       <header class="gift-card__header">
         <a href="{{ shop.url }}" class="gift-card__shop">

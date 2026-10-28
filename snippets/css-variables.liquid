@@ -6,6 +6,69 @@
   assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
   assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic'
   assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+
+  case settings.body_line_height
+    when 'tight'
+      assign body_lh = 1.45
+    when 'loose'
+      assign body_lh = 1.8
+    else
+      assign body_lh = 1.6
+  endcase
+
+  case settings.heading_line_height
+    when 'normal'
+      assign heading_lh = 1.25
+    when 'loose'
+      assign heading_lh = 1.4
+    else
+      assign heading_lh = 1.12
+  endcase
+
+  case settings.heading_letter_spacing
+    when 'normal'
+      assign heading_ls = '0em'
+    when 'wide'
+      assign heading_ls = '0.04em'
+    else
+      assign heading_ls = '-0.02em'
+  endcase
+
+  case settings.subheading_letter_spacing
+    when 'tight'
+      assign subheading_ls = '0em'
+    when 'normal'
+      assign subheading_ls = '0.06em'
+    else
+      assign subheading_ls = '0.16em'
+  endcase
+
+  case settings.icon_stroke
+    when 'thin'
+      assign icon_stroke = 1.2
+    when 'bold'
+      assign icon_stroke = 2.2
+    else
+      assign icon_stroke = 1.6
+  endcase
+
+  case settings.popover_shadow
+    when 'none'
+      assign popover_shadow = 'none'
+    when 'strong'
+      assign popover_shadow = '0 18px 48px rgba(0, 0, 0, 0.22)'
+    else
+      assign popover_shadow = '0 12px 32px rgba(0, 0, 0, 0.09)'
+  endcase
+
+  case settings.swatch_shape
+    when 'square'
+      assign swatch_radius = '0'
+    when 'rounded'
+      assign swatch_radius = '25%'
+    else
+      assign swatch_radius = '50%'
+  endcase
 -%}
 {% style %}
   {{ settings.type_heading_font | font_face: font_display: 'swap' }}
@@ -13,42 +76,103 @@
   {{ body_font_bold | font_face: font_display: 'swap' }}
   {{ body_font_italic | font_face: font_display: 'swap' }}
   {{ body_font_bold_italic | font_face: font_display: 'swap' }}
+  {{ settings.type_accent_font | font_face: font_display: 'swap' }}
 
   :root {
+    /* Typography */
     --font-heading-family: {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
     --font-heading-style: {{ settings.type_heading_font.style }};
     --font-heading-weight: {{ settings.type_heading_font.weight }};
-    --font-heading-scale: {{ settings.heading_scale | divided_by: 100.0 }};
+    --font-heading-line-height: {{ heading_lh }};
+    --font-heading-letter-spacing: {{ heading_ls }};
+    --font-heading-case: {{ settings.heading_text_case }};
+    --font-heading-scale: {{ settings.h2_font_size | divided_by: 34.0 }};
+    --font-h1-size: {{ settings.h1_font_size | divided_by: 10.0 }}rem;
+    --font-h2-size: {{ settings.h2_font_size | divided_by: 10.0 }}rem;
+    --font-h3-size: {{ settings.h3_font_size | divided_by: 10.0 }}rem;
+    --font-h4-size: {{ settings.h4_font_size | divided_by: 10.0 }}rem;
 
     --font-body-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
     --font-body-style: {{ settings.type_body_font.style }};
     --font-body-weight: {{ settings.type_body_font.weight }};
     --font-body-weight-bold: {{ body_font_bold.weight | default: 700 }};
-    --font-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+    --font-body-size: {{ settings.body_font_size | divided_by: 10.0 }}rem;
+    --font-body-line-height: {{ body_lh }};
 
+    --font-accent-family: {{ settings.type_accent_font.family }}, {{ settings.type_accent_font.fallback_families }};
+    --font-accent-style: {{ settings.type_accent_font.style }};
+    --font-accent-weight: {{ settings.type_accent_font.weight }};
+    --subheading-case: {{ settings.subheading_text_case }};
+    --subheading-letter-spacing: {{ subheading_ls }};
+
+    /* Layout */
     --page-width: {{ settings.max_page_width }};
     --page-margin: {{ settings.min_page_margin }}px;
     --section-spacing: {{ settings.section_spacing }}px;
     --section-spacing-mobile: {{ settings.section_spacing | times: 0.6 | round }}px;
 
+    /* Buttons */
     --button-radius: {{ settings.button_radius }}px;
+    --button-border-width: {{ settings.button_border_width }}px;
+    --secondary-button-radius: {{ settings.secondary_button_radius }}px;
+    --secondary-button-border-width: {{ settings.secondary_button_border_width }}px;
+    --button-case: {{ settings.button_text_case }};
+    {%- if settings.button_use_accent_font %}
+      --button-font-family: var(--font-accent-family);
+      --button-font-weight: var(--font-accent-weight);
+    {%- else %}
+      --button-font-family: var(--font-body-family);
+      --button-font-weight: var(--font-body-weight-bold);
+    {%- endif %}
+
+    /* Inputs */
     --input-radius: {{ settings.input_corner_radius }}px;
+    --input-border-width: {{ settings.input_border_width }}px;
 
-    --logo-width: {{ settings.logo_width }}px;
-    --logo-width-mobile: {{ settings.logo_width_mobile }}px;
-
+    /* Badges */
+    --badge-radius: {% if settings.badge_shape == 'pill' %}999px{% else %}2px{% endif %};
+    --badge-case: {{ settings.badge_text_case }};
+    --badge-font-family: {% if settings.badge_use_accent_font %}var(--font-accent-family){% else %}var(--font-body-family){% endif %};
     --color-sale-badge: {{ settings.sale_badge_background }};
     --color-sale-badge-text: {{ settings.sale_badge_text }};
     --color-sold-out-badge: {{ settings.sold_out_badge_background }};
     --color-sold-out-badge-text: {{ settings.sold_out_badge_text }};
 
+    /* Popovers */
+    --popover-radius: {{ settings.popover_radius }}px;
+    --popover-shadow: {{ popover_shadow }};
+    --popover-border-width: {{ settings.popover_border_width }}px;
+    --mobile-menu-overlay: {{ settings.mobile_menu_overlay | divided_by: 100.0 }};
+
+    /* Icons and swatches */
+    --icon-stroke-width: {{ icon_stroke }};
+    --swatch-radius: {{ swatch_radius }};
+    --swatch-size-product: {{ settings.swatch_size_product }}px;
+    --swatch-size-card: {{ settings.swatch_size_card }}px;
+
+    /* Logo */
+    --logo-width: {{ settings.logo_width }}px;
+    --logo-width-mobile: {{ settings.logo_width_mobile }}px;
+
+    /* Product cards */
     {%- case settings.card_image_ratio -%}
-      {%- when 'square' -%}
+      {%- when 'square' %}
         --card-image-ratio: 1 / 1;
-      {%- when 'adapt' -%}
+      {%- when 'adapt' %}
         --card-image-ratio: auto;
-      {%- else -%}
+      {%- else %}
         --card-image-ratio: 4 / 5;
+    {%- endcase %}
+    --card-text-align: {{ settings.card_text_alignment }};
+
+    /* Cart */
+    {%- case settings.cart_image_ratio -%}
+      {%- when 'square' %}
+        --cart-image-ratio: 1 / 1;
+      {%- when 'portrait' %}
+        --cart-image-ratio: 4 / 5;
+      {%- else %}
+        --cart-image-ratio: auto;
     {%- endcase %}
   }
 

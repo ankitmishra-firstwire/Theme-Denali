@@ -6,6 +6,8 @@
   @param {variant} [variant] - Optional variant; defaults to the selected or first available variant
   @param {boolean} [show_range] - When true and no variant is passed, shows "From" pricing if prices vary
   @param {string} [class] - Extra class names
+  @param {boolean} [hide_compare] - Hide the compare-at price
+  @param {boolean} [hide_unit_price] - Hide the unit price
 {%- enddoc -%}
 {%- liquid
   assign target = variant | default: product.selected_or_first_available_variant
@@ -17,7 +19,7 @@
   endif
 
   assign use_range = false
-  if show_range and variant == blank and product.price_varies
+  if show_range and settings.price_show_range and variant == blank and product.price_varies
     assign use_range = true
     assign price = product.price_min
     assign compare_at_price = product.compare_at_price_min
@@ -41,15 +43,17 @@
     <span class="price__current price__current--sale">
       {%- if use_range -%}{{ 'products.product.price.from_price_html' | t: price: price_formatted }}{%- else -%}{{ price_formatted }}{%- endif -%}
     </span>
-    <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
-    <s class="price__compare">{{ compare_formatted }}</s>
+    {%- unless hide_compare -%}
+      <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+      <s class="price__compare">{{ compare_formatted }}</s>
+    {%- endunless -%}
   {%- else -%}
     <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
     <span class="price__current">
       {%- if use_range -%}{{ 'products.product.price.from_price_html' | t: price: price_formatted }}{%- else -%}{{ price_formatted }}{%- endif -%}
     </span>
   {%- endif -%}
-  {%- if target.unit_price_measurement -%}
+  {%- if target.unit_price_measurement and hide_unit_price != true -%}
     {% render 'unit-price', unit_price: target.unit_price, measurement: target.unit_price_measurement %}
   {%- endif -%}
 </div>

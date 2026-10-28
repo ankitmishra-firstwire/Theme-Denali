@@ -265,6 +265,10 @@
             if (!ok || data.status) {
               throw new Error(data.description || data.message || strings().cartError);
             }
+            if (window.theme?.settings?.cartType === 'page') {
+              window.location.href = routes().cart;
+              return;
+            }
             this.success.hidden = false;
             window.DenaliTheme?.announce(this.success.textContent.trim());
             document.dispatchEvent(new CustomEvent('cart:updated', { detail: { item: data } }));

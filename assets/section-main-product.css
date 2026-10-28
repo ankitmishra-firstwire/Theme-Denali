@@ -248,14 +248,24 @@
   cursor: pointer;
 }
 
+.variant-shape-rectangle .variant-picker__label {
+  border-radius: var(--input-radius);
+}
+
 .variant-picker__label:hover {
   border-color: var(--color-foreground);
 }
 
-.variant-picker__input:checked + .variant-picker__label {
+.variant-selected-filled .variant-picker__input:checked + .variant-picker__label {
   border-color: var(--color-foreground);
   background: var(--color-foreground);
   color: var(--color-background);
+}
+
+.variant-selected-outline .variant-picker__input:checked + .variant-picker__label {
+  border-color: var(--color-foreground);
+  box-shadow: inset 0 0 0 1px var(--color-foreground);
+  font-weight: var(--font-body-weight-bold);
 }
 
 .variant-picker__input:focus-visible + .variant-picker__label {
@@ -263,20 +273,16 @@
   outline-offset: 3px;
 }
 
+.variant-hide-strike .variant-picker__label.is-unavailable .variant-picker__value {
+  text-decoration: none;
+  opacity: 1;
+}
+
 .variant-picker__label.is-unavailable .variant-picker__value {
   text-decoration: line-through;
   opacity: 0.7;
 }
 
-.swatch {
-  display: inline-block;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid rgba(var(--color-foreground-rgb), 0.25);
-  border-radius: 50%;
-  background-size: cover;
-  background-position: center;
-}
 
 /* Selling plans */
 

@@ -1,6 +1,11 @@
 {%- liquid
   assign menu = section.settings.menu
   assign logo = settings.logo
+  assign header_scheme = settings.color_schemes[section.settings.color_scheme]
+  assign header_brightness = header_scheme.settings.background | color_brightness
+  if header_brightness < 128 and settings.logo_inverse != blank
+    assign logo = settings.logo_inverse
+  endif
 -%}
 <header-component class="site-header color-{{ section.settings.color_scheme }}{% if section.settings.sticky %} site-header--sticky{% endif %}" data-header>
   <div class="page-width site-header__inner site-header__inner--{{ section.settings.logo_position }}">
@@ -172,7 +177,7 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "Upload your logo in Theme settings > Logo and favicon."
+      "content": "Upload your logo in Theme settings > Logo and favicon. The logo for dark color schemes is used automatically when this section's color scheme has a dark background."
     },
     {
       "type": "select",

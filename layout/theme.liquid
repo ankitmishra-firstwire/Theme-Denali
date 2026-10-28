@@ -22,6 +22,9 @@
     {{ content_for_header }}
 
     {% render 'css-variables' %}
+    {%- capture settings_classes -%}
+      {%- if settings.animations_reveal_on_scroll %} animate-reveal{% endif %} hover-{{ settings.animations_hover_effect }} input-style-{{ settings.input_style }} variant-shape-{{ settings.variant_button_shape }} variant-selected-{{ settings.variant_selected_style }}{% unless settings.variant_show_unavailable %} variant-hide-strike{% endunless -%}
+    {%- endcapture -%}
     {{ 'critical.css' | asset_url | stylesheet_tag }}
     {{ 'base.css' | asset_url | stylesheet_tag }}
 
@@ -36,6 +39,10 @@
           cartUpdate: {{ routes.cart_update_url | json }},
           predictiveSearch: {{ routes.predictive_search_url | json }}
         },
+        settings: {
+          cartType: {{ settings.cart_type | json }},
+          predictiveSearchLimit: {{ settings.predictive_search_product_limit | json }}
+        },
         strings: {
           addToCart: {{ 'products.product.add_to_cart' | t | json }},
           soldOut: {{ 'products.product.sold_out' | t | json }},
@@ -49,7 +56,7 @@
     </script>
   </head>
 
-  <body class="template-{{ request.page_type | handle }}">
+  <body class="template-{{ request.page_type | handle }} {{ settings_classes | strip }}">
     <a class="skip-to-content visually-hidden-focusable" href="#MainContent">
       {{- 'accessibility.skip_to_text' | t -}}
     </a>

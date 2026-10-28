@@ -12,7 +12,7 @@
 }
 
 html {
-  font-size: calc(var(--font-body-scale, 1) * 62.5%);
+  font-size: 62.5%;
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 100px;
 }
@@ -28,8 +28,8 @@ body {
   font-family: var(--font-body-family);
   font-style: var(--font-body-style);
   font-weight: var(--font-body-weight);
-  font-size: 1.6rem;
-  line-height: 1.6;
+  font-size: var(--font-body-size, 1.6rem);
+  line-height: var(--font-body-line-height, 1.6);
   letter-spacing: 0.01em;
   color: var(--color-foreground);
   background: var(--gradient-background, var(--color-background));
@@ -89,47 +89,53 @@ h6,
   font-family: var(--font-heading-family);
   font-style: var(--font-heading-style);
   font-weight: var(--font-heading-weight);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  line-height: var(--font-heading-line-height);
+  letter-spacing: var(--font-heading-letter-spacing);
+  text-transform: var(--font-heading-case);
   color: var(--color-foreground);
   text-wrap: balance;
 }
 
+/* Heading sizes come from Theme settings > Typography and shrink on mobile. */
 h1,
 .h1 {
-  font-size: calc(var(--font-heading-scale) * 3.2rem);
+  font-size: calc(var(--font-h1-size) * 0.72);
 }
 
 h2,
 .h2 {
-  font-size: calc(var(--font-heading-scale) * 2.6rem);
+  font-size: calc(var(--font-h2-size) * 0.78);
 }
 
 h3,
 .h3 {
-  font-size: calc(var(--font-heading-scale) * 2rem);
+  font-size: calc(var(--font-h3-size) * 0.9);
 }
 
 h4,
 .h4 {
-  font-size: calc(var(--font-heading-scale) * 1.7rem);
+  font-size: var(--font-h4-size);
 }
 
 @media screen and (min-width: 750px) {
   h1,
   .h1 {
-    font-size: calc(var(--font-heading-scale) * 4.4rem);
+    font-size: var(--font-h1-size);
   }
 
   h2,
   .h2 {
-    font-size: calc(var(--font-heading-scale) * 3.4rem);
+    font-size: var(--font-h2-size);
   }
 
   h3,
   .h3 {
-    font-size: calc(var(--font-heading-scale) * 2.2rem);
+    font-size: var(--font-h3-size);
   }
+}
+
+.icon {
+  stroke-width: var(--icon-stroke-width, 1.6);
 }
 
 a {

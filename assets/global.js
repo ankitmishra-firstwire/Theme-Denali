@@ -210,7 +210,7 @@
           q: term,
           section_id: 'predictive-search',
           'resources[type]': 'product,collection,page,article,query',
-          'resources[limit]': '4',
+          'resources[limit]': String(window.theme?.settings?.predictiveSearchLimit || 4),
           'resources[options][unavailable_products]': 'last'
         });
         const url = `${routes().predictiveSearch || '/search/suggest'}?${params.toString()}`;
@@ -416,6 +416,37 @@
         });
       }
     });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Reveal on scroll (Theme settings > Animations)                      */
+  /* ------------------------------------------------------------------ */
+
+  const initReveal = (root = document) => {
+    if (!document.body.classList.contains('animate-reveal')) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!('IntersectionObserver' in window) || window.Shopify?.designMode) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-revealed');
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+
+    root.querySelectorAll('main .shopify-section').forEach((section) => {
+      // Only animate sections that start below the fold so the first view never flashes.
+      if (section.getBoundingClientRect().top < window.innerHeight) return;
+      section.classList.add('reveal-on-scroll');
+      observer.observe(section);
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initReveal());
+  } else {
+    initReveal();
   }
 
   /* ------------------------------------------------------------------ */

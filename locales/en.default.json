@@ -168,6 +168,10 @@
         "minimum_of": "Minimum of {{ quantity }}",
         "maximum_of": "Maximum of {{ quantity }}",
         "multiples_of": "Increments of {{ quantity }}"
+      },
+      "more_swatches": {
+        "one": "+{{ count }} more",
+        "other": "+{{ count }} more"
       }
     }
   },

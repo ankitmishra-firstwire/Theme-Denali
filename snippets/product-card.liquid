@@ -16,7 +16,17 @@
     assign secondary_image = product.media[1].preview_image
   endif
 -%}
-<div class="product-card{% if secondary_image != blank %} product-card--has-secondary{% endif %}">
+{%- liquid
+  assign hide_compare = false
+  unless settings.price_show_compare_at
+    assign hide_compare = true
+  endunless
+  assign hide_unit_price = false
+  unless settings.price_show_unit_price_on_cards
+    assign hide_unit_price = true
+  endunless
+-%}
+<div class="product-card product-card--{{ settings.card_style }} text-align-{{ settings.card_text_alignment }}{% if secondary_image != blank %} product-card--has-secondary{% endif %}">
   <div class="product-card__media{% if settings.card_image_ratio == 'adapt' and primary_image %} product-card__media--adapt{% endif %}"{% if settings.card_image_ratio == 'adapt' and primary_image %} style="--ratio: {{ primary_image.aspect_ratio }};"{% endif %}>
     {%- if primary_image -%}
       {% render 'image',
@@ -42,7 +52,7 @@
     {%- endif -%}
 
     {%- if settings.card_show_badges -%}
-      <div class="product-card__badges">
+      <div class="product-card__badges product-card__badges--{{ settings.badge_position }}">
         {%- if product.available == false -%}
           <span class="badge badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
         {%- elsif product.compare_at_price > product.price -%}
@@ -61,6 +71,29 @@
     <{{ title_tag }} class="product-card__title">
       <a class="product-card__link full-unstyled-link" href="{{ product.url }}">{{ product.title | escape }}</a>
     </{{ title_tag }}>
-    {% render 'price', product: product, show_range: true %}
+    {% render 'price', product: product, show_range: true, hide_compare: hide_compare, hide_unit_price: hide_unit_price %}
+
+    {%- if settings.card_show_swatches -%}
+      {%- for option in product.options_with_values -%}
+        {%- if option.values.first.swatch != blank -%}
+          {%- assign hidden_count = option.values.size | minus: settings.swatch_card_limit -%}
+          <div class="product-card__swatches">
+            <span class="visually-hidden">{{ option.name | escape }}:</span>
+            {%- for value in option.values limit: settings.swatch_card_limit -%}
+              {%- if value.swatch.image -%}
+                <span class="swatch" style="background-image: url({{ value.swatch.image | image_url: width: 48 }});" title="{{ value | escape }}"></span>
+              {%- else -%}
+                <span class="swatch" style="background-color: {{ value.swatch.color | default: '#ccc' }};" title="{{ value | escape }}"></span>
+              {%- endif -%}
+              <span class="visually-hidden">{{ value | escape }}{% unless forloop.last %},{% endunless %}</span>
+            {%- endfor -%}
+            {%- if hidden_count > 0 -%}
+              <span class="caption">{{ 'products.product.more_swatches' | t: count: hidden_count }}</span>
+            {%- endif -%}
+          </div>
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
   </div>
 </div>

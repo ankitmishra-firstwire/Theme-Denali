@@ -61,6 +61,8 @@
 .cart-item__media img {
   width: 9rem;
   height: auto;
+  aspect-ratio: var(--cart-image-ratio);
+  object-fit: cover;
 }
 
 .cart-item__details {
@@ -175,4 +177,8 @@
   .cart-item__total {
     align-self: center;
   }
+}
+
+.cart__empty-collection {
+  margin-top: 4.8rem;
 }

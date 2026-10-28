@@ -18,6 +18,17 @@
           <p class="empty-state__login">{{ 'templates.cart.login.paragraph_html' | t: link: routes.account_login_url }}</p>
         {%- endif -%}
       </div>
+      {%- assign empty_collection = settings.cart_empty_collection -%}
+      {%- if empty_collection != blank and empty_collection.products.size > 0 -%}
+        <div class="cart__empty-collection">
+          <h2 class="section-title h3">{{ empty_collection.title | escape }}</h2>
+          <ul class="product-grid product-grid--4-col list-unstyled" role="list">
+            {%- for product in empty_collection.products limit: 4 -%}
+              <li class="product-grid__item">{% render 'product-card', product: product %}</li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
     {%- else -%}
       <form action="{{ routes.cart_url }}" method="post" id="CartForm-{{ section.id }}" class="cart__form" novalidate>
         <div class="cart__layout">
@@ -43,7 +54,7 @@
                         {%- endif -%}
                       </div>
                       <div class="cart-item__details">
-                        {%- if item.product.vendor != blank -%}<p class="caption">{{ item.product.vendor | escape }}</p>{%- endif -%}
+                        {%- if settings.cart_show_vendor and item.product.vendor != blank -%}<p class="caption">{{ item.product.vendor | escape }}</p>{%- endif -%}
                         <a class="cart-item__name" href="{{ item.url }}">{{ item.product.title | escape }}</a>
 
                         <div class="cart-item__price caption">
