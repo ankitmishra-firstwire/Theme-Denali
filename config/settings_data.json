@@ -9,7 +9,7 @@
  */
 {
   "current": {
-    "type_body_font": "mono",
+    "type_body_font": "work_sans_n4",
     "button_text_case": "uppercase",
     "button_radius": 28,
     "secondary_button_radius": 6,
