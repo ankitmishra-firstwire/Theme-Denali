@@ -9,6 +9,7 @@
  */
 {
   "current": {
+    "button_text_case": "uppercase",
     "button_radius": 28,
     "secondary_button_radius": 6,
     "secondary_button_border_width": 3,

@@ -165,7 +165,7 @@
         "intro_subtext": "SCROLL TO EXPLORE",
         "arc_heading": "Explore Our Vision",
         "arc_text": "<p>Discover a world where technology meets creativity. Scroll through our curated collection of innovations designed to shape the future.</p>",
-        "full_screen": true,
+        "full_screen": false,
         "height_desktop": 800,
         "height_mobile": 640,
         "card_width": 80,
