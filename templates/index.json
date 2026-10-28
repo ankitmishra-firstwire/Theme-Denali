@@ -9,6 +9,183 @@
  */
 {
   "sections": {
+    "scroll_morph_hero_3prAnb": {
+      "type": "scroll-morph-hero",
+      "blocks": {
+        "card_mcdDXa": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_zx7bQG": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_xWJkTE": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_ac7fPU": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_tP9agM": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_kmKpwJ": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_DAfBaR": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_eRWcww": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_LbTzhk": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_B4zmHp": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_wWmncB": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_VQJ68U": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_MeXiXx": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_NXitXJ": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_byUFzE": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_mBWKyt": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        }
+      },
+      "block_order": [
+        "card_mcdDXa",
+        "card_zx7bQG",
+        "card_xWJkTE",
+        "card_ac7fPU",
+        "card_tP9agM",
+        "card_kmKpwJ",
+        "card_DAfBaR",
+        "card_eRWcww",
+        "card_LbTzhk",
+        "card_B4zmHp",
+        "card_wWmncB",
+        "card_VQJ68U",
+        "card_MeXiXx",
+        "card_NXitXJ",
+        "card_byUFzE",
+        "card_mBWKyt"
+      ],
+      "name": "Scroll morph hero",
+      "settings": {
+        "intro_heading": "Section build by Legend",
+        "intro_subtext": "SCROLL TO EXPLORE",
+        "arc_heading": "Explore Our Vision",
+        "arc_text": "<p>Discover a world where technology meets creativity. Scroll through our curated collection of innovations designed to shape the future.</p>",
+        "full_screen": true,
+        "height_desktop": 800,
+        "height_mobile": 640,
+        "card_width": 80,
+        "border_radius": 6,
+        "scroll_length": 3000,
+        "release_scroll": true,
+        "enable_parallax": true,
+        "color_bg": "#fafafa",
+        "color_intro_heading": "#1f2937",
+        "color_intro_sub": "#6b7280",
+        "color_arc_heading": "#111827",
+        "color_arc_text": "#4b5563",
+        "color_back_bg": "#111827",
+        "color_back_border": "#374151",
+        "color_back_label": "#60a5fa",
+        "color_back_title": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
     "slideshow": {
       "type": "layered-slideshow",
       "blocks": {
@@ -37,8 +214,14 @@
           }
         }
       },
-      "block_order": ["slide_1", "slide_2"],
+      "block_order": [
+        "slide_1",
+        "slide_2"
+      ],
       "settings": {
+        "desktop_height": 650,
+        "mobile_height": 500,
+        "overlay_opacity": 25,
         "autoplay": true,
         "slide_interval": 6,
         "color_scheme": "scheme-3"
@@ -50,45 +233,147 @@
         "subheading": "Bestsellers",
         "heading": "Customer favourites",
         "collection": "all",
-        "products_to_show": 4
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true,
+        "color_scheme": ""
       }
     },
     "collection_bento": {
       "type": "collection-bento",
       "blocks": {
-        "card_1": { "type": "collection_card", "settings": { "card_size": "large", "title": "Indoor plants" } },
-        "card_2": { "type": "collection_card", "settings": { "card_size": "normal", "title": "Planters" } },
-        "card_3": { "type": "collection_card", "settings": { "card_size": "normal", "title": "Care" } },
-        "card_4": { "type": "collection_card", "settings": { "card_size": "wide", "title": "Gifts" } }
+        "card_1": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "",
+            "title": "Indoor plants",
+            "link": "",
+            "card_size": "large",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_2": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "",
+            "title": "Planters",
+            "link": "",
+            "card_size": "normal",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_3": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "",
+            "title": "Care",
+            "link": "",
+            "card_size": "normal",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_4": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "",
+            "title": "Gifts",
+            "link": "",
+            "card_size": "wide",
+            "text_position": "bottom-left"
+          }
+        }
       },
-      "block_order": ["card_1", "card_2", "card_3", "card_4"],
+      "block_order": [
+        "card_1",
+        "card_2",
+        "card_3",
+        "card_4"
+      ],
       "settings": {
-        "heading": "Shop by collection"
+        "heading": "Shop by collection",
+        "description": "<p>Explore our collections and find your favorites.</p>",
+        "layout": "classic",
+        "columns": 4,
+        "gap": 16,
+        "show_overlay": true,
+        "show_product_count": false,
+        "show_arrow": true,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "color_scheme": ""
       }
     },
     "featured_product": {
       "type": "featured-product",
       "settings": {
+        "product": "",
+        "subheading": "Featured product",
+        "show_vendor": false,
+        "show_description": true,
+        "show_dynamic_checkout": true,
         "color_scheme": "scheme-2"
       }
     },
     "hotspots": {
       "type": "product-hotspots",
       "blocks": {
-        "hotspot_1": { "type": "hotspot", "settings": { "horizontal_position": 30, "vertical_position": 55 } },
-        "hotspot_2": { "type": "hotspot", "settings": { "horizontal_position": 68, "vertical_position": 40 } }
+        "hotspot_1": {
+          "type": "hotspot",
+          "settings": {
+            "product": "",
+            "horizontal_position": 30,
+            "vertical_position": 55
+          }
+        },
+        "hotspot_2": {
+          "type": "hotspot",
+          "settings": {
+            "product": "",
+            "horizontal_position": 68,
+            "vertical_position": 40
+          }
+        }
       },
-      "block_order": ["hotspot_1", "hotspot_2"],
-      "settings": {}
+      "block_order": [
+        "hotspot_1",
+        "hotspot_2"
+      ],
+      "settings": {
+        "heading": "Shop the look",
+        "description": "<p>Discover the products featured in this image.</p>",
+        "link_label": "View product",
+        "color_scheme": ""
+      }
     },
     "rich_text": {
       "type": "rich-text",
-      "settings": {}
+      "settings": {
+        "subheading": "Our story",
+        "heading": "Thoughtfully grown for everyday life",
+        "text": "<p>Share your brand story, values or a message with your customers.</p>",
+        "button_label": "",
+        "button_link": "",
+        "alignment": "center",
+        "color_scheme": ""
+      }
     },
     "newsletter": {
       "type": "newsletter",
-      "settings": {}
+      "settings": {
+        "heading": "Stay in the loop",
+        "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
+        "color_scheme": ""
+      }
     }
   },
-  "order": ["slideshow", "featured_collection", "collection_bento", "featured_product", "hotspots", "rich_text", "newsletter"]
+  "order": [
+    "scroll_morph_hero_3prAnb",
+    "slideshow",
+    "featured_collection",
+    "collection_bento",
+    "featured_product",
+    "hotspots",
+    "rich_text",
+    "newsletter"
+  ]
 }

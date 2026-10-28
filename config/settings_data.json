@@ -1,5 +1,69 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
-  "current": "Default",
+  "current": {
+    "button_radius": 28,
+    "secondary_button_radius": 6,
+    "secondary_button_border_width": 3,
+    "content_for_index": [],
+    "color_schemes": {
+      "scheme-1": {
+        "settings": {
+          "background": "#ffffff",
+          "background_gradient": "",
+          "text": "#1e2a26",
+          "accent": "#2f5d50",
+          "button": "#2f5d50",
+          "button_label": "#ffffff",
+          "secondary_button_label": "#2f5d50",
+          "border": "#d9ded9"
+        }
+      },
+      "scheme-2": {
+        "settings": {
+          "background": "#f4f1ea",
+          "background_gradient": "",
+          "text": "#1e2a26",
+          "accent": "#2f5d50",
+          "button": "#1e2a26",
+          "button_label": "#ffffff",
+          "secondary_button_label": "#1e2a26",
+          "border": "#d6d0c2"
+        }
+      },
+      "scheme-3": {
+        "settings": {
+          "background": "#1f3b35",
+          "background_gradient": "",
+          "text": "#ffffff",
+          "accent": "#e7d9b8",
+          "button": "#ffffff",
+          "button_label": "#1f3b35",
+          "secondary_button_label": "#ffffff",
+          "border": "#3c5a52"
+        }
+      },
+      "scheme-4": {
+        "settings": {
+          "background": "#202522",
+          "background_gradient": "",
+          "text": "#f2f3f1",
+          "accent": "#e7d9b8",
+          "button": "#e7d9b8",
+          "button_label": "#202522",
+          "secondary_button_label": "#f2f3f1",
+          "border": "#444a46"
+        }
+      }
+    }
+  },
   "presets": {
     "Default": {
       "color_schemes": {
