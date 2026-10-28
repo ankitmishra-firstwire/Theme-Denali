@@ -46,7 +46,7 @@
 
 .product-hotspots__placeholder {
   min-height: 350px;
-  background: #f4f4f4;
+  background: rgba(var(--color-foreground-rgb), 0.04);
 }
 
 .product-hotspots__point {
@@ -67,7 +67,7 @@
   padding: 0;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: #12203f;
+  background: var(--color-button);
   box-shadow: 0 2px 10px rgb(0 0 0 / 20%);
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.2s ease;
@@ -94,14 +94,14 @@
 .product-hotspots__trigger:hover,
 .product-hotspots__trigger:focus-visible,
 .product-hotspots__trigger[aria-expanded="true"] {
-  background: #344c7c;
+  background: var(--color-accent);
   transform: scale(1.08);
 }
 
 .product-hotspots__trigger:focus-visible,
 .product-hotspots__close:focus-visible,
 .product-hotspots__view-link:focus-visible {
-  outline: 2px solid #12203f;
+  outline: 2px solid var(--color-foreground);
   outline-offset: 4px;
 }
 
@@ -126,9 +126,9 @@
   padding: 16px;
   border: 1px solid rgb(0 0 0 / 8%);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-background);
   box-shadow: 0 8px 30px rgb(0 0 0 / 15%);
-  color: #222;
+  color: var(--color-foreground);
   transform: translateY(-50%);
 }
 
@@ -186,13 +186,13 @@
 }
 
 .product-hotspots__compare-price {
-  color: #777;
+  color: #595959;
   font-size: 12px;
 }
 
 .product-hotspots__view-link {
   display: inline-block;
-  color: #12203f;
+  color: var(--color-accent);
   font-size: 13px;
   font-weight: 600;
   text-decoration: underline;
@@ -204,14 +204,14 @@
   top: 5px;
   right: 7px;
   display: flex;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: 0;
   background: transparent;
-  color: #222;
+  color: currentColor;
   font-size: 24px;
   line-height: 1;
   cursor: pointer;

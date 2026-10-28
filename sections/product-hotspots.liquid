@@ -3,7 +3,7 @@
 
 <section
   id="ProductHotspots-{{ section.id }}"
-  class="product-hotspots"
+  class="product-hotspots section color-{{ section.settings.color_scheme }}"
   data-product-hotspots
 >
   <div class="product-hotspots__container page-width">
@@ -25,6 +25,7 @@
 
     <div class="product-hotspots__stage">
       {% if section.settings.image != blank %}
+        {%- assign hotspot_focal = 'object-position: ' | append: section.settings.image.presentation.focal_point | append: ';' -%}
         {{
           section.settings.image
           | image_url: width: 2000
@@ -33,7 +34,8 @@
             widths: '550, 750, 1100, 1500, 2000',
             sizes: '(min-width: 990px) 100vw, 100vw',
             loading: 'lazy',
-            alt: section.settings.image.alt
+            alt: section.settings.image.alt,
+            style: hotspot_focal
         }}
       {% else %}
         {{ 'lifestyle-1' | placeholder_svg_tag: 'product-hotspots__placeholder' }}
@@ -52,13 +54,12 @@
               class="product-hotspots__trigger"
               type="button"
               aria-expanded="false"
-              aria-label="View {{ hotspot_product.title | escape }}"
-              aria-controls="HotspotCard-{{ section.id }}-{{ block.id }}"
+                            aria-controls="HotspotCard-{{ section.id }}-{{ block.id }}"
               data-hotspot-trigger
             >
               <span class="product-hotspots__pulse"></span>
               <span class="visually-hidden">
-                View {{ hotspot_product.title | escape }}
+                {{ 'sections.hotspots.view_product' | t: title: hotspot_product.title }}
               </span>
             </button>
 
@@ -82,7 +83,8 @@
                       class: 'product-hotspots__product-image',
                       loading: 'lazy',
                       widths: '120, 180, 240',
-                      sizes: '120px'
+                      sizes: '120px',
+                      alt: ''
                   }}
                 </a>
               {% endif %}
@@ -106,6 +108,10 @@
                   {% else %}
                     {{ hotspot_product.price | money }}
                   {% endif %}
+                  {%- assign hotspot_variant = hotspot_product.selected_or_first_available_variant -%}
+                  {%- if hotspot_variant.unit_price_measurement -%}
+                    {% render 'unit-price', unit_price: hotspot_variant.unit_price, measurement: hotspot_variant.unit_price_measurement %}
+                  {%- endif -%}
                 </div>
 
                 <a
@@ -119,7 +125,7 @@
               <button
                 type="button"
                 class="product-hotspots__close"
-                aria-label="Close product details"
+                aria-label="{{ 'sections.hotspots.close' | t }}"
                 data-hotspot-close
               >
                 &times;
@@ -160,6 +166,12 @@
       "id": "link_label",
       "label": "Product link label",
       "default": "View product"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
     }
   ],
   "blocks": [

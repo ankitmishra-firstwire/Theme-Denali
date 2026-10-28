@@ -1,0 +1,49 @@
+{%- doc -%}
+  Shows whether the selected variant can be picked up in store.
+
+  @param {variant} variant - The selected variant
+{%- enddoc -%}
+{%- liquid
+  assign pick_up_availabilities = variant.store_availabilities | where: 'pick_up_enabled', true
+-%}
+{%- if variant != null and pick_up_availabilities.size > 0 -%}
+  {%- assign closest = pick_up_availabilities.first -%}
+  <div class="pickup">
+    {% render 'icon', icon: 'pin', class: 'pickup__icon' %}
+    <div class="pickup__info">
+      {%- if closest.available -%}
+        <p class="pickup__status">{{ 'products.product.pickup_availability.pick_up_available_at_html' | t: location_name: closest.location.name }}</p>
+        <p class="caption">{{ closest.pick_up_time }}</p>
+      {%- else -%}
+        <p class="pickup__status">{{ 'products.product.pickup_availability.pick_up_unavailable_at_html' | t: location_name: closest.location.name }}</p>
+      {%- endif -%}
+      <details class="pickup__details">
+        <summary class="link">
+          {%- if pick_up_availabilities.size > 1 -%}
+            {{ 'products.product.pickup_availability.check_other_stores' | t }}
+          {%- else -%}
+            {{ 'products.product.pickup_availability.view_store_info' | t }}
+          {%- endif -%}
+        </summary>
+        <ul class="pickup__list list-unstyled" role="list">
+          {%- for availability in pick_up_availabilities -%}
+            <li class="pickup__location">
+              <h3 class="pickup__location-name">{{ availability.location.name | escape }}</h3>
+              <p class="caption">
+                {%- if availability.available -%}
+                  {% render 'icon', icon: 'check' %}{{ 'products.product.pickup_availability.pick_up_available' | t }}, {{ availability.pick_up_time | downcase }}
+                {%- else -%}
+                  {{ 'products.product.pickup_availability.pick_up_unavailable' | t }}
+                {%- endif -%}
+              </p>
+              <address class="caption">
+                {{- availability.location.address | format_address -}}
+                {%- if availability.location.address.phone.size > 0 -%}{{ availability.location.address.phone }}{%- endif -%}
+              </address>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </details>
+    </div>
+  </div>
+{%- endif -%}

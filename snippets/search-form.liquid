@@ -1,0 +1,42 @@
+{%- doc -%}
+  Search form with optional predictive search suggestions.
+
+  @param {string} id_prefix - Unique prefix for element IDs
+  @param {string} [terms] - Prefilled search terms
+{%- enddoc -%}
+{%- assign input_id = 'Search-' | append: id_prefix -%}
+<form action="{{ routes.search_url }}" method="get" role="search" class="search-form">
+  {%- if settings.predictive_search_enabled -%}
+    <predictive-search class="predictive-search" data-results-id="{{ input_id }}-results">
+  {%- endif -%}
+  <div class="field search-form__field">
+    <label class="visually-hidden" for="{{ input_id }}">{{ 'general.search.search' | t }}</label>
+    <input
+      class="field__input search-form__input"
+      id="{{ input_id }}"
+      type="search"
+      name="q"
+      value="{{ terms | escape }}"
+      placeholder="{{ 'general.search.placeholder' | t }}"
+      autocomplete="off"
+      {% if settings.predictive_search_enabled %}
+        role="combobox"
+        aria-expanded="false"
+        aria-owns="{{ input_id }}-results"
+        aria-controls="{{ input_id }}-results"
+        aria-haspopup="listbox"
+        aria-autocomplete="list"
+      {% endif %}
+    >
+    <input type="hidden" name="options[prefix]" value="last">
+    <button type="submit" class="icon-button search-form__submit">
+      {% render 'icon', icon: 'search' %}
+      <span class="visually-hidden">{{ 'general.search.submit' | t }}</span>
+    </button>
+  </div>
+  {%- if settings.predictive_search_enabled -%}
+      <div class="predictive-search__results" id="{{ input_id }}-results" data-predictive-results hidden></div>
+      <span class="visually-hidden" role="status" aria-live="polite" data-predictive-status></span>
+    </predictive-search>
+  {%- endif -%}
+</form>

@@ -1,0 +1,46 @@
+{%- doc -%}
+  Country/region and language selectors driven by Shopify Markets.
+
+  @param {boolean} [show_country] - Show the country/region selector
+  @param {boolean} [show_language] - Show the language selector
+  @param {string} id_prefix - Unique prefix for element IDs
+{%- enddoc -%}
+{%- liquid
+  assign country_enabled = false
+  if show_country and localization.available_countries.size > 1
+    assign country_enabled = true
+  endif
+  assign language_enabled = false
+  if show_language and localization.available_languages.size > 1
+    assign language_enabled = true
+  endif
+-%}
+{%- if country_enabled or language_enabled -%}
+  {%- form 'localization', id: id_prefix, class: 'localization-form' -%}
+    {%- if country_enabled -%}
+      <div class="field localization-form__field">
+        <label class="field__label" for="{{ id_prefix }}-country">{{ 'localization.country_label' | t }}</label>
+        <select class="field__input select" id="{{ id_prefix }}-country" name="country_code" data-auto-submit>
+          {%- for country in localization.available_countries -%}
+            <option value="{{ country.iso_code }}"{% if country.iso_code == localization.country.iso_code %} selected{% endif %}>
+              {{- country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+    {%- endif -%}
+    {%- if language_enabled -%}
+      <div class="field localization-form__field">
+        <label class="field__label" for="{{ id_prefix }}-language">{{ 'localization.language_label' | t }}</label>
+        <select class="field__input select" id="{{ id_prefix }}-language" name="language_code" data-auto-submit>
+          {%- for language in localization.available_languages -%}
+            <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}"{% if language.iso_code == localization.language.iso_code %} selected{% endif %}>
+              {{- language.endonym_name | capitalize -}}
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+    {%- endif -%}
+    <noscript><button class="button button--secondary" type="submit">{{ 'localization.update' | t }}</button></noscript>
+  {%- endform -%}
+{%- endif -%}

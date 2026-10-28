@@ -1,49 +1,52 @@
-{% doc %}
-  Renders a responsive image that might be wrapped in a link.
+{%- doc -%}
+  Renders a responsive image that respects the merchant's focal point.
+  Optionally wraps the image in a link.
 
-  When `width`, `height` and `crop` are provided, the image will be rendered
-  with a fixed aspect ratio.
-
-  Serves as an example of how to use the `image_url` filter and `image_tag` filter
-  as well as how you can use LiquidDoc to document your code.
-
-  @param {image} image - The image to be rendered
-  @param {string} [url] - An optional destination URL for the image
-  @param {string} [class] - Optional class to be added to the image wrapper
-  @param {number} [width] - The highest resolution width of the image to be rendered
-  @param {number} [height] - The highest resolution height of the image to be rendered
-  @param {string} [crop] - The crop position of the image
+  @param {image} image - The image to render
+  @param {string} [url] - Optional destination URL
+  @param {string} [class] - Optional class for the wrapper
+  @param {string} [image_class] - Optional class for the img element
+  @param {number} [width] - Largest width to request (defaults to 1500)
+  @param {string} [widths] - Comma-separated srcset widths
+  @param {string} [sizes] - The sizes attribute
+  @param {string} [loading] - 'lazy' (default) or 'eager'
+  @param {string} [alt] - Alternative text override
+  @param {boolean} [priority] - When true, sets fetchpriority="high" and eager loading
 
   @example
-  {% render 'image', image: product.featured_image %}
-  {% render 'image', image: product.featured_image, url: product.url %}
-  {% render 'image',
-    class: 'product__image',
-    image: product.featured_image,
-    url: product.url,
-    width: 1200,
-    height: 800,
-    crop: 'center',
-  %}
-{% enddoc %}
-
-{% liquid
-  unless height
-    assign width = width | default: image.width
-  endunless
-
+  {% render 'image', image: product.featured_media.preview_image, sizes: '50vw' %}
+{%- enddoc -%}
+{%- liquid
+  assign max_width = width | default: 1500
+  assign loading_attr = loading | default: 'lazy'
+  assign fetch_priority = 'auto'
+  if priority
+    assign loading_attr = 'eager'
+    assign fetch_priority = 'high'
+  endif
+  assign srcset_widths = widths | default: '360, 540, 720, 900, 1080, 1296, 1512'
+  assign image_sizes = sizes | default: '100vw'
+  assign alt_text = alt | default: image.alt
+  assign focal_style = 'object-position: ' | append: image.presentation.focal_point | append: ';'
   if url
     assign wrapper = 'a'
   else
     assign wrapper = 'div'
   endif
-%}
-
-<{{ wrapper }}
-  class="image {{ class }}"
-  {% if url %}
-    href="{{ url }}"
-  {% endif %}
->
-  {{ image | image_url: width: width, height: height, crop: crop | image_tag }}
-</{{ wrapper }}>
+-%}
+{%- if image != blank -%}
+  <{{ wrapper }} class="image {{ class }}"{% if url %} href="{{ url }}"{% endif %}>
+    {{-
+      image
+      | image_url: width: max_width
+      | image_tag:
+        widths: srcset_widths,
+        sizes: image_sizes,
+        loading: loading_attr,
+        fetchpriority: fetch_priority,
+        alt: alt_text,
+        class: image_class,
+        style: focal_style
+    -}}
+  </{{ wrapper }}>
+{%- endif -%}

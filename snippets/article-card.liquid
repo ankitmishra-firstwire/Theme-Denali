@@ -1,0 +1,33 @@
+{%- doc -%}
+  Card used in blog listings and search results.
+
+  @param {article} article - The article
+  @param {string} [heading_tag] - Heading element (defaults to h3)
+  @param {boolean} [show_type] - Show a "Blog post" label
+  @param {boolean} [show_date] - Show the publish date (defaults to true)
+  @param {boolean} [show_author] - Show the author
+  @param {boolean} [priority] - Load the image eagerly
+{%- enddoc -%}
+{%- assign title_tag = heading_tag | default: 'h3' -%}
+<article class="article-card">
+  {%- if article.image -%}
+    <a class="article-card__media" href="{{ article.url }}" tabindex="-1" aria-hidden="true">
+      {% render 'image', image: article.image, sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw', widths: '360, 540, 720, 900', width: 900, priority: priority, alt: '' %}
+    </a>
+  {%- endif -%}
+  <div class="article-card__info">
+    {%- if show_type -%}<p class="caption">{{ 'templates.search.article' | t }}</p>{%- endif -%}
+    <{{ title_tag }} class="article-card__title">
+      <a class="full-unstyled-link" href="{{ article.url }}">{{ article.title | escape }}</a>
+    </{{ title_tag }}>
+    <p class="article-card__meta caption">
+      {%- unless show_date == false -%}{{ article.published_at | time_tag: format: 'date' }}{%- endunless -%}
+      {%- if show_author -%} · {{ article.author | escape }}{%- endif -%}
+    </p>
+    {%- if article.excerpt != blank -%}
+      <p class="article-card__excerpt">{{ article.excerpt | strip_html | truncatewords: 30 }}</p>
+    {%- else -%}
+      <p class="article-card__excerpt">{{ article.content | strip_html | truncatewords: 30 }}</p>
+    {%- endif -%}
+  </div>
+</article>

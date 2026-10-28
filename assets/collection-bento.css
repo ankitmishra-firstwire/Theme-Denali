@@ -59,7 +59,7 @@
   color: #fff;
   text-decoration: none;
   isolation: isolate;
-  background: #e8e8e8;
+  background: rgba(var(--color-foreground-rgb), 0.06);
 }
 
 .collection-bento__image-wrapper {

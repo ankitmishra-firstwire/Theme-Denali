@@ -1,0 +1,25 @@
+<div class="custom-liquid color-{{ section.settings.color_scheme }}{% if section.settings.add_spacing %} section{% endif %}">
+  <div class="{% if section.settings.full_width %}full-width{% else %}page-width{% endif %}">
+    {{ section.settings.custom_liquid }}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Custom Liquid",
+  "tag": "section",
+  "class": "section-custom-liquid",
+  "settings": [
+    {
+      "type": "liquid",
+      "id": "custom_liquid",
+      "label": "Liquid code",
+      "info": "Add app snippets or other code to create advanced customizations. [Learn more](https://shopify.dev/docs/api/liquid)"
+    },
+    { "type": "checkbox", "id": "full_width", "label": "Full page width", "default": false },
+    { "type": "checkbox", "id": "add_spacing", "label": "Add section spacing", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+  ],
+  "presets": [{ "name": "Custom Liquid" }]
+}
+{% endschema %}

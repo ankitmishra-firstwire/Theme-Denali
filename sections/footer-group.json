@@ -1,6 +1,37 @@
 {
   "type": "footer",
   "name": "Footer group",
-  "sections": { "footer": { "type": "footer", "settings": {} } },
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {
+            "heading": "About us",
+            "text": "<p>Share a short description of your brand with customers.</p>"
+          }
+        },
+        "menu": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Quick links",
+            "menu": "footer"
+          }
+        },
+        "newsletter": {
+          "type": "newsletter",
+          "settings": {
+            "heading": "Join our list",
+            "text": "<p>Be the first to hear about new arrivals and seasonal care guides.</p>"
+          }
+        }
+      },
+      "block_order": ["text", "menu", "newsletter"],
+      "settings": {
+        "color_scheme": "scheme-4"
+      }
+    }
+  },
   "order": ["footer"]
 }

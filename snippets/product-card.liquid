@@ -1,0 +1,66 @@
+{%- doc -%}
+  Renders a product card used by collection grids, search results,
+  recommendations and the featured collection section.
+
+  @param {product} product - The product to render
+  @param {string} [sizes] - The sizes attribute for the card image
+  @param {string} [heading_tag] - Heading element for the title (defaults to h3)
+  @param {boolean} [priority] - Load the image eagerly (above-the-fold cards)
+{%- enddoc -%}
+{%- liquid
+  assign image_sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign title_tag = heading_tag | default: 'h3'
+  assign primary_image = product.featured_media.preview_image
+  assign secondary_image = blank
+  if settings.card_show_secondary_image and product.media.size > 1
+    assign secondary_image = product.media[1].preview_image
+  endif
+-%}
+<div class="product-card{% if secondary_image != blank %} product-card--has-secondary{% endif %}">
+  <div class="product-card__media{% if settings.card_image_ratio == 'adapt' and primary_image %} product-card__media--adapt{% endif %}"{% if settings.card_image_ratio == 'adapt' and primary_image %} style="--ratio: {{ primary_image.aspect_ratio }};"{% endif %}>
+    {%- if primary_image -%}
+      {% render 'image',
+        image: primary_image,
+        image_class: 'product-card__image',
+        sizes: image_sizes,
+        widths: '240, 360, 540, 720, 900',
+        width: 900,
+        priority: priority
+      %}
+      {%- if secondary_image != blank -%}
+        {% render 'image',
+          image: secondary_image,
+          image_class: 'product-card__image product-card__image--secondary',
+          sizes: image_sizes,
+          widths: '240, 360, 540, 720, 900',
+          width: 900,
+          alt: ''
+        %}
+      {%- endif -%}
+    {%- else -%}
+      {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+
+    {%- if settings.card_show_badges -%}
+      <div class="product-card__badges">
+        {%- if product.available == false -%}
+          <span class="badge badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
+        {%- elsif product.compare_at_price > product.price -%}
+          <span class="badge badge--sale">{{ 'products.product.on_sale' | t }}</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="product-card__info">
+    {%- if settings.card_show_vendor and product.vendor != blank -%}
+      <p class="product-card__vendor caption">
+        <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>{{ product.vendor | escape }}
+      </p>
+    {%- endif -%}
+    <{{ title_tag }} class="product-card__title">
+      <a class="product-card__link full-unstyled-link" href="{{ product.url }}">{{ product.title | escape }}</a>
+    </{{ title_tag }}>
+    {% render 'price', product: product, show_range: true %}
+  </div>
+</div>

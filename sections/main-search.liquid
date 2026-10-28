@@ -1,0 +1,66 @@
+{%- paginate search.results by section.settings.results_per_page -%}
+  <div class="section color-{{ section.settings.color_scheme }}">
+    <div class="page-width">
+      <div class="search-page__header">
+        <h1 class="search-page__title">{{ 'templates.search.title' | t }}</h1>
+        {% render 'search-form', id_prefix: 'Main', terms: search.terms %}
+      </div>
+
+      {%- if search.performed -%}
+        {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
+          {%- if search.filters.size > 0 or section.settings.enable_sorting -%}
+            {% render 'facets',
+              results: search,
+              enable_filtering: section.settings.enable_filtering,
+              enable_sorting: section.settings.enable_sorting,
+              section_id: section.id
+            %}
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if search.results_count == 0 -%}
+          <div class="empty-state">
+            <h2 class="empty-state__title">{{ 'templates.search.no_results' | t: terms: search.terms }}</h2>
+            <p>{{ 'templates.search.no_results_help' | t }}</p>
+            <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'general.continue_shopping' | t }}</a>
+          </div>
+        {%- else -%}
+          <ul class="product-grid product-grid--{{ section.settings.columns_desktop }}-col list-unstyled" role="list">
+            {%- for item in search.results -%}
+              <li class="product-grid__item">
+                {%- case item.object_type -%}
+                  {%- when 'product' -%}
+                    {% render 'product-card', product: item, heading_tag: 'h2' %}
+                  {%- when 'article' -%}
+                    {% render 'article-card', article: item, heading_tag: 'h2', show_type: true %}
+                  {%- when 'page' -%}
+                    <div class="content-card">
+                      <p class="caption">{{ 'templates.search.page' | t }}</p>
+                      <h2 class="content-card__title"><a class="full-unstyled-link" href="{{ item.url }}">{{ item.title | escape }}</a></h2>
+                      <p>{{ item.content | strip_html | truncatewords: 24 }}</p>
+                    </div>
+                {%- endcase -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+          {% render 'pagination', paginate: paginate %}
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Search results",
+  "tag": "section",
+  "class": "section-main-search",
+  "settings": [
+    { "type": "range", "id": "results_per_page", "label": "Results per page", "min": 8, "max": 48, "step": 4, "default": 16 },
+    { "type": "range", "id": "columns_desktop", "label": "Columns on desktop", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "checkbox", "id": "enable_filtering", "label": "Enable filtering", "default": true },
+    { "type": "checkbox", "id": "enable_sorting", "label": "Enable sorting", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+  ]
+}
+{% endschema %}

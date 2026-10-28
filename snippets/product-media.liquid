@@ -1,0 +1,80 @@
+{%- doc -%}
+  Renders one item of the product media gallery. Images render directly;
+  videos, external videos and 3D models are deferred until the customer
+  interacts with them so they don't slow down the initial page load.
+
+  @param {object} media - The product media object
+  @param {string} section_id - The section ID
+  @param {boolean} [priority] - Load the media eagerly (first item)
+  @param {boolean} [loop] - Loop videos
+{%- enddoc -%}
+{%- liquid
+  assign preview = media.preview_image
+  assign video_loop = loop | default: false
+  assign focal_style = 'object-position: ' | append: preview.presentation.focal_point | append: ';'
+  if priority
+    assign loading_attr = 'eager'
+    assign fetch_priority = 'high'
+  else
+    assign loading_attr = 'lazy'
+    assign fetch_priority = 'auto'
+  endif
+-%}
+<li
+  class="product-media__item product-media__item--{{ media.media_type }}"
+  id="Media-{{ section_id }}-{{ media.id }}"
+  data-media-id="{{ media.id }}"
+>
+  {%- case media.media_type -%}
+    {%- when 'image' -%}
+      <div class="product-media__frame" style="--ratio: {{ media.aspect_ratio | default: 1 }};">
+        {{
+          media
+          | image_url: width: 1946
+          | image_tag:
+            widths: '360, 540, 720, 900, 1080, 1296, 1512, 1728, 1946',
+            sizes: '(min-width: 990px) 55vw, 100vw',
+            loading: loading_attr,
+            fetchpriority: fetch_priority,
+            style: focal_style,
+            alt: media.alt
+        }}
+      </div>
+    {%- when 'video', 'external_video', 'model' -%}
+      <deferred-media class="product-media__frame deferred-media" style="--ratio: {{ media.aspect_ratio | default: 1 }};" data-media-type="{{ media.media_type }}">
+        <button type="button" class="deferred-media__poster">
+          <span class="visually-hidden">
+            {%- if media.media_type == 'model' -%}
+              {{ 'products.product.media.open_model' | t: alt: media.alt }}
+            {%- else -%}
+              {{ 'products.product.media.play_video' | t: alt: media.alt }}
+            {%- endif -%}
+          </span>
+          {{
+            preview
+            | image_url: width: 1946
+            | image_tag:
+              widths: '360, 540, 720, 900, 1080, 1296, 1512, 1728, 1946',
+              sizes: '(min-width: 990px) 55vw, 100vw',
+              loading: loading_attr,
+              fetchpriority: fetch_priority,
+              style: focal_style,
+              alt: ''
+          }}
+          <span class="deferred-media__icon" aria-hidden="true">
+            {%- if media.media_type == 'model' -%}{% render 'icon', icon: 'cube' %}{%- else -%}{% render 'icon', icon: 'play' %}{%- endif -%}
+          </span>
+        </button>
+        <template>
+          {%- case media.media_type -%}
+            {%- when 'external_video' -%}
+              {{ media | external_video_url: autoplay: true, loop: video_loop, playlist: media.external_id | external_video_tag: title: media.alt, loading: 'lazy' }}
+            {%- when 'video' -%}
+              {{ media | video_tag: image_size: '1946x', autoplay: true, loop: video_loop, controls: true, preload: 'none', muted: false }}
+            {%- when 'model' -%}
+              {{ media | model_viewer_tag: image_size: '1946x', reveal: 'interaction', toggleable: true, data-model-id: media.id }}
+          {%- endcase -%}
+        </template>
+      </deferred-media>
+  {%- endcase -%}
+</li>

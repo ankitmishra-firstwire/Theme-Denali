@@ -1,0 +1,107 @@
+<article class="article section color-{{ section.settings.color_scheme }}">
+  {%- if section.settings.show_image and article.image -%}
+    <div class="article__hero page-width">
+      {% render 'image', image: article.image, sizes: '(min-width: 1200px) 1200px, 100vw', widths: '375, 750, 1100, 1500, 2200', width: 2200, priority: true %}
+    </div>
+  {%- endif -%}
+
+  <div class="page-width page-width--narrow article__body">
+    <header class="article__header">
+      <h1 class="article__title">{{ article.title | escape }}</h1>
+      <p class="article__meta caption">
+        {%- if section.settings.show_date -%}{{ article.published_at | time_tag: format: 'date' }}{%- endif -%}
+        {%- if section.settings.show_author -%}
+          {%- if section.settings.show_date %} · {% endif -%}
+          {{ 'blogs.article.by_author' | t: author: article.author }}
+        {%- endif -%}
+      </p>
+    </header>
+
+    <div class="article__content rte">{{ article.content }}</div>
+
+    {%- if article.tags.size > 0 -%}
+      <ul class="article__tags list-unstyled" role="list" aria-label="{{ 'blogs.article.tags' | t }}">
+        {%- for tag in article.tags -%}
+          <li><a class="facets__pill" href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag | escape }}</a></li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if section.settings.show_share -%}
+      {%- assign share_url = request.origin | append: article.url -%}
+      {% render 'share-buttons', share_url: share_url, share_title: article.title, share_image: article.image %}
+    {%- endif -%}
+
+    <a class="link article__back" href="{{ blog.url }}">&larr; {{ 'blogs.article.back_to_blog' | t: title: blog.title }}</a>
+
+    {%- if blog.comments_enabled? -%}
+      <section class="article__comments" id="comments" aria-labelledby="CommentsHeading">
+        {%- if article.comments_count > 0 -%}
+          <h2 id="CommentsHeading">{{ 'blogs.article.comments' | t: count: article.comments_count }}</h2>
+          {%- paginate article.comments by 10 -%}
+            <ul class="list-unstyled article__comment-list" role="list">
+              {%- for comment in article.comments -%}
+                <li class="article__comment">
+                  <div class="rte">{{ comment.content }}</div>
+                  <p class="caption">{{ comment.author | escape }} · {{ comment.created_at | time_tag: format: 'date' }}</p>
+                </li>
+              {%- endfor -%}
+            </ul>
+            {% render 'pagination', paginate: paginate, anchor: '#comments' %}
+          {%- endpaginate -%}
+        {%- else -%}
+          <h2 id="CommentsHeading" class="visually-hidden">{{ 'blogs.article.comments' | t: count: 0 }}</h2>
+        {%- endif -%}
+
+        {%- form 'new_comment', article, class: 'article__comment-form' -%}
+          <h2>{{ 'blogs.article.comment_form_title' | t }}</h2>
+          {%- if form.errors -%}
+            <div class="form-message form-message--error" role="alert">
+              <p>{{ 'templates.contact.form.error_heading' | t }}</p>
+              <ul>
+                {%- for field in form.errors -%}
+                  <li>{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}</li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- elsif form.posted_successfully? -%}
+            <p class="form-message form-message--success" role="status">
+              {%- if blog.moderated? -%}{{ 'blogs.article.success_moderated' | t }}{%- else -%}{{ 'blogs.article.success' | t }}{%- endif -%}
+            </p>
+          {%- endif -%}
+          <div class="form-grid">
+            <div class="field">
+              <label class="field__label" for="CommentAuthor">{{ 'blogs.article.name' | t }} <span aria-hidden="true">*</span></label>
+              <input class="field__input" type="text" name="comment[author]" id="CommentAuthor" value="{{ form.author }}" autocomplete="name" required aria-required="true"{% if form.errors contains 'author' %} aria-invalid="true"{% endif %}>
+            </div>
+            <div class="field">
+              <label class="field__label" for="CommentEmail">{{ 'blogs.article.email' | t }} <span aria-hidden="true">*</span></label>
+              <input class="field__input" type="email" name="comment[email]" id="CommentEmail" value="{{ form.email }}" autocomplete="email" required aria-required="true"{% if form.errors contains 'email' %} aria-invalid="true"{% endif %}>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="CommentBody">{{ 'blogs.article.message' | t }} <span aria-hidden="true">*</span></label>
+            <textarea class="field__input" rows="5" name="comment[body]" id="CommentBody" required aria-required="true"{% if form.errors contains 'body' %} aria-invalid="true"{% endif %}>{{ form.body }}</textarea>
+          </div>
+          {%- if blog.moderated? -%}<p class="caption">{{ 'blogs.article.moderated' | t }}</p>{%- endif -%}
+          <button type="submit" class="button">{{ 'blogs.article.post' | t }}</button>
+        {%- endform -%}
+      </section>
+    {%- endif -%}
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Blog post",
+  "tag": "section",
+  "class": "section-main-article",
+  "settings": [
+    { "type": "checkbox", "id": "show_image", "label": "Show featured image", "default": true },
+    { "type": "checkbox", "id": "show_date", "label": "Show date", "default": true },
+    { "type": "checkbox", "id": "show_author", "label": "Show author", "default": true },
+    { "type": "checkbox", "id": "show_share", "label": "Show share buttons", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+  ]
+}
+{% endschema %}

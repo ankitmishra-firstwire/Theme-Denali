@@ -1,0 +1,52 @@
+{%- doc -%}
+  Optional fields that let a customer send a gift card directly to a
+  recipient, with a message and a scheduled send date.
+
+  @param {object} form - The product form object
+  @param {string} section_id - The section ID
+{%- enddoc -%}
+{%- assign recipient_id = 'Recipient-' | append: section_id -%}
+<gift-card-recipient class="recipient-form">
+  <div class="recipient-form__checkbox">
+    <input
+      id="{{ recipient_id }}-checkbox"
+      type="checkbox"
+      name="properties[__shopify_send_gift_card_to_recipient]"
+      value="on"
+      data-recipient-checkbox
+      {% if form.gift_card_recipient_email != blank %}checked{% endif %}
+    >
+    <label for="{{ recipient_id }}-checkbox">{{ 'recipient.form.checkbox' | t }}</label>
+  </div>
+  <div class="recipient-form__fields" data-recipient-fields>
+    <div class="field">
+      <label class="field__label" for="{{ recipient_id }}-email">{{ 'recipient.form.email_label' | t }} <span aria-hidden="true">*</span></label>
+      <input class="field__input" id="{{ recipient_id }}-email" type="email" name="properties[Recipient email]" autocomplete="email" value="{{ form.email }}" data-recipient-field>
+    </div>
+    <div class="field">
+      <label class="field__label" for="{{ recipient_id }}-name">{{ 'recipient.form.name_label' | t }}</label>
+      <input class="field__input" id="{{ recipient_id }}-name" type="text" name="properties[Recipient name]" autocomplete="name" value="{{ form.name }}" data-recipient-field>
+    </div>
+    <div class="field">
+      <label class="field__label" for="{{ recipient_id }}-message">{{ 'recipient.form.message_label' | t }}</label>
+      <textarea class="field__input" id="{{ recipient_id }}-message" name="properties[Message]" rows="4" maxlength="200" data-recipient-field>{{ form.message }}</textarea>
+      <p class="caption">{{ 'recipient.form.max_characters' | t: max_characters: 200 }}</p>
+    </div>
+    <div class="field">
+      <label class="field__label" for="{{ recipient_id }}-date">{{ 'recipient.form.send_on' | t }}</label>
+      <input
+        class="field__input"
+        id="{{ recipient_id }}-date"
+        type="date"
+        name="properties[Send on]"
+        min="{{ 'now' | date: '%Y-%m-%d' }}"
+        max="{{ 'now' | date: '%s' | plus: 7776000 | date: '%Y-%m-%d' }}"
+        value="{{ form.send_on }}"
+        pattern="\d{4}-\d{2}-\d{2}"
+        data-recipient-field
+      >
+      <p class="caption">{{ 'recipient.form.send_on_help' | t }}</p>
+    </div>
+  </div>
+  <input type="hidden" name="properties[__shopify_offset]" value="" data-recipient-offset>
+</gift-card-recipient>

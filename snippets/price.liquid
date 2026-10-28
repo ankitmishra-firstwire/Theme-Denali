@@ -1,6 +1,55 @@
-<div class="price">
-  {% if product.compare_at_price > product.price %}
-    <span class="price-sale">{{ product.price | money }}</span>
-    <s class="price-compare">{{ product.compare_at_price | money }}</s>
-  {% else %}<span>{{ product.price | money }}</span>{% endif %}
+{%- doc -%}
+  Renders a product or variant price: regular, sale (with compare-at),
+  price ranges ("From …") and unit prices.
+
+  @param {product} product - The product
+  @param {variant} [variant] - Optional variant; defaults to the selected or first available variant
+  @param {boolean} [show_range] - When true and no variant is passed, shows "From" pricing if prices vary
+  @param {string} [class] - Extra class names
+{%- enddoc -%}
+{%- liquid
+  assign target = variant | default: product.selected_or_first_available_variant
+  assign price = target.price
+  assign compare_at_price = target.compare_at_price
+  assign on_sale = false
+  if compare_at_price > price
+    assign on_sale = true
+  endif
+
+  assign use_range = false
+  if show_range and variant == blank and product.price_varies
+    assign use_range = true
+    assign price = product.price_min
+    assign compare_at_price = product.compare_at_price_min
+    assign on_sale = false
+    if product.compare_at_price_min > product.price_min
+      assign on_sale = true
+    endif
+  endif
+
+  if settings.currency_code_enabled
+    assign price_formatted = price | money_with_currency
+    assign compare_formatted = compare_at_price | money_with_currency
+  else
+    assign price_formatted = price | money
+    assign compare_formatted = compare_at_price | money
+  endif
+-%}
+<div class="price{% if on_sale %} price--on-sale{% endif %}{% if target.available == false %} price--sold-out{% endif %} {{ class }}">
+  {%- if on_sale -%}
+    <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+    <span class="price__current price__current--sale">
+      {%- if use_range -%}{{ 'products.product.price.from_price_html' | t: price: price_formatted }}{%- else -%}{{ price_formatted }}{%- endif -%}
+    </span>
+    <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+    <s class="price__compare">{{ compare_formatted }}</s>
+  {%- else -%}
+    <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+    <span class="price__current">
+      {%- if use_range -%}{{ 'products.product.price.from_price_html' | t: price: price_formatted }}{%- else -%}{{ price_formatted }}{%- endif -%}
+    </span>
+  {%- endif -%}
+  {%- if target.unit_price_measurement -%}
+    {% render 'unit-price', unit_price: target.unit_price, measurement: target.unit_price_measurement %}
+  {%- endif -%}
 </div>

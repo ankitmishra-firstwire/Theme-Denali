@@ -1,0 +1,39 @@
+{%- doc -%}
+  Customer email signup form. Subscribers are tagged "newsletter".
+
+  @param {string} form_id - Unique ID for the form
+{%- enddoc -%}
+{%- assign newsletter_id = 'Newsletter-' | append: form_id -%}
+{%- form 'customer', id: newsletter_id, class: 'newsletter-form' -%}
+  <input type="hidden" name="contact[tags]" value="newsletter">
+  <div class="newsletter-form__field-wrapper">
+    <div class="field">
+      <label class="visually-hidden" for="{{ newsletter_id }}-email">{{ 'newsletter.label' | t }}</label>
+      <input
+        id="{{ newsletter_id }}-email"
+        type="email"
+        name="contact[email]"
+        class="field__input"
+        value="{{ form.email }}"
+        autocorrect="off"
+        autocapitalize="off"
+        autocomplete="email"
+        placeholder="{{ 'newsletter.label' | t }}"
+        required
+        {% if form.errors %}
+          aria-invalid="true"
+          aria-describedby="{{ newsletter_id }}-error"
+        {% elsif form.posted_successfully? %}
+          aria-describedby="{{ newsletter_id }}-success"
+        {% endif %}
+      >
+    </div>
+    <button type="submit" class="button" name="commit">{{ 'newsletter.button_label' | t }}</button>
+  </div>
+  {%- if form.errors -%}
+    <p class="form-message form-message--error" id="{{ newsletter_id }}-error">{{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}</p>
+  {%- endif -%}
+  {%- if form.posted_successfully? -%}
+    <p class="form-message form-message--success" id="{{ newsletter_id }}-success" tabindex="-1" autofocus>{% render 'icon', icon: 'check' %}{{ 'newsletter.success' | t }}</p>
+  {%- endif -%}
+{%- endform -%}

@@ -6,6 +6,8 @@
     const dots = Array.from(section.querySelectorAll('[data-slide-to]'));
     const prevButton = section.querySelector('[data-prev]');
     const nextButton = section.querySelector('[data-next]');
+    const pauseButton = section.querySelector('[data-pause]');
+    let userPaused = false;
 
     if (slides.length < 2) return;
 
@@ -56,7 +58,7 @@
     function startAutoplay() {
       stopAutoplay();
 
-      if (!autoplay || reducedMotion) return;
+      if (!autoplay || reducedMotion || userPaused) return;
 
       timer = window.setInterval(() => {
         showSlide(currentIndex + 1);
@@ -67,6 +69,26 @@
       showSlide(index);
       startAutoplay();
     }
+
+    if (pauseButton && reducedMotion) {
+      pauseButton.hidden = true;
+    }
+
+    pauseButton?.addEventListener('click', () => {
+      userPaused = !userPaused;
+      pauseButton.setAttribute('aria-pressed', String(userPaused));
+      pauseButton.setAttribute(
+        'aria-label',
+        userPaused ? pauseButton.dataset.labelPlay : pauseButton.dataset.labelPause
+      );
+      const icon = pauseButton.querySelector('[data-pause-icon]');
+      if (icon) icon.innerHTML = userPaused ? '&#9654;' : '&#10074;&#10074;';
+      if (userPaused) {
+        stopAutoplay();
+      } else {
+        startAutoplay();
+      }
+    });
 
     prevButton?.addEventListener('click', () => {
       changeSlide(currentIndex - 1);
@@ -100,6 +122,13 @@
       }
     });
 
+    section.layeredShowSlide = (index, pause) => {
+      showSlide(index);
+      if (pause) {
+        stopAutoplay();
+      }
+    };
+
     showSlide(currentIndex);
     startAutoplay();
   }
@@ -116,8 +145,18 @@
     initAllSlideshows();
   }
 
+  document.addEventListener('shopify:block:select', (event) => {
+    const slide = event.target.closest('[data-slide]');
+    const section = slide?.closest('.layered-slideshow');
+    if (!section || !section.layeredShowSlide) return;
+    const slides = Array.from(section.querySelectorAll('[data-slide]'));
+    section.layeredShowSlide(slides.indexOf(slide), true);
+  });
+
   document.addEventListener('shopify:section:load', (event) => {
-    const section = event.target.querySelector('.layered-slideshow');
+    const section = event.target.matches('.layered-slideshow')
+      ? event.target
+      : event.target.querySelector('.layered-slideshow');
 
     if (section) {
       initLayeredSlideshow(section);

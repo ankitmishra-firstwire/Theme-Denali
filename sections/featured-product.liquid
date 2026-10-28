@@ -1,213 +1,162 @@
 {{ 'featured-product.css' | asset_url | stylesheet_tag }}
-<script src="{{ 'featured-product.js' | asset_url }}" defer></script>
+<script src="{{ 'product.js' | asset_url }}" defer="defer"></script>
 
-{% assign product = section.settings.product %}
+{%- liquid
+  assign product = section.settings.product
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'FeaturedProductForm-' | append: section.id
+-%}
 
-<section
-  id="FeaturedProduct-{{ section.id }}"
-  class="featured-product"
+<product-info
+  class="featured-product section color-{{ section.settings.color_scheme }}"
   data-section-id="{{ section.id }}"
+  data-render-mode="client"
+  data-product-form-id="{{ product_form_id }}"
 >
   <div class="featured-product__container page-width">
-
-    {% if product != blank %}
+    {%- if product != blank -%}
       <div class="featured-product__grid">
-
-        <!-- Product images -->
         <div class="featured-product__gallery">
           <div class="featured-product__main-image">
-            {% if product.featured_media != blank %}
-              {{
-                product.featured_media.preview_image
-                | image_url: width: 1200
-                | image_tag:
-                  class: 'featured-product__image',
-                  loading: 'lazy',
-                  widths: '400, 600, 800, 1000, 1200',
-                  sizes: '(min-width: 990px) 50vw, 100vw',
-                  alt: product.featured_media.alt
-              }}
-            {% else %}
+            {%- if product.featured_media != blank -%}
+              {% render 'image',
+                image: product.featured_media.preview_image,
+                image_class: 'featured-product__image',
+                sizes: '(min-width: 990px) 50vw, 100vw',
+                widths: '400, 600, 800, 1000, 1200, 1500',
+                width: 1500
+              %}
+            {%- else -%}
               {{ 'product-1' | placeholder_svg_tag: 'featured-product__placeholder' }}
-            {% endif %}
+            {%- endif -%}
           </div>
-
-          {% if section.settings.show_vendor and product.vendor != blank %}
-            <p class="featured-product__vendor">
-              {{ product.vendor | escape }}
-            </p>
-          {% endif %}
         </div>
 
-        <!-- Product information -->
         <div class="featured-product__details">
-
-          {% if section.settings.subheading != blank %}
-            <p class="featured-product__subheading">
-              {{ section.settings.subheading | escape }}
-            </p>
-          {% endif %}
+          {%- if section.settings.subheading != blank -%}
+            <p class="featured-product__subheading eyebrow">{{ section.settings.subheading | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.show_vendor and product.vendor != blank -%}
+            <p class="featured-product__vendor caption">{{ product.vendor | escape }}</p>
+          {%- endif -%}
 
           <h2 class="featured-product__title">
-            {{ product.title | escape }}
+            <a class="full-unstyled-link" href="{{ product.url }}">{{ product.title | escape }}</a>
           </h2>
 
-          {% if section.settings.show_rating %}
-            <div class="featured-product__rating">
-              <span aria-hidden="true">★★★★★</span>
-              <span class="featured-product__rating-note">
-                Customer reviews
-              </span>
-            </div>
-          {% endif %}
-
-          <div class="featured-product__price" data-product-price>
-            {% if product.selected_or_first_available_variant.compare_at_price
-              > product.selected_or_first_available_variant.price
-            %}
-              <span class="featured-product__compare-price">
-                {{ product.selected_or_first_available_variant.compare_at_price | money }}
-              </span>
-            {% endif %}
-
-            <span class="featured-product__current-price">
-              {{ product.selected_or_first_available_variant.price | money }}
-            </span>
+          <div class="featured-product__price" data-update="price" role="status">
+            {% render 'price', product: product, variant: current_variant, class: 'price--large' %}
           </div>
 
-          {% if section.settings.show_description and product.description != blank %}
-            <div class="featured-product__description">
-              {{ product.description }}
-            </div>
-          {% endif %}
+          {%- if section.settings.show_description and product.description != blank -%}
+            <div class="featured-product__description rte">{{ product.description | strip_html | truncatewords: 40 }}</div>
+          {%- endif -%}
 
-          {% assign form_id = 'FeaturedProductForm-' | append: section.id %}
-
-{% form 'product', product, id: form_id, class: 'featured-product__form' %}
-
-            <input
-              type="hidden"
-              name="id"
-              value="{{ product.selected_or_first_available_variant.id }}"
-              data-variant-id
-            >
-
-            {% unless product.has_only_default_variant %}
-              {% for option in product.options_with_values %}
-                <div class="featured-product__option">
-                  <label
-                    class="featured-product__label"
-                    for="FeaturedProductOption-{{ section.id }}-{{ forloop.index }}"
-                  >
-                    {{ option.name | escape }}
-                  </label>
-
-                  <select
-                    id="FeaturedProductOption-{{ section.id }}-{{ forloop.index }}"
-                    class="featured-product__select"
-                    data-option-position="{{ option.position }}"
-                  >
-                    {% for value in option.values %}
-                      <option
-                        value="{{ value | escape }}"
-                        {% if option.selected_value == value %}selected{% endif %}
-                      >
-                        {{ value | escape }}
-                      </option>
-                    {% endfor %}
+          {%- unless product.has_only_default_variant -%}
+            <variant-picker class="variant-picker" data-section-id="{{ section.id }}">
+              {%- for option in product.options_with_values -%}
+                {%- assign option_index = forloop.index0 -%}
+                <div class="field variant-picker__field">
+                  <label class="field__label" for="FeaturedOption-{{ section.id }}-{{ option_index }}">{{ option.name | escape }}</label>
+                  <select id="FeaturedOption-{{ section.id }}-{{ option_index }}" class="field__input select" data-option-index="{{ option_index }}">
+                    {%- for value in option.values -%}
+                      <option value="{{ value | escape }}"{% if option.selected_value == value %} selected="selected"{% endif %}>{{ value | escape }}</option>
+                    {%- endfor -%}
                   </select>
                 </div>
-              {% endfor %}
-            {% endunless %}
+              {%- endfor -%}
+              <script type="application/json" data-variants>
+                {{ product.variants | json }}
+              </script>
+            </variant-picker>
+          {%- endunless -%}
 
-            <div class="featured-product__quantity">
-              <label
-                class="featured-product__label"
-                for="FeaturedProductQuantity-{{ section.id }}"
+          <div class="product__quantity field">
+            <label class="field__label" for="FeaturedQuantity-{{ section.id }}">{{ 'products.product.quantity.label' | t }}</label>
+            <quantity-input class="quantity">
+              <button class="quantity__button" name="minus" type="button" data-quantity-minus>
+                <span class="visually-hidden">{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}</span>
+                {% render 'icon', icon: 'minus' %}
+              </button>
+              <input
+                class="quantity__input"
+                type="number"
+                name="quantity"
+                id="FeaturedQuantity-{{ section.id }}"
+                min="{{ current_variant.quantity_rule.min }}"
+                {% if current_variant.quantity_rule.max != null %}max="{{ current_variant.quantity_rule.max }}"{% endif %}
+                step="{{ current_variant.quantity_rule.increment }}"
+                value="{{ current_variant.quantity_rule.min }}"
+                form="{{ product_form_id }}"
+                data-quantity-input
               >
-                Quantity
-              </label>
+              <button class="quantity__button" name="plus" type="button" data-quantity-plus>
+                <span class="visually-hidden">{{ 'products.product.quantity.increase' | t: product: product.title | escape }}</span>
+                {% render 'icon', icon: 'plus' %}
+              </button>
+            </quantity-input>
+          </div>
 
-              <div class="featured-product__quantity-control">
+          <product-form class="product-form" data-section-id="{{ section.id }}">
+            <div class="form-message form-message--error" role="alert" data-form-error hidden></div>
+            {%- form 'product', product, id: product_form_id, class: 'product-form__form', novalidate: 'novalidate' -%}
+              <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+              {%- if product.requires_selling_plan and product.selling_plan_groups.size > 0 -%}
+                <input type="hidden" name="selling_plan" value="{{ product.selling_plan_groups.first.selling_plans.first.id }}">
+              {%- endif -%}
+              <div class="product-form__buttons" data-update="buy-buttons">
                 <button
-                  type="button"
-                  data-quantity-minus
-                  aria-label="Decrease quantity"
+                  type="submit"
+                  name="add"
+                  class="button button--full{% if section.settings.show_dynamic_checkout %} button--secondary{% endif %}"
+                  data-add-to-cart
+                  {% unless current_variant.available %}disabled{% endunless %}
                 >
-                  −
+                  <span data-add-to-cart-text>
+                    {%- if current_variant.available -%}{{ 'products.product.add_to_cart' | t }}{%- else -%}{{ 'products.product.sold_out' | t }}{%- endif -%}
+                  </span>
                 </button>
-
-                <input
-                  id="FeaturedProductQuantity-{{ section.id }}"
-                  type="number"
-                  name="quantity"
-                  value="1"
-                  min="1"
-                  step="1"
-                  data-quantity-input
-                >
-
-                <button
-                  type="button"
-                  data-quantity-plus
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
+                {%- if section.settings.show_dynamic_checkout -%}
+                  {{ form | payment_button }}
+                {%- endif -%}
               </div>
+            {%- endform -%}
+            <div class="form-message form-message--success" role="status" data-form-success hidden>
+              {% render 'icon', icon: 'check' %}
+              <span>{{ 'products.product.added_to_cart' | t }}</span>
+              <a class="link" href="{{ routes.cart_url }}">{{ 'products.product.view_cart' | t }}</a>
             </div>
+          </product-form>
 
-            <button
-              type="submit"
-              name="add"
-              class="featured-product__add-button"
-              data-add-to-cart
-              {% unless product.selected_or_first_available_variant.available %}
-                disabled
-              {% endunless %}
-            >
-              <span data-button-text>
-                {% if product.selected_or_first_available_variant.available %}
-                  {{ section.settings.button_label | escape }}
-                {% else %}
-                  Sold out
-                {% endif %}
-              </span>
-            </button>
-
-            {% if section.settings.show_dynamic_checkout %}
-              {{ form | payment_button }}
-            {% endif %}
-
-            <p class="featured-product__message" data-product-message role="status"></p>
-
-          {% endform %}
-
-          {% if section.settings.show_view_product %}
-            <a
-              class="featured-product__view-link"
-              href="{{ product.url }}"
-            >
-              View product details →
-            </a>
-          {% endif %}
-
+          <a class="link featured-product__view-link" href="{{ product.url }}">
+            {{- 'products.product.view_full_details' | t -}}
+            {% render 'icon', icon: 'arrow' %}
+          </a>
         </div>
       </div>
 
-      <script type="application/json" data-product-variants>
-        {{ product.variants | json }}
+      <script type="application/json" data-variant-prices>
+        {
+          {%- for variant in product.variants -%}
+            {%- capture variant_price_html -%}{% render 'price', product: product, variant: variant, class: 'price--large' %}{%- endcapture -%}
+            {{ variant.id | json }}: {{ variant_price_html | strip | json }}{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        }
       </script>
-
-    {% else %}
-      <div class="featured-product__empty">
-        <h2>Select a product</h2>
-        <p>Choose a product in this section's settings to display it here.</p>
+    {%- else -%}
+      <div class="featured-product__grid">
+        <div class="featured-product__gallery">
+          <div class="featured-product__main-image">{{ 'product-1' | placeholder_svg_tag: 'featured-product__placeholder' }}</div>
+        </div>
+        <div class="featured-product__details">
+          <h2 class="featured-product__title">{{ 'sections.featured_product.placeholder_title' | t }}</h2>
+          <div class="price price--large"><span class="price__current">{{ 4900 | money }}</span></div>
+          <p>{{ 'sections.featured_product.placeholder_text' | t }}</p>
+        </div>
       </div>
-    {% endif %}
-
+    {%- endif -%}
   </div>
-</section>
+</product-info>
 
 {% schema %}
 {
@@ -215,58 +164,19 @@
   "tag": "section",
   "class": "section-featured-product",
   "settings": [
-    {
-      "type": "product",
-      "id": "product",
-      "label": "Product"
-    },
-    {
-      "type": "text",
-      "id": "subheading",
-      "label": "Subheading",
-      "default": "FEATURED PRODUCT"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_vendor",
-      "label": "Show vendor",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_description",
-      "label": "Show product description",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_rating",
-      "label": "Show rating placeholder",
-      "default": false
-    },
+    { "type": "product", "id": "product", "label": "Product" },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "Featured product" },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_description", "label": "Show product description", "default": true },
     {
       "type": "checkbox",
       "id": "show_dynamic_checkout",
-      "label": "Show dynamic checkout button",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_view_product",
-      "label": "Show view product link",
+      "label": "Show dynamic checkout buttons",
+      "info": "Customers see their preferred payment method, such as Shop Pay or Apple Pay.",
       "default": true
     },
-    {
-      "type": "text",
-      "id": "button_label",
-      "label": "Add to cart button label",
-      "default": "Add to cart"
-    }
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
   ],
-  "presets": [
-    {
-      "name": "Featured product"
-    }
-  ]
+  "presets": [{ "name": "Featured product" }]
 }
 {% endschema %}

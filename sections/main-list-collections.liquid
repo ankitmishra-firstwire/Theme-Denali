@@ -1,0 +1,65 @@
+<div class="section color-{{ section.settings.color_scheme }}">
+  <div class="page-width">
+    <h1 class="section-title">{%- if section.settings.title != blank -%}{{ section.settings.title | escape }}{%- else -%}{{ 'templates.collections.title' | t }}{%- endif -%}</h1>
+    {%- liquid
+      case section.settings.sort
+        when 'products_high', 'products_low'
+          assign list = collections | sort: 'all_products_count'
+        when 'date', 'date_reversed'
+          assign list = collections | sort: 'published_at'
+        else
+          assign list = collections
+      endcase
+      if section.settings.sort == 'products_high' or section.settings.sort == 'date_reversed'
+        assign list = list | reverse
+      endif
+    -%}
+    <ul class="collection-list list-unstyled" role="list">
+      {%- for collection in list -%}
+        <li>
+          <a class="collection-card" href="{{ collection.url }}">
+            <div class="collection-card__media">
+              {%- if collection.featured_image -%}
+                {% render 'image',
+                  image: collection.featured_image,
+                  sizes: '(min-width: 990px) 33vw, 50vw',
+                  widths: '360, 540, 720, 900',
+                  width: 900,
+                  alt: ''
+                %}
+              {%- else -%}
+                {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+            <h2 class="collection-card__title">{{ collection.title | escape }} {% render 'icon', icon: 'arrow' %}</h2>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collections list page",
+  "tag": "section",
+  "class": "section-main-list-collections",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Heading", "default": "Collections" },
+    {
+      "type": "select",
+      "id": "sort",
+      "label": "Sort collections",
+      "options": [
+        { "value": "alphabetical", "label": "Alphabetically, A–Z" },
+        { "value": "products_high", "label": "Product count, high to low" },
+        { "value": "products_low", "label": "Product count, low to high" },
+        { "value": "date", "label": "Date, old to new" },
+        { "value": "date_reversed", "label": "Date, new to old" }
+      ],
+      "default": "alphabetical"
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+  ]
+}
+{% endschema %}

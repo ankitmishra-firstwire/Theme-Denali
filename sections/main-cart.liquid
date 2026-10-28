@@ -1,0 +1,221 @@
+{{ 'section-main-cart.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
+
+<cart-items class="cart section color-{{ section.settings.color_scheme }}" data-section-id="{{ section.id }}" id="MainCart-{{ section.id }}">
+  <div class="page-width" data-cart-contents>
+    <div class="cart__header">
+      <h1>{{ 'templates.cart.title' | t }}</h1>
+      {%- if cart.item_count > 0 -%}
+        <a class="link" href="{{ routes.all_products_collection_url }}">{{ 'general.continue_shopping' | t }}</a>
+      {%- endif -%}
+    </div>
+
+    {%- if cart.item_count == 0 -%}
+      <div class="empty-state">
+        <h2 class="empty-state__title">{{ 'templates.cart.empty' | t }}</h2>
+        <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'general.continue_shopping' | t }}</a>
+        {%- if shop.customer_accounts_enabled and customer == null -%}
+          <p class="empty-state__login">{{ 'templates.cart.login.paragraph_html' | t: link: routes.account_login_url }}</p>
+        {%- endif -%}
+      </div>
+    {%- else -%}
+      <form action="{{ routes.cart_url }}" method="post" id="CartForm-{{ section.id }}" class="cart__form" novalidate>
+        <div class="cart__layout">
+          <div class="cart__items">
+            <table class="cart-table">
+              <caption class="visually-hidden">{{ 'templates.cart.title' | t }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col" class="caption">{{ 'templates.cart.product' | t }}</th>
+                  <th scope="col" class="caption cart-table__quantity-heading">{{ 'templates.cart.quantity' | t }}</th>
+                  <th scope="col" class="caption cart-table__total-heading">{{ 'templates.cart.total' | t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {%- for item in cart.items -%}
+                  <tr class="cart-item" id="CartItem-{{ item.index | plus: 1 }}" data-line="{{ item.index | plus: 1 }}">
+                    <td class="cart-item__product">
+                      <div class="cart-item__media">
+                        {%- if item.image -%}
+                          <a href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+                            {{ item.image | image_url: width: 300 | image_tag: loading: 'lazy', widths: '150, 300', sizes: '120px', alt: '' }}
+                          </a>
+                        {%- endif -%}
+                      </div>
+                      <div class="cart-item__details">
+                        {%- if item.product.vendor != blank -%}<p class="caption">{{ item.product.vendor | escape }}</p>{%- endif -%}
+                        <a class="cart-item__name" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+
+                        <div class="cart-item__price caption">
+                          {%- if item.original_price != item.final_price -%}
+                            <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+                            <s>{{ item.original_price | money }}</s>
+                            <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+                            <span>{{ item.final_price | money }}</span>
+                          {%- else -%}
+                            {{ item.original_price | money }}
+                          {%- endif -%}
+                          {%- if item.unit_price_measurement -%}
+                            {% render 'unit-price', unit_price: item.unit_price, measurement: item.unit_price_measurement %}
+                          {%- endif -%}
+                        </div>
+
+                        {%- if item.product.has_only_default_variant == false or item.properties.size != 0 or item.selling_plan_allocation != null -%}
+                          <dl class="cart-item__options caption">
+                            {%- unless item.product.has_only_default_variant -%}
+                              {%- for option in item.options_with_values -%}
+                                <div><dt>{{ option.name | escape }}:</dt> <dd>{{ option.value | escape }}</dd></div>
+                              {%- endfor -%}
+                            {%- endunless -%}
+                            {%- for property in item.properties -%}
+                              {%- assign property_first_char = property.first | slice: 0 -%}
+                              {%- if property.last != blank and property_first_char != '_' -%}
+                                <div>
+                                  <dt>{{ property.first | escape }}:</dt>
+                                  <dd>
+                                    {%- if property.last contains '/uploads/' -%}
+                                      <a href="{{ property.last }}" target="_blank" rel="noopener">{{ property.last | split: '/' | last }}</a>
+                                    {%- else -%}
+                                      {{ property.last | escape }}
+                                    {%- endif -%}
+                                  </dd>
+                                </div>
+                              {%- endif -%}
+                            {%- endfor -%}
+                          </dl>
+                          {%- if item.selling_plan_allocation -%}
+                            <p class="cart-item__selling-plan caption">{{ item.selling_plan_allocation.selling_plan.name | escape }}</p>
+                          {%- endif -%}
+                        {%- endif -%}
+
+                        {%- if item.line_level_discount_allocations.size > 0 -%}
+                          <ul class="discounts list-unstyled" role="list" aria-label="{{ 'templates.cart.discount' | t }}">
+                            {%- for discount in item.line_level_discount_allocations -%}
+                              <li class="discounts__discount caption">
+                                {{- discount.discount_application.title | escape }} (-{{ discount.amount | money }})
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- endif -%}
+                      </div>
+                    </td>
+
+                    <td class="cart-item__quantity">
+                      <div class="cart-item__quantity-wrapper">
+                        <label class="visually-hidden" for="Quantity-{{ item.index | plus: 1 }}">
+                          {{ 'products.product.quantity.label' | t }}: {{ item.product.title | escape }}
+                        </label>
+                        <quantity-input class="quantity">
+                          <button class="quantity__button" name="minus" type="button" data-quantity-minus>
+                            <span class="visually-hidden">{{ 'products.product.quantity.decrease' | t: product: item.product.title | escape }}</span>
+                            {% render 'icon', icon: 'minus' %}
+                          </button>
+                          <input
+                            class="quantity__input"
+                            type="number"
+                            name="updates[]"
+                            value="{{ item.quantity }}"
+                            min="0"
+                            step="{{ item.variant.quantity_rule.increment }}"
+                            {% if item.variant.quantity_rule.max != null %}max="{{ item.variant.quantity_rule.max }}"{% endif %}
+                            id="Quantity-{{ item.index | plus: 1 }}"
+                            data-index="{{ item.index | plus: 1 }}"
+                            data-cart-quantity
+                          >
+                          <button class="quantity__button" name="plus" type="button" data-quantity-plus>
+                            <span class="visually-hidden">{{ 'products.product.quantity.increase' | t: product: item.product.title | escape }}</span>
+                            {% render 'icon', icon: 'plus' %}
+                          </button>
+                        </quantity-input>
+                        <a class="cart-item__remove link" href="{{ item.url_to_remove }}" data-cart-remove="{{ item.index | plus: 1 }}">
+                          {{- 'templates.cart.remove' | t -}}
+                          <span class="visually-hidden">: {{ item.product.title | escape }}</span>
+                        </a>
+                      </div>
+                      <p class="cart-item__error form-message form-message--error" id="LineItemError-{{ item.index | plus: 1 }}" role="alert" hidden></p>
+                    </td>
+
+                    <td class="cart-item__total">
+                      {%- if item.original_line_price != item.final_line_price -%}
+                        <s class="caption">{{ item.original_line_price | money }}</s>
+                        <span>{{ item.final_line_price | money }}</span>
+                      {%- else -%}
+                        <span>{{ item.original_line_price | money }}</span>
+                      {%- endif -%}
+                    </td>
+                  </tr>
+                {%- endfor -%}
+              </tbody>
+            </table>
+            <noscript><button type="submit" class="button button--secondary" name="update">{{ 'templates.cart.update' | t }}</button></noscript>
+
+            {%- if section.settings.show_cart_note -%}
+              <div class="field cart__note">
+                <label class="field__label" for="CartNote-{{ section.id }}">{{ 'templates.cart.note' | t }}</label>
+                <textarea class="field__input" name="note" id="CartNote-{{ section.id }}" rows="3" data-cart-note>{{ cart.note }}</textarea>
+              </div>
+            {%- endif -%}
+          </div>
+
+          <div class="cart__summary color-{{ section.settings.summary_color_scheme }}">
+            {%- if cart.cart_level_discount_applications.size > 0 -%}
+              <ul class="discounts list-unstyled" role="list" aria-label="{{ 'templates.cart.discount' | t }}">
+                {%- for discount in cart.cart_level_discount_applications -%}
+                  <li class="cart__summary-row discounts__discount">
+                    <span>{{ discount.title | escape }}</span>
+                    <span>-{{ discount.total_allocated_amount | money }}</span>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+            <div class="cart__summary-row cart__subtotal">
+              <h2 class="cart__subtotal-label">{{ 'templates.cart.estimated_total' | t }}</h2>
+              <p class="cart__subtotal-value">{{ cart.total_price | money_with_currency }}</p>
+            </div>
+
+            <p class="caption cart__tax-note">
+              {%- if cart.duties_included and cart.taxes_included -%}
+                {{ 'templates.cart.duties_and_taxes_included_shipping_at_checkout' | t }}
+              {%- elsif cart.taxes_included -%}
+                {{ 'templates.cart.taxes_included_shipping_at_checkout' | t }}
+              {%- else -%}
+                {{ 'templates.cart.taxes_and_shipping_at_checkout' | t }}
+              {%- endif -%}
+            </p>
+
+            <button type="submit" id="checkout" class="button button--full" name="checkout" form="CartForm-{{ section.id }}"{% if cart.empty? %} disabled{% endif %}>
+              {{- 'templates.cart.checkout' | t -}}
+            </button>
+
+            {%- if additional_checkout_buttons and section.settings.show_dynamic_checkout -%}
+              <div class="cart__dynamic-checkout-buttons additional-checkout-buttons">
+                {{ content_for_additional_checkout_buttons }}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </form>
+    {%- endif -%}
+  </div>
+</cart-items>
+
+{% schema %}
+{
+  "name": "Cart",
+  "tag": "section",
+  "class": "section-main-cart",
+  "settings": [
+    { "type": "checkbox", "id": "show_cart_note", "label": "Enable order notes", "default": true },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "Show accelerated checkout buttons",
+      "info": "Buttons such as Shop Pay, Apple Pay and PayPal appear when they're enabled in your payment settings.",
+      "default": true
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "color_scheme", "id": "summary_color_scheme", "label": "Summary color scheme", "default": "scheme-2" }
+  ]
+}
+{% endschema %}

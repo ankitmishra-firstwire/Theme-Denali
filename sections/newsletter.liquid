@@ -1,0 +1,26 @@
+<div class="newsletter section color-{{ section.settings.color_scheme }}">
+  <div class="page-width page-width--narrow newsletter__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="section-title">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+    {%- if section.settings.text != blank -%}
+      <div class="rte newsletter__text">{{ section.settings.text }}</div>
+    {%- endif -%}
+    {% render 'newsletter-form', form_id: section.id %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Email signup",
+  "tag": "section",
+  "class": "section-newsletter",
+  "settings": [
+    { "type": "paragraph", "content": "Subscribers are added to your customer list with email marketing accepted." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Stay in the loop" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-2" }
+  ],
+  "presets": [{ "name": "Email signup" }]
+}
+{% endschema %}

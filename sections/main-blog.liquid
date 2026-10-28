@@ -1,0 +1,55 @@
+{%- paginate blog.articles by section.settings.articles_per_page -%}
+  <div class="section color-{{ section.settings.color_scheme }}">
+    <div class="page-width">
+      <h1 class="section-title">{{ blog.title | escape }}</h1>
+      {%- if blog.all_tags.size > 0 and section.settings.show_tags -%}
+        <nav class="blog-tags" aria-label="{{ 'blogs.article.tags' | t }}">
+          <ul class="list-unstyled blog-tags__list" role="list">
+            <li><a class="facets__pill{% if current_tags == blank %} is-active{% endif %}" href="{{ blog.url }}">{{ 'blogs.article.all' | t }}</a></li>
+            {%- for tag in blog.all_tags -%}
+              <li>
+                {%- if current_tags contains tag -%}
+                  <span class="facets__pill is-active" aria-current="page">{{ tag | escape }}</span>
+                {%- else -%}
+                  {{ tag | escape | link_to_tag: tag | replace: '<a ', '<a class="facets__pill" ' }}
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
+
+      {%- if blog.articles.size == 0 -%}
+        <div class="empty-state"><p>{{ 'blogs.article.empty' | t }}</p></div>
+      {%- else -%}
+        <ul class="article-grid list-unstyled" role="list">
+          {%- for article in blog.articles -%}
+            <li>
+              {%- if forloop.first and paginate.current_page == 1 -%}
+                {% render 'article-card', article: article, heading_tag: 'h2', show_author: section.settings.show_author, show_date: section.settings.show_date, priority: true %}
+              {%- else -%}
+                {% render 'article-card', article: article, heading_tag: 'h2', show_author: section.settings.show_author, show_date: section.settings.show_date %}
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+        {% render 'pagination', paginate: paginate %}
+      {%- endif -%}
+    </div>
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "tag": "section",
+  "class": "section-main-blog",
+  "settings": [
+    { "type": "range", "id": "articles_per_page", "label": "Posts per page", "min": 3, "max": 24, "step": 3, "default": 9 },
+    { "type": "checkbox", "id": "show_date", "label": "Show date", "default": true },
+    { "type": "checkbox", "id": "show_author", "label": "Show author", "default": false },
+    { "type": "checkbox", "id": "show_tags", "label": "Show tag filter", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+  ]
+}
+{% endschema %}

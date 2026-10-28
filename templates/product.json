@@ -1,0 +1,42 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "title": { "type": "title", "settings": { "show_vendor": true } },
+        "price": { "type": "price", "settings": {} },
+        "variant_picker": { "type": "variant_picker", "settings": { "picker_type": "buttons" } },
+        "quantity_selector": { "type": "quantity_selector", "settings": {} },
+        "inventory": { "type": "inventory", "settings": { "inventory_threshold": 10, "show_inventory_quantity": false } },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_pickup_availability": true,
+            "show_gift_card_recipient": true
+          }
+        },
+        "description": { "type": "description", "settings": {} },
+        "care": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Care instructions",
+            "content": "<p>Add care, materials or shipping details for this product.</p>"
+          }
+        },
+        "complementary": {
+          "type": "complementary",
+          "settings": { "heading": "Pairs well with", "product_list_limit": 3 }
+        },
+        "share": { "type": "share", "settings": {} }
+      },
+      "block_order": ["title", "price", "variant_picker", "quantity_selector", "inventory", "buy_buttons", "description", "care", "complementary", "share"],
+      "settings": {}
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {}
+    }
+  },
+  "order": ["main", "recommendations"]
+}

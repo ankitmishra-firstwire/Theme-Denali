@@ -1,20 +1,36 @@
-<section class="rich-text-section section">
-  <div class="page-width rich-text-inner">
-    {% if section.settings.subheading != blank %}<p class="eyebrow">{{ section.settings.subheading | escape }}</p>{% endif %}
-    {% if section.settings.heading != blank %}<h2>{{ section.settings.heading | escape }}</h2>{% endif %}
-    <div class="rich-text-copy">{{ section.settings.text }}</div>
-    {% if section.settings.button_label != blank and section.settings.button_link != blank %}<a class="button button--outline" href="{{ section.settings.button_link }}">{{ section.settings.button_label | escape }}</a>{% endif %}
+<div class="rich-text section color-{{ section.settings.color_scheme }}">
+  <div class="page-width page-width--narrow rich-text__inner rich-text__inner--{{ section.settings.alignment }}">
+    {%- if section.settings.subheading != blank -%}<p class="eyebrow">{{ section.settings.subheading | escape }}</p>{%- endif -%}
+    {%- if section.settings.heading != blank -%}<h2 class="section-title">{{ section.settings.heading | escape }}</h2>{%- endif -%}
+    {%- if section.settings.text != blank -%}<div class="rich-text__copy rte">{{ section.settings.text }}</div>{%- endif -%}
+    {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
+      <a class="button button--secondary" href="{{ section.settings.button_link }}">{{ section.settings.button_label | escape }}</a>
+    {%- endif -%}
   </div>
-</section>
+</div>
+
 {% schema %}
 {
   "name": "Rich text",
+  "tag": "section",
+  "class": "section-rich-text",
   "settings": [
     { "type": "text", "id": "subheading", "label": "Subheading", "default": "Our story" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Thoughtfully made for everyday life" },
-    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Share your brand story, values, or a message with your customers.</p>" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Thoughtfully grown for everyday life" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Share your brand story, values or a message with your customers.</p>" },
     { "type": "text", "id": "button_label", "label": "Button label" },
-    { "type": "url", "id": "button_link", "label": "Button link" }
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-2" }
   ],
   "presets": [{ "name": "Rich text" }]
 }

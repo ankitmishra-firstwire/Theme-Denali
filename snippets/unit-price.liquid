@@ -1,0 +1,16 @@
+{%- doc -%}
+  Renders a unit price (for example "$2.50 / 100 g") when one is set.
+
+  @param {object} unit_price - The unit price money value
+  @param {object} measurement - The unit_price_measurement object
+{%- enddoc -%}
+{%- if measurement and unit_price -%}
+  <span class="unit-price">
+    <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+    {{- unit_price | money -}}
+    <span aria-hidden="true">/</span>
+    <span class="visually-hidden">&nbsp;{{ 'accessibility.unit_price_separator' | t }}&nbsp;</span>
+    {%- if measurement.reference_value != 1 -%}{{ measurement.reference_value }}{%- endif -%}
+    {{- measurement.reference_unit -}}
+  </span>
+{%- endif -%}

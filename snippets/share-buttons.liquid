@@ -1,0 +1,37 @@
+{%- doc -%}
+  Renders social sharing links and a copy-link button for the current
+  product or article.
+
+  @param {string} share_url - Absolute URL to share
+  @param {string} share_title - Title to share
+  @param {image} [share_image] - Image for Pinterest
+{%- enddoc -%}
+{%- liquid
+  assign url_encoded = share_url | url_encode
+  assign title_encoded = share_title | url_encode
+-%}
+<div class="share-buttons">
+  <span class="share-buttons__label caption">{% render 'icon', icon: 'share' %}{{ 'general.share.share' | t }}</span>
+  <ul class="share-buttons__list list-unstyled" role="list">
+    <li>
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_encoded }}" target="_blank" rel="noopener">
+        {% render 'icon', icon: 'facebook' %}<span class="visually-hidden">{{ 'general.share.facebook' | t }}</span>
+      </a>
+    </li>
+    <li>
+      <a href="https://x.com/intent/post?text={{ title_encoded }}&amp;url={{ url_encoded }}" target="_blank" rel="noopener">
+        {% render 'icon', icon: 'twitter' %}<span class="visually-hidden">{{ 'general.share.twitter' | t }}</span>
+      </a>
+    </li>
+    <li>
+      <a href="https://pinterest.com/pin/create/button/?url={{ url_encoded }}{% if share_image %}&amp;media={{ share_image | image_url: width: 1200 | prepend: 'https:' | url_encode }}{% endif %}&amp;description={{ title_encoded }}" target="_blank" rel="noopener">
+        {% render 'icon', icon: 'pinterest' %}<span class="visually-hidden">{{ 'general.share.pinterest' | t }}</span>
+      </a>
+    </li>
+    <li>
+      <button type="button" class="share-buttons__copy link-button" data-copy-link="{{ share_url }}">
+        {{- 'general.share.copy_link' | t -}}
+      </button>
+    </li>
+  </ul>
+</div>

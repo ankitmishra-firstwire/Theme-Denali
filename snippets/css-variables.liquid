@@ -1,39 +1,70 @@
-{% comment %} {% style %}
-  {% # Loads all font variantions with display: swap %}
-  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+{%- doc -%}
+  Outputs @font-face rules and the theme's global CSS custom properties,
+  including one class per color scheme (.color-scheme-1, .color-scheme-2, …).
+{%- enddoc -%}
+{%- liquid
+  assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
+  assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic'
+  assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+-%}
+{% style %}
+  {{ settings.type_heading_font | font_face: font_display: 'swap' }}
+  {{ settings.type_body_font | font_face: font_display: 'swap' }}
+  {{ body_font_bold | font_face: font_display: 'swap' }}
+  {{ body_font_italic | font_face: font_display: 'swap' }}
+  {{ body_font_bold_italic | font_face: font_display: 'swap' }}
 
   :root {
-    --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --font-primary--style: {{ settings.type_primary_font.style }};
-    --font-primary--weight: {{ settings.type_primary_font.weight }};
+    --font-heading-family: {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
+    --font-heading-style: {{ settings.type_heading_font.style }};
+    --font-heading-weight: {{ settings.type_heading_font.weight }};
+    --font-heading-scale: {{ settings.heading_scale | divided_by: 100.0 }};
+
+    --font-body-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    --font-body-style: {{ settings.type_body_font.style }};
+    --font-body-weight: {{ settings.type_body_font.weight }};
+    --font-body-weight-bold: {{ body_font_bold.weight | default: 700 }};
+    --font-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+
     --page-width: {{ settings.max_page_width }};
     --page-margin: {{ settings.min_page_margin }}px;
-    --color-background: {{ settings.background_color }};
-    --color-foreground: {{ settings.foreground_color }};
-    --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
+    --section-spacing: {{ settings.section_spacing }}px;
+    --section-spacing-mobile: {{ settings.section_spacing | times: 0.6 | round }}px;
+
+    --button-radius: {{ settings.button_radius }}px;
+    --input-radius: {{ settings.input_corner_radius }}px;
+
+    --logo-width: {{ settings.logo_width }}px;
+    --logo-width-mobile: {{ settings.logo_width_mobile }}px;
+
+    --color-sale-badge: {{ settings.sale_badge_background }};
+    --color-sale-badge-text: {{ settings.sale_badge_text }};
+    --color-sold-out-badge: {{ settings.sold_out_badge_background }};
+    --color-sold-out-badge-text: {{ settings.sold_out_badge_text }};
+
+    {%- case settings.card_image_ratio -%}
+      {%- when 'square' -%}
+        --card-image-ratio: 1 / 1;
+      {%- when 'adapt' -%}
+        --card-image-ratio: auto;
+      {%- else -%}
+        --card-image-ratio: 4 / 5;
+    {%- endcase %}
   }
-{% endstyle %} {% endcomment %}
 
-
-{% style %}
-  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
-
-  :root {
-    /* Typography */
-    --font-primary-family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --font-primary-style: {{ settings.type_primary_font.style }};
-    --font-primary-weight: {{ settings.type_primary_font.weight }};
-
-    /* Colors */
-    --theme-background: {{ settings.background_color.red }}, {{ settings.background_color.green }}, {{ settings.background_color.blue }};
-    --theme-foreground: {{ settings.foreground_color.red }}, {{ settings.foreground_color.green }}, {{ settings.foreground_color.blue }};
-
-    /* Layout */
-    --theme-page-width: {{ settings.max_page_width }};
-    --theme-page-margin: {{ settings.min_page_margin }}px;
-    --theme-input-radius: {{ settings.input_corner_radius }}px;
-  }
+  {% for scheme in settings.color_schemes -%}
+    {%- if forloop.first %}:root,{% endif %}
+    .color-{{ scheme.id }} {
+      --color-background: {{ scheme.settings.background }};
+      --gradient-background: {% if scheme.settings.background_gradient != blank %}{{ scheme.settings.background_gradient }}{% else %}{{ scheme.settings.background }}{% endif %};
+      --color-foreground: {{ scheme.settings.text }};
+      --color-foreground-rgb: {{ scheme.settings.text.red }}, {{ scheme.settings.text.green }}, {{ scheme.settings.text.blue }};
+      --color-background-rgb: {{ scheme.settings.background.red }}, {{ scheme.settings.background.green }}, {{ scheme.settings.background.blue }};
+      --color-accent: {{ scheme.settings.accent }};
+      --color-button: {{ scheme.settings.button }};
+      --color-button-text: {{ scheme.settings.button_label }};
+      --color-secondary-button-text: {{ scheme.settings.secondary_button_label }};
+      --color-border: {{ scheme.settings.border }};
+    }
+  {% endfor %}
 {% endstyle %}

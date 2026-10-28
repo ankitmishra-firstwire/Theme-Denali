@@ -1,0 +1,39 @@
+<div class="collection-banner section section--tight color-{{ section.settings.color_scheme }}{% if section.settings.show_image and collection.image %} collection-banner--with-image{% endif %}">
+  <div class="page-width collection-banner__inner">
+    <div class="collection-banner__text">
+      <h1 class="collection-banner__title">
+        <span class="visually-hidden">{{ 'sections.collection_template.title' | t }}: </span>
+        {{- collection.title | escape -}}
+      </h1>
+      {%- if section.settings.show_description and collection.description != blank -%}
+        <div class="collection-banner__description rte">{{ collection.description }}</div>
+      {%- endif -%}
+    </div>
+    {%- if section.settings.show_image and collection.image -%}
+      {% render 'image',
+        image: collection.image,
+        class: 'collection-banner__media',
+        sizes: '(min-width: 750px) 50vw, 100vw',
+        widths: '375, 550, 750, 1100, 1500',
+        priority: true
+      %}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collection banner",
+  "tag": "section",
+  "class": "section-collection-banner",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Edit the collection title, description and image in Products > Collections."
+    },
+    { "type": "checkbox", "id": "show_description", "label": "Show collection description", "default": true },
+    { "type": "checkbox", "id": "show_image", "label": "Show collection image", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-2" }
+  ]
+}
+{% endschema %}

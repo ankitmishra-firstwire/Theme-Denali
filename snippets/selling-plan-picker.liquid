@@ -1,0 +1,62 @@
+{%- doc -%}
+  Lets customers choose between one-time purchase and the product's
+  selling plans (subscriptions, pre-orders and similar). Submits the
+  selected plan with the product form as `selling_plan`.
+
+  @param {product} product - The product
+  @param {string} section_id - The section ID
+{%- enddoc -%}
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign selected_plan = product.selected_selling_plan
+  if selected_plan == blank and product.requires_selling_plan
+    assign selected_plan = product.selling_plan_groups.first.selling_plans.first
+  endif
+-%}
+<fieldset class="selling-plans" data-selling-plans>
+  <legend class="variant-picker__legend">{{ 'products.product.purchase_options' | t }}</legend>
+  {%- unless product.requires_selling_plan -%}
+    <div class="selling-plans__option">
+      <input
+        type="radio"
+        id="SellingPlan-{{ section_id }}-none"
+        name="selling_plan"
+        value=""
+        {% if selected_plan == blank %}checked{% endif %}
+      >
+      <label for="SellingPlan-{{ section_id }}-none">
+        <span>{{ 'products.product.one_time_purchase' | t }}</span>
+        <span class="selling-plans__price">{{ current_variant.price | money }}</span>
+      </label>
+    </div>
+  {%- endunless -%}
+  {%- for group in product.selling_plan_groups -%}
+    <div class="selling-plans__group">
+      <p class="selling-plans__group-name caption">{{ group.name | escape }}</p>
+      {%- for plan in group.selling_plans -%}
+        {%- assign allocation = null -%}
+        {%- for candidate in current_variant.selling_plan_allocations -%}
+          {%- if candidate.selling_plan.id == plan.id -%}{%- assign allocation = candidate -%}{%- endif -%}
+        {%- endfor -%}
+        <div class="selling-plans__option">
+          <input
+            type="radio"
+            id="SellingPlan-{{ section_id }}-{{ plan.id }}"
+            name="selling_plan"
+            value="{{ plan.id }}"
+            {% if selected_plan.id == plan.id %}checked{% endif %}
+          >
+          <label for="SellingPlan-{{ section_id }}-{{ plan.id }}">
+            <span>
+              {{- plan.name | escape -}}
+              {%- if plan.description != blank -%}<span class="selling-plans__description caption">{{ plan.description | escape }}</span>{%- endif -%}
+            </span>
+            {%- if allocation -%}
+              <span class="selling-plans__price">{{ allocation.price | money }}</span>
+            {%- endif -%}
+          </label>
+        </div>
+      {%- endfor -%}
+    </div>
+  {%- endfor -%}
+</fieldset>

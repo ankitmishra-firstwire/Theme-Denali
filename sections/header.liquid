@@ -1,31 +1,240 @@
-<header class="site-header">
-  <div class="page-width header-inner">
-    <a class="header-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
-      {% if section.settings.logo != blank %}
-        {{ section.settings.logo | image_url: width: 400 | image_tag: widths: '100, 150, 200, 300, 400', class: 'header-logo-image', alt: shop.name }}
-      {% else %}<span>{{ shop.name | escape }}</span>{% endif %}
+{%- liquid
+  assign menu = section.settings.menu
+  assign logo = settings.logo
+-%}
+<header-component class="site-header color-{{ section.settings.color_scheme }}{% if section.settings.sticky %} site-header--sticky{% endif %}" data-header>
+  <div class="page-width site-header__inner site-header__inner--{{ section.settings.logo_position }}">
+    {%- if menu != blank -%}
+      <details class="mobile-menu" data-mobile-menu>
+        <summary class="icon-button mobile-menu__toggle">
+          <span class="mobile-menu__icon-open">{% render 'icon', icon: 'menu' %}</span>
+          <span class="mobile-menu__icon-close">{% render 'icon', icon: 'close' %}</span>
+          <span class="visually-hidden">{{ 'sections.header.menu' | t }}</span>
+        </summary>
+        <div class="mobile-menu__panel color-{{ section.settings.color_scheme }}">
+          <nav aria-label="{{ 'sections.header.menu' | t }}">
+            <ul class="mobile-menu__list list-unstyled" role="list">
+              {%- for link in menu.links -%}
+                <li>
+                  {%- if link.links != blank -%}
+                    <details class="mobile-menu__submenu">
+                      <summary class="mobile-menu__link">
+                        {{- link.title | escape -}}
+                        {% render 'icon', icon: 'caret' %}
+                      </summary>
+                      <ul class="list-unstyled" role="list">
+                        <li><a class="mobile-menu__link mobile-menu__link--child" href="{{ link.url }}">{{ 'sections.header.view_all' | t: title: link.title }}</a></li>
+                        {%- for child in link.links -%}
+                          <li>
+                            <a class="mobile-menu__link mobile-menu__link--child" href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{{ child.title | escape }}</a>
+                            {%- if child.links != blank -%}
+                              <ul class="list-unstyled" role="list">
+                                {%- for grandchild in child.links -%}
+                                  <li><a class="mobile-menu__link mobile-menu__link--grandchild" href="{{ grandchild.url }}"{% if grandchild.current %} aria-current="page"{% endif %}>{{ grandchild.title | escape }}</a></li>
+                                {%- endfor -%}
+                              </ul>
+                            {%- endif -%}
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    </details>
+                  {%- else -%}
+                    <a class="mobile-menu__link" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          </nav>
+          {%- if shop.customer_accounts_enabled and section.settings.show_account -%}
+            <a class="mobile-menu__account link" href="{{ routes.account_url }}">
+              {% render 'icon', icon: 'account' %}
+              {%- if customer -%}{{ 'customer.account_title' | t }}{%- else -%}{{ 'customer.log_in' | t }}{%- endif -%}
+            </a>
+          {%- endif -%}
+          {% render 'localization-form',
+            show_country: section.settings.enable_country_selector,
+            show_language: section.settings.enable_language_selector,
+            id_prefix: 'HeaderLocalizationMobile'
+          %}
+        </div>
+      </details>
+    {%- endif -%}
+
+    {%- if request.page_type == 'index' -%}<h1 class="site-header__heading">{%- endif -%}
+    <a class="site-header__logo" href="{{ routes.root_url }}">
+      {%- if logo != blank -%}
+        {%- assign logo_alt = logo.alt | default: shop.name -%}
+        {%- capture logo_sizes -%}(min-width: 750px) {{ settings.logo_width }}px, {{ settings.logo_width_mobile }}px{%- endcapture -%}
+        {{
+          logo
+          | image_url: width: 600
+          | image_tag:
+            class: 'site-header__logo-image',
+            widths: '100, 150, 200, 250, 300, 400, 500, 600',
+            sizes: logo_sizes,
+            alt: logo_alt,
+            loading: 'eager',
+            fetchpriority: 'high'
+        }}
+      {%- else -%}
+        <span class="site-header__logo-text">{{ shop.name | escape }}</span>
+      {%- endif -%}
     </a>
-    <nav aria-label="Main navigation">
-      {% if section.settings.menu != blank %}<ul class="header-menu list-unstyled">
-        {% for link in section.settings.menu.links %}<li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>{% endfor %}
-      </ul>{% endif %}
-    </nav>
-    <div class="header-utilities">
-      {% if section.settings.show_search %}<a href="{{ routes.search_url }}">Search</a>{% endif %}
-      {% if section.settings.show_account and shop.customer_accounts_enabled %}<a href="{{ routes.account_url }}">Account</a>{% endif %}
-      {% if section.settings.show_cart %}<a href="{{ routes.cart_url }}">Cart ({{ cart.item_count }})</a>{% endif %}
+    {%- if request.page_type == 'index' -%}</h1>{%- endif -%}
+
+    {%- if menu != blank -%}
+      <nav class="site-header__nav" aria-label="{{ 'sections.header.menu' | t }}">
+        <ul class="site-header__menu list-unstyled" role="list">
+          {%- for link in menu.links -%}
+            <li class="site-header__menu-item">
+              {%- if link.links != blank -%}
+                <details class="dropdown" data-dropdown>
+                  <summary class="site-header__menu-link{% if link.child_active %} is-active{% endif %}">
+                    {{- link.title | escape -}}
+                    {% render 'icon', icon: 'caret' %}
+                  </summary>
+                  <div class="dropdown__panel color-{{ section.settings.color_scheme }}">
+                    <ul class="dropdown__list list-unstyled{% if link.levels > 1 %} dropdown__list--mega{% endif %}" role="list">
+                      {%- for child in link.links -%}
+                        <li>
+                          <a class="dropdown__link{% if child.links != blank %} dropdown__link--parent{% endif %}" href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{{ child.title | escape }}</a>
+                          {%- if child.links != blank -%}
+                            <ul class="list-unstyled" role="list">
+                              {%- for grandchild in child.links -%}
+                                <li><a class="dropdown__link dropdown__link--child" href="{{ grandchild.url }}"{% if grandchild.current %} aria-current="page"{% endif %}>{{ grandchild.title | escape }}</a></li>
+                              {%- endfor -%}
+                            </ul>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </details>
+              {%- else -%}
+                <a class="site-header__menu-link{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    <div class="site-header__icons">
+      {% render 'localization-form',
+        show_country: section.settings.enable_country_selector,
+        show_language: section.settings.enable_language_selector,
+        id_prefix: 'HeaderLocalization'
+      %}
+
+      {%- if section.settings.show_search -%}
+        <details class="search-modal" data-search-modal>
+          <summary class="icon-button">
+            {% render 'icon', icon: 'search' %}
+            <span class="visually-hidden">{{ 'general.search.search' | t }}</span>
+          </summary>
+          <div class="search-modal__panel color-{{ section.settings.color_scheme }}">
+            <div class="page-width">
+              {% render 'search-form', id_prefix: 'Header' %}
+            </div>
+          </div>
+        </details>
+      {%- endif -%}
+
+      {%- if shop.customer_accounts_enabled and section.settings.show_account -%}
+        <a class="icon-button site-header__account" href="{{ routes.account_url }}">
+          {% render 'icon', icon: 'account' %}
+          <span class="visually-hidden">
+            {%- if customer -%}{{ 'customer.account_title' | t }}{%- else -%}{{ 'customer.log_in' | t }}{%- endif -%}
+          </span>
+        </a>
+      {%- endif -%}
+
+      <a class="icon-button site-header__cart" href="{{ routes.cart_url }}" id="cart-icon-bubble">
+        {% render 'icon', icon: 'cart' %}
+        <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+        <span class="cart-count{% if cart.item_count == 0 %} is-empty{% endif %}" data-cart-count>
+          <span aria-hidden="true">{{ cart.item_count }}</span>
+          <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+        </span>
+      </a>
     </div>
   </div>
-</header>
+</header-component>
+
 {% schema %}
 {
   "name": "Header",
+  "tag": "div",
+  "class": "section-header",
+  "enabled_on": {
+    "groups": ["header"]
+  },
   "settings": [
-    { "type": "image_picker", "id": "logo", "label": "Logo" },
-    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
-    { "type": "checkbox", "id": "show_search", "label": "Show search", "default": true },
-    { "type": "checkbox", "id": "show_account", "label": "Show account", "default": true },
-    { "type": "checkbox", "id": "show_cart", "label": "Show cart", "default": true }
+    {
+      "type": "paragraph",
+      "content": "Upload your logo in Theme settings > Logo and favicon."
+    },
+    {
+      "type": "select",
+      "id": "logo_position",
+      "label": "Logo position on desktop",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky",
+      "label": "Keep header visible while scrolling",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "Show search",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account",
+      "label": "Show account icon",
+      "info": "Only shown when customer accounts are enabled.",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Country/region and language"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add countries in Settings > Markets and languages in Settings > Languages."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "label": "Show country/region selector",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "label": "Show language selector",
+      "default": false
+    }
   ]
 }
 {% endschema %}

@@ -3,7 +3,9 @@
 
 <section
   id="LayeredSlideshow-{{ section.id }}"
-  class="layered-slideshow"
+  class="layered-slideshow color-{{ section.settings.color_scheme }}"
+  aria-roledescription="carousel"
+  aria-label="{{ 'sections.slideshow.label' | t }}"
   data-section-id="{{ section.id }}"
   data-autoplay="{{ section.settings.autoplay }}"
   data-interval="{{ section.settings.slide_interval | times: 1000 }}"
@@ -18,16 +20,29 @@
       <div
         class="layered-slideshow__slide{% if forloop.first %} is-active{% endif %}"
         data-slide
+        role="group"
+        aria-roledescription="slide"
+        aria-label="{{ 'sections.slideshow.slide_of' | t: index: forloop.index, total: forloop.length }}"
         aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
         {{ block.shopify_attributes }}
       >
         <div class="layered-slideshow__background">
+          {%- liquid
+            assign slide_loading = 'lazy'
+            assign slide_priority = 'auto'
+            if forloop.first and section.index <= 2
+              assign slide_loading = 'eager'
+              assign slide_priority = 'high'
+            endif
+            assign slide_focal = 'object-position: ' | append: block.settings.desktop_image.presentation.focal_point | append: ';'
+          -%}
           {% if block.settings.desktop_image != blank %}
             <picture>
               {% if block.settings.mobile_image != blank %}
                 <source
                   media="(max-width: 749px)"
-                  srcset="{{ block.settings.mobile_image | image_url: width: 900 }}"
+                  srcset="{{ block.settings.mobile_image | image_url: width: 550 }} 550w, {{ block.settings.mobile_image | image_url: width: 750 }} 750w, {{ block.settings.mobile_image | image_url: width: 1100 }} 1100w, {{ block.settings.mobile_image | image_url: width: 1500 }} 1500w"
+                  sizes="100vw"
                 >
               {% endif %}
 
@@ -36,7 +51,9 @@
                 | image_url: width: 2400
                 | image_tag:
                   class: 'layered-slideshow__background-image',
-                  loading: 'lazy',
+                  loading: slide_loading,
+                  fetchpriority: slide_priority,
+                  style: slide_focal,
                   widths: '750, 1100, 1500, 1800, 2200, 2400',
                   sizes: '100vw',
                   alt: block.settings.desktop_image.alt
@@ -107,18 +124,18 @@
       <button
         type="button"
         class="layered-slideshow__arrow layered-slideshow__arrow--prev"
-        aria-label="Previous slide"
+        aria-label="{{ 'sections.slideshow.previous_slide' | t }}"
         data-prev
       >
         &#10094;
       </button>
 
-      <div class="layered-slideshow__dots" aria-label="Choose a slide">
+      <div class="layered-slideshow__dots" role="group" aria-label="{{ 'sections.slideshow.choose_slide' | t }}">
         {% for block in section.blocks %}
           <button
             type="button"
             class="layered-slideshow__dot{% if forloop.first %} is-active{% endif %}"
-            aria-label="Go to slide {{ forloop.index }}"
+            aria-label="{{ 'sections.slideshow.go_to_slide' | t: index: forloop.index }}"
             aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
             data-slide-to="{{ forloop.index0 }}"
           ></button>
@@ -128,11 +145,25 @@
       <button
         type="button"
         class="layered-slideshow__arrow layered-slideshow__arrow--next"
-        aria-label="Next slide"
+        aria-label="{{ 'sections.slideshow.next_slide' | t }}"
         data-next
       >
         &#10095;
       </button>
+
+      {%- if section.settings.autoplay -%}
+        <button
+          type="button"
+          class="layered-slideshow__arrow layered-slideshow__pause"
+          aria-label="{{ 'sections.slideshow.pause' | t }}"
+          data-label-pause="{{ 'sections.slideshow.pause' | t }}"
+          data-label-play="{{ 'sections.slideshow.play' | t }}"
+          aria-pressed="false"
+          data-pause
+        >
+          <span aria-hidden="true" data-pause-icon>&#10074;&#10074;</span>
+        </button>
+      {%- endif -%}
     </div>
   {% endif %}
 </section>
@@ -188,6 +219,12 @@
       "step": 1,
       "unit": "s",
       "default": 5
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-3"
     }
   ],
   "blocks": [
@@ -214,13 +251,13 @@
           "type": "text",
           "id": "subheading",
           "label": "Subheading",
-          "default": "NEW COLLECTION"
+          "default": "New collection"
         },
         {
           "type": "inline_richtext",
           "id": "heading",
           "label": "Heading",
-          "default": "Discover Your Style"
+          "default": "Discover your style"
         },
         {
           "type": "richtext",
@@ -232,7 +269,7 @@
           "type": "text",
           "id": "button_label",
           "label": "Button label",
-          "default": "Shop Now"
+          "default": "Shop now"
         },
         {
           "type": "url",

@@ -1,0 +1,78 @@
+{%- paginate collection.products by section.settings.products_per_page -%}
+  <div class="section color-{{ section.settings.color_scheme }}" id="ProductGridContainer-{{ section.id }}">
+    <div class="page-width">
+      {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
+        {% render 'facets',
+          results: collection,
+          enable_filtering: section.settings.enable_filtering,
+          enable_sorting: section.settings.enable_sorting,
+          section_id: section.id
+        %}
+      {%- endif -%}
+
+      <div id="ProductGrid-{{ section.id }}" data-product-grid>
+        {%- if collection.products.size == 0 -%}
+          <div class="empty-state">
+            {%- if collection.all_products_count == 0 -%}
+              <h2 class="empty-state__title">{{ 'sections.collection_template.empty' | t }}</h2>
+            {%- else -%}
+              <h2 class="empty-state__title">{{ 'sections.collection_template.empty_filtered' | t }}</h2>
+              <p>{{ 'sections.collection_template.use_fewer_filters_html' | t: link: collection.url }}</p>
+            {%- endif -%}
+            <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'general.continue_shopping' | t }}</a>
+          </div>
+        {%- else -%}
+          <ul class="product-grid product-grid--{{ section.settings.columns_desktop }}-col list-unstyled" role="list">
+            {%- for product in collection.products -%}
+              <li class="product-grid__item">
+                {%- if forloop.index <= 4 and paginate.current_page == 1 -%}
+                  {% render 'product-card', product: product, heading_tag: 'h2', priority: true %}
+                {%- else -%}
+                  {% render 'product-card', product: product, heading_tag: 'h2' %}
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+          {% render 'pagination', paginate: paginate %}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Product grid",
+  "tag": "section",
+  "class": "section-collection-product-grid",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "Enable filtering",
+      "info": "Customize filters with the Search & Discovery app. [Learn more](https://help.shopify.com/manual/online-store/search-and-discovery/filters)",
+      "default": true
+    },
+    { "type": "checkbox", "id": "enable_sorting", "label": "Enable sorting", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+  ]
+}
+{% endschema %}

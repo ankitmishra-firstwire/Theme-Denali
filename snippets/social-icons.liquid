@@ -1,0 +1,29 @@
+{%- doc -%}
+  Renders links to the store's social media profiles from theme settings.
+{%- enddoc -%}
+{%- liquid
+  assign networks = 'facebook,instagram,pinterest,tiktok,twitter,youtube' | split: ','
+  assign has_social = false
+  for network in networks
+    assign key = 'social_' | append: network | append: '_link'
+    if settings[key] != blank
+      assign has_social = true
+    endif
+  endfor
+-%}
+{%- if has_social -%}
+  <ul class="social-icons list-unstyled" role="list">
+    {%- for network in networks -%}
+      {%- assign key = 'social_' | append: network | append: '_link' -%}
+      {%- if settings[key] != blank -%}
+        {%- assign label_key = 'general.social.links.' | append: network -%}
+        <li>
+          <a href="{{ settings[key] }}" class="social-icons__link" target="_blank" rel="noopener">
+            {% render 'icon', icon: network %}
+            <span class="visually-hidden">{{ label_key | t }}</span>
+          </a>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

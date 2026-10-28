@@ -2,7 +2,7 @@
 
 <section
   id="CollectionBento-{{ section.id }}"
-  class="collection-bento"
+  class="collection-bento color-{{ section.settings.color_scheme }}"
   style="
     --bento-columns: {{ section.settings.columns }};
     --bento-gap: {{ section.settings.gap }}px;
@@ -46,11 +46,11 @@
           <a
             class="collection-bento__card collection-bento__card--{{ block.settings.card_size }}"
             href="{{ card_url | default: routes.all_products_collection_url }}"
-            aria-label="{{ card_title | escape }}"
             {{ block.shopify_attributes }}
           >
             <div class="collection-bento__image-wrapper">
               {% if card_image != blank %}
+                {%- assign card_focal = 'object-position: ' | append: card_image.presentation.focal_point | append: ';' -%}
                 {{
                   card_image
                   | image_url: width: 1400
@@ -59,7 +59,8 @@
                     loading: 'lazy',
                     widths: '320, 480, 640, 900, 1200, 1400',
                     sizes: '(min-width: 990px) 50vw, 100vw',
-                    alt: card_image.alt
+                    alt: card_image.alt,
+                    style: card_focal
                 }}
               {% else %}
                 {{ 'collection-1' | placeholder_svg_tag: 'collection-bento__placeholder' }}
@@ -80,12 +81,7 @@
 
                 {% if section.settings.show_product_count and collection != blank %}
                   <span class="collection-bento__count">
-                    {{ collection.products_count }}
-                    {% if collection.products_count == 1 %}
-                      product
-                    {% else %}
-                      products
-                    {% endif %}
+                    {{ 'sections.collection_bento.product_count' | t: count: collection.products_count }}
                   </span>
                 {% endif %}
               </div>
@@ -194,6 +190,12 @@
       "step": 4,
       "unit": "px",
       "default": 48
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
     }
   ],
   "blocks": [
