@@ -341,6 +341,259 @@
         "padding_bottom": 0
       }
     },
+    "grid_features_card_gY4nYg": {
+      "type": "grid-features-card",
+      "blocks": {
+        "feature_aKGXpE": {
+          "type": "feature",
+          "settings": {
+            "icon": "zap",
+            "title": "Faaast",
+            "description": "It supports an entire helping developers and innovate."
+          }
+        },
+        "feature_hgMDGQ": {
+          "type": "feature",
+          "settings": {
+            "icon": "cpu",
+            "title": "Powerful",
+            "description": "It supports an entire helping developers and businesses."
+          }
+        },
+        "feature_PtwhfQ": {
+          "type": "feature",
+          "settings": {
+            "icon": "fingerprint",
+            "title": "Security",
+            "description": "It supports an helping developers businesses."
+          }
+        },
+        "feature_e3KXPY": {
+          "type": "feature",
+          "settings": {
+            "icon": "pencil",
+            "title": "Customization",
+            "description": "It supports helping developers and businesses innovate."
+          }
+        },
+        "feature_ditBKc": {
+          "type": "feature",
+          "settings": {
+            "icon": "settings",
+            "title": "Control",
+            "description": "It supports helping developers and businesses innovate."
+          }
+        },
+        "feature_3Vx3AX": {
+          "type": "feature",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Built for AI",
+            "description": "It supports helping developers and businesses innovate."
+          }
+        }
+      },
+      "block_order": [
+        "feature_aKGXpE",
+        "feature_hgMDGQ",
+        "feature_PtwhfQ",
+        "feature_e3KXPY",
+        "feature_ditBKc",
+        "feature_3Vx3AX"
+      ],
+      "name": "Grid Feature Cards",
+      "settings": {
+        "badge_text": "",
+        "heading": "Power. Speed. Control.",
+        "subheading": "Everything you need to build fast, secure, scalable apps.",
+        "bg_color": "#ffffff",
+        "heading_color": "#111111",
+        "subheading_color": "#6b6b6b",
+        "badge_text_color": "#111111",
+        "badge_bg_color": "#ffffff",
+        "badge_border_color": "#e5e5e5",
+        "border_color": "#d4d4d4",
+        "card_bg_color": "#ffffff",
+        "card_hover_bg_color": "#f7f7f7",
+        "title_color": "#111111",
+        "description_color": "#6b6b6b",
+        "icon_color": "#111111",
+        "icon_bg_color": "#00000000",
+        "show_pattern": true,
+        "pattern_color": "#00000014",
+        "pattern_size": 24,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "container_width": 1000,
+        "header_width": 720,
+        "header_gap": 16,
+        "header_bottom_space": 32,
+        "badge_radius": 8,
+        "columns_desktop": 3,
+        "columns_tablet": 2,
+        "columns_mobile": 1,
+        "border_width": 1,
+        "border_style": "dashed",
+        "grid_radius": 0,
+        "card_padding": 24,
+        "icon_box_size": 24,
+        "icon_size": 24,
+        "icon_stroke": 1,
+        "icon_box_radius": 0,
+        "title_top_space": 40,
+        "description_top_space": 12,
+        "animation_duration": 0.8,
+        "grid_delay": 0.4,
+        "animation_blur": 4,
+        "animation_shift": 8
+      }
+    },
+    "testimonial_autoscroll_iJ4ch6": {
+      "type": "testimonial-autoscroll",
+      "blocks": {
+        "testimonial_WzqJTe": {
+          "type": "testimonial",
+          "settings": {
+            "text": "This ERP revolutionized our operations, streamlining finance and inventory. The cloud-based platform keeps us productive, even remotely.",
+            "name": "Briana Patton",
+            "role": "Operations Manager"
+          }
+        },
+        "testimonial_mWmftx": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Implementing this ERP was smooth and quick. The customizable, user-friendly interface made team training effortless.",
+            "name": "Bilal Ahmed",
+            "role": "IT Manager"
+          }
+        },
+        "testimonial_HxztqP": {
+          "type": "testimonial",
+          "settings": {
+            "text": "The support team is exceptional, guiding us through setup and providing ongoing assistance, ensuring our satisfaction.",
+            "name": "Saman Malik",
+            "role": "Customer Support Lead"
+          }
+        },
+        "testimonial_VCdV33": {
+          "type": "testimonial",
+          "settings": {
+            "text": "This ERP's seamless integration enhanced our business operations and efficiency. Highly recommend for its intuitive interface.",
+            "name": "Omar Raza",
+            "role": "CEO"
+          }
+        },
+        "testimonial_JdkfFV": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Its robust features and quick support have transformed our workflow, making us significantly more efficient.",
+            "name": "Zainab Hussain",
+            "role": "Project Manager"
+          }
+        },
+        "testimonial_RG8MhD": {
+          "type": "testimonial",
+          "settings": {
+            "text": "The smooth implementation exceeded expectations. It streamlined processes, improving overall business performance.",
+            "name": "Aliza Khan",
+            "role": "Business Analyst"
+          }
+        },
+        "testimonial_XYmKkU": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Our business functions improved with a user-friendly design and positive customer feedback.",
+            "name": "Farhan Siddiqui",
+            "role": "Marketing Director"
+          }
+        },
+        "testimonial_CbWXcf": {
+          "type": "testimonial",
+          "settings": {
+            "text": "They delivered a solution that exceeded expectations, understanding our needs and enhancing our operations.",
+            "name": "Sana Sheikh",
+            "role": "Sales Manager"
+          }
+        },
+        "testimonial_MCADWw": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Using this ERP, our online presence and conversions significantly improved, boosting business performance.",
+            "name": "Hassan Ali",
+            "role": "E-commerce Manager"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_WzqJTe",
+        "testimonial_mWmftx",
+        "testimonial_HxztqP",
+        "testimonial_VCdV33",
+        "testimonial_JdkfFV",
+        "testimonial_RG8MhD",
+        "testimonial_XYmKkU",
+        "testimonial_CbWXcf",
+        "testimonial_MCADWw"
+      ],
+      "name": "Testimonials Columns",
+      "settings": {
+        "badge_text": "Testimonials",
+        "heading": "What our users say",
+        "subheading": "See what our customers have to say about us.",
+        "bg_color": "#ffffff",
+        "badge_text_color": "#111111",
+        "badge_bg_color": "#ffffff",
+        "badge_border_color": "#e5e5e5",
+        "heading_color": "#111111",
+        "subheading_color": "#111111",
+        "subheading_opacity": 75,
+        "card_bg_color": "#ffffff",
+        "card_border_color": "#e5e5e5",
+        "card_text_color": "#333333",
+        "name_color": "#111111",
+        "role_color": "#6b6b6b",
+        "avatar_bg_color": "#e5e5e5",
+        "avatar_text_color": "#111111",
+        "shadow_color": "#0000001a",
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "margin_top": 0,
+        "margin_bottom": 0,
+        "container_width": 1200,
+        "mobile_side_padding": 16,
+        "header_width": 540,
+        "header_gap": 16,
+        "header_bottom_space": 40,
+        "badge_radius": 8,
+        "badge_padding_x": 16,
+        "badge_padding_y": 4,
+        "badge_border_width": 1,
+        "max_height": 700,
+        "column_gap": 24,
+        "card_gap": 24,
+        "card_max_width": 320,
+        "card_padding": 40,
+        "card_radius": 24,
+        "card_border_width": 1,
+        "text_gap": 20,
+        "avatar_size": 40,
+        "avatar_radius": 50,
+        "author_gap": 8,
+        "shadow_x": 0,
+        "shadow_y": 10,
+        "shadow_blur": 30,
+        "shadow_spread": 0,
+        "duration_col_1": 15,
+        "duration_col_2": 19,
+        "duration_col_3": 17,
+        "reverse_middle": true,
+        "pause_on_hover": true,
+        "enable_fade": true,
+        "fade_size": 25,
+        "hide_third_on_tablet": true,
+        "hide_second_on_mobile": true
+      }
+    },
     "slideshow": {
       "type": "layered-slideshow",
       "blocks": {
@@ -524,6 +777,8 @@
   "order": [
     "scroll_morph_hero_3prAnb",
     "clothing_rail_rule_npfJ73",
+    "grid_features_card_gY4nYg",
+    "testimonial_autoscroll_iJ4ch6",
     "slideshow",
     "featured_collection",
     "collection_bento",
