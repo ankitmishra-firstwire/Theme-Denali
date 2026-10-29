@@ -1,0 +1,1173 @@
+{%- comment -%}
+  Collection Product Scroll — Shopify OS 2.0 section
+  Assets: assets/collection-product-scroll.css, assets/collection-product-scroll.js
+  Left: fixed collection image. Right: 2-column product grid that scrolls on its own.
+  Scrolling past the end of a collection's products switches to the next collection.
+{%- endcomment -%}
+
+{{ 'collection-product-scroll.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'collection-product-scroll.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign s = section.settings
+  assign block_count = section.blocks.size
+  assign last_index = block_count | minus: 1
+  assign cid = 'CPS-' | append: section.id
+
+  assign overlay_opacity = s.overlay_opacity | divided_by: 100.0
+  assign heading_size_mobile = s.heading_size | times: 0.75 | round
+  assign media_title_mobile = s.media_title_size | times: 0.75 | round
+
+  assign product_col = 100 | minus: s.media_width
+  assign card_vw = product_col | divided_by: 2
+  assign product_col_t = 100 | minus: s.media_width_tablet
+  assign card_vw_t = product_col_t | divided_by: 2
+  capture product_sizes
+    echo '(min-width: 990px) '
+    echo card_vw
+    echo 'vw, (min-width: 750px) '
+    echo card_vw_t
+    echo 'vw, 50vw'
+  endcapture
+  capture media_sizes
+    echo '(min-width: 990px) '
+    echo s.media_width
+    echo 'vw, (min-width: 750px) '
+    echo s.media_width_tablet
+    echo 'vw, 100vw'
+  endcapture
+
+  case s.scroll_sensitivity
+    when 'short'
+      assign threshold = 90
+    when 'long'
+      assign threshold = 260
+    else
+      assign threshold = 160
+  endcase
+
+  assign switch_on_scroll = false
+  if s.switch_on_scroll and block_count > 1
+    assign switch_on_scroll = true
+  endif
+-%}
+
+{%- capture titles_raw -%}
+  {%- for block in section.blocks -%}
+    {{- block.settings.title | default: block.settings.collection.title | default: 'Collection' | escape -}}
+    {%- unless forloop.last -%}||{%- endunless -%}
+  {%- endfor -%}
+{%- endcapture -%}
+{%- assign titles = titles_raw | split: '||' -%}
+
+{%- if s.use_custom_font -%}
+  {%- style -%}
+    {{ s.title_font | font_face: font_display: 'swap' }}
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  #{{ cid }} {
+    --cps-bg: {{ s.background }};
+    --cps-text: {{ s.text_color }};
+    --cps-muted: {{ s.muted_color }};
+    --cps-accent: {{ s.accent_color }};
+    --cps-pad-top: {{ s.padding_top }}px;
+    --cps-pad-bottom: {{ s.padding_bottom }}px;
+    --cps-pad-x: {{ s.side_padding }}px;
+    --cps-heading-size: {{ s.heading_size }}px;
+    --cps-heading-align: {{ s.heading_alignment }};
+
+    --cps-media-w: {{ s.media_width }}%;
+    --cps-layout-gap: {{ s.layout_gap }}px;
+    --cps-height: {{ s.height_desktop }}vh;
+    --cps-media-radius: {{ s.media_radius }}px;
+    --cps-image-bg: {{ s.image_bg }};
+    --cps-overlay-color: {{ s.overlay_color }};
+    --cps-overlay-opacity: {{ overlay_opacity }};
+    --cps-media-text: {{ s.media_text_color }};
+    --cps-media-title-size: {{ s.media_title_size }}px;
+    --cps-media-desc-size: {{ s.media_description_size }}px;
+    --cps-title-weight: {{ s.title_weight }};
+    {%- if s.use_custom_font %}
+    --cps-title-font: {{ s.title_font.family }}, {{ s.title_font.fallback_families }};
+    --cps-title-style: {{ s.title_font.style }};
+    {%- endif %}
+    --cps-btn-bg: {{ s.button_bg }};
+    --cps-btn-color: {{ s.button_color }};
+    --cps-btn-radius: {{ s.button_radius }}px;
+
+    --cps-col-gap: {{ s.grid_column_gap }}px;
+    --cps-row-gap: {{ s.grid_row_gap }}px;
+    --cps-ratio: {{ s.product_ratio }};
+    --cps-card-bg: {{ s.card_bg }};
+    --cps-card-border: {{ s.card_border_color }};
+    --cps-card-border-w: {{ s.card_border_width }}px;
+    --cps-card-radius: {{ s.card_radius }}px;
+    --cps-card-pad: {{ s.card_padding }}px;
+    --cps-product-title-size: {{ s.product_title_size }}px;
+    --cps-price-size: {{ s.price_size }}px;
+    --cps-price-color: {{ s.price_color }};
+    --cps-sale-color: {{ s.sale_color }};
+    --cps-badge-bg: {{ s.badge_bg }};
+    --cps-badge-text: {{ s.badge_text }};
+
+    --cps-tab-active-bg: {{ s.tab_active_bg }};
+    --cps-tab-active-text: {{ s.tab_active_text }};
+    --cps-speed: {{ s.transition_speed }}ms;
+  }
+
+  @media screen and (max-width: 989px) {
+    #{{ cid }} {
+      --cps-media-w: {{ s.media_width_tablet }}%;
+      --cps-height: {{ s.height_tablet }}vh;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ cid }} {
+      --cps-pad-top: {{ s.padding_top | times: 0.7 | round }}px;
+      --cps-pad-bottom: {{ s.padding_bottom | times: 0.7 | round }}px;
+      --cps-heading-size: {{ heading_size_mobile }}px;
+      --cps-media-title-size: {{ media_title_mobile }}px;
+      --cps-media-h: {{ s.media_height_mobile }}px;
+      --cps-scroll-h: {{ s.scroll_height_mobile }}vh;
+      --cps-col-gap: {{ s.grid_column_gap_mobile }}px;
+      --cps-row-gap: {{ s.grid_row_gap_mobile }}px;
+    }
+  }
+{%- endstyle -%}
+
+<collection-product-scroll
+  id="{{ cid }}"
+  class="cps cps--media-{{ s.media_position }} cps--text-{{ s.text_position }} cps--align-{{ s.text_alignment }} cps--anim-{{ s.transition_style }} cps--tabs-{{ s.tab_style }} cps--card-{{ s.card_text_alignment }} cps--fit-{{ s.image_fit }}{% if s.full_width %} cps--full{% endif %}{% if s.card_shadow %} cps--card-shadow{% endif %}{% if s.title_uppercase %} cps--upper{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-switch-on-scroll="{{ switch_on_scroll }}"
+  data-loop="{{ s.loop }}"
+  data-threshold="{{ threshold }}"
+  data-speed="{{ s.transition_speed }}"
+>
+  <div class="cps__inner">
+    {%- if s.heading != blank or s.subheading != blank -%}
+      <div class="cps__header">
+        {%- if s.heading != blank -%}
+          <h2 class="cps__heading">{{ s.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if s.subheading != blank -%}
+          <p class="cps__subheading">{{ s.subheading | escape | newline_to_br }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block_count == 0 -%}
+      {%- if request.design_mode -%}
+        <p class="cps__empty">Add a Collection block to show a collection and its products.</p>
+      {%- endif -%}
+    {%- else -%}
+      <div class="cps__layout">
+        {%- comment -%} ---------- Left: collection images ---------- {%- endcomment -%}
+        <div class="cps__media-col">
+          <div class="cps__media-stack">
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign collection = block.settings.collection
+                assign c_title = titles[forloop.index0]
+                assign c_desc = block.settings.description
+                if c_desc == blank and s.use_collection_description and collection.description != blank
+                  assign c_desc = collection.description | strip_html | truncatewords: 30
+                endif
+                assign c_image = block.settings.image | default: collection.featured_image
+                assign c_alt = c_image.alt | default: c_title
+                assign btn_label = block.settings.button_label | default: s.button_text
+                assign c_url = collection.url | default: routes.collections_url
+                assign ph_n = forloop.index0 | modulo: 6 | plus: 1
+                assign ph_name = 'collection-' | append: ph_n
+                assign media_loading = 'lazy'
+                if forloop.first and section.index != nil and section.index <= 2
+                  assign media_loading = 'eager'
+                endif
+              -%}
+              <div
+                class="cps__media{% if forloop.first %} is-active{% endif %}"
+                data-cps-media
+                data-index="{{ forloop.index0 }}"
+                {% unless forloop.first %}aria-hidden="true" inert{% endunless %}
+              >
+                <div class="cps__media-img">
+                  {%- if c_image != blank -%}
+                    {{
+                      c_image
+                      | image_url: width: 2000
+                      | image_tag:
+                        widths: '480, 720, 960, 1200, 1600, 2000',
+                        sizes: media_sizes,
+                        loading: media_loading,
+                        alt: c_alt,
+                        class: 'cps__img'
+                    }}
+                  {%- else -%}
+                    {{ ph_name | placeholder_svg_tag: 'cps__img cps__placeholder' }}
+                  {%- endif -%}
+                </div>
+                <span class="cps__overlay" aria-hidden="true"></span>
+
+                {%- if s.show_media_title or s.show_media_description or s.show_media_button -%}
+                  <div class="cps__media-content">
+                    {%- if s.show_media_title -%}
+                      <h3 class="cps__media-title">{{ c_title }}</h3>
+                    {%- endif -%}
+                    {%- if s.show_media_description and c_desc != blank -%}
+                      <p class="cps__media-desc">{{ c_desc | escape }}</p>
+                    {%- endif -%}
+                    {%- if s.show_media_button and btn_label != blank -%}
+                      <a class="cps__btn" href="{{ c_url }}">
+                        {{ btn_label | escape }}<span class="cps__sr">: {{ c_title }}</span>
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        {%- comment -%} ---------- Right: navigation + product panels ---------- {%- endcomment -%}
+        <div class="cps__products-col">
+          {%- if block_count > 1 -%}
+            {%- if s.show_tabs or s.show_arrows or s.show_counter -%}
+              <div class="cps__nav">
+                {%- if s.show_tabs -%}
+                  <div class="cps__tabs" role="tablist" aria-label="Collections" data-cps-tablist>
+                    {%- for block in section.blocks -%}
+                      <button
+                        type="button"
+                        role="tab"
+                        class="cps__tab{% if forloop.first %} is-active{% endif %}"
+                        id="{{ cid }}-tab-{{ forloop.index0 }}"
+                        aria-controls="{{ cid }}-panel-{{ forloop.index0 }}"
+                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                        tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+                        data-cps-tab
+                        data-index="{{ forloop.index0 }}"
+                      >
+                        {{ titles[forloop.index0] }}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+
+                {%- if s.show_arrows or s.show_counter -%}
+                  <div class="cps__nav-arrows">
+                    {%- if s.show_arrows -%}
+                      <button type="button" class="cps__arrow" data-cps-prev aria-label="Previous collection"{% unless s.loop %} disabled{% endunless %}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"/></svg>
+                      </button>
+                    {%- endif -%}
+                    {%- if s.show_counter -%}
+                      <span class="cps__counter" data-cps-counter aria-hidden="true">1 / {{ block_count }}</span>
+                    {%- endif -%}
+                    {%- if s.show_arrows -%}
+                      <button type="button" class="cps__arrow" data-cps-next aria-label="Next collection">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+                      </button>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if s.show_progress -%}
+            <div class="cps__progress" aria-hidden="true"><span class="cps__progress-bar"></span></div>
+          {%- endif -%}
+
+          <div class="cps__panels">
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign collection = block.settings.collection
+                assign i = forloop.index0
+                assign c_title = titles[i]
+                assign c_url = collection.url | default: routes.collections_url
+
+                assign has_next = false
+                assign next_i = i | plus: 1
+                if next_i < block_count
+                  assign has_next = true
+                elsif s.loop and block_count > 1
+                  assign next_i = 0
+                  assign has_next = true
+                endif
+
+                assign has_prev = false
+                assign prev_i = i | minus: 1
+                if prev_i >= 0
+                  assign has_prev = true
+                elsif s.loop and block_count > 1
+                  assign prev_i = last_index
+                  assign has_prev = true
+                endif
+              -%}
+              <div
+                class="cps__panel{% if forloop.first %} is-active{% endif %}"
+                id="{{ cid }}-panel-{{ i }}"
+                {% if s.show_tabs and block_count > 1 %}
+                  role="tabpanel" aria-labelledby="{{ cid }}-tab-{{ i }}"
+                {% else %}
+                  role="region" aria-label="{{ c_title }}"
+                {% endif %}
+                data-cps-panel
+                data-index="{{ i }}"
+                data-block-id="{{ block.id }}"
+                data-title="{{ c_title }}"
+                {% unless forloop.first %}aria-hidden="true" inert{% endunless %}
+                {{ block.shopify_attributes }}
+              >
+                {%- if switch_on_scroll and has_prev -%}
+                  <div class="cps__pull" aria-hidden="true">
+                    <span>Keep scrolling up for {{ titles[prev_i] }}</span>
+                    <span class="cps__intent"><span class="cps__intent-bar cps__intent-bar--up"></span></span>
+                  </div>
+                {%- endif -%}
+
+                <div class="cps__scroller" data-cps-scroller tabindex="0" aria-label="Products in {{ c_title }}">
+                  <ul class="cps__grid" role="list">
+                    {%- if collection == blank -%}
+                      {%- for n in (1..4) -%}
+                        <li class="cps__item">
+                          <div class="cps__card">
+                            <div class="cps__card-media">
+                              {{ 'product-' | append: n | placeholder_svg_tag: 'cps__img cps__placeholder' }}
+                            </div>
+                            <div class="cps__card-info">
+                              <p class="cps__card-title">Product title</p>
+                              <div class="cps__price"><span class="cps__amount">{{ 1999 | money }}</span></div>
+                            </div>
+                          </div>
+                        </li>
+                      {%- endfor -%}
+                    {%- elsif collection.products_count == 0 -%}
+                      <li class="cps__item cps__item--empty">This collection has no products yet.</li>
+                    {%- else -%}
+                      {%- for product in collection.products limit: s.products_limit -%}
+                        {%- liquid
+                          assign media = product.featured_media
+                          assign p_alt = media.alt | default: product.title
+                          assign on_sale = false
+                          if product.compare_at_price > product.price
+                            assign on_sale = true
+                          endif
+                          assign p_loading = 'lazy'
+                          if i == 0 and forloop.index <= 2 and section.index != nil and section.index <= 2
+                            assign p_loading = 'eager'
+                          endif
+                          assign second = nil
+                          if s.show_secondary_image and product.media.size > 1
+                            assign second = product.media[1].preview_image
+                          endif
+                        -%}
+                        <li class="cps__item">
+                          <a class="cps__card" href="{{ product.url }}">
+                            <div
+                              class="cps__card-media{% if second %} has-second{% endif %}"
+                              {% if s.product_ratio == 'adapt' %}style="--cps-ratio: {{ media.aspect_ratio | default: 1 }};"{% endif %}
+                            >
+                              {%- if media != blank -%}
+                                {{
+                                  media
+                                  | image_url: width: 900
+                                  | image_tag:
+                                    widths: '240, 360, 480, 600, 720, 900',
+                                    sizes: product_sizes,
+                                    loading: p_loading,
+                                    alt: p_alt,
+                                    class: 'cps__img'
+                                }}
+                                {%- if second -%}
+                                  {{
+                                    second
+                                    | image_url: width: 900
+                                    | image_tag:
+                                      widths: '240, 360, 480, 600, 720, 900',
+                                      sizes: product_sizes,
+                                      loading: 'lazy',
+                                      alt: '',
+                                      class: 'cps__img cps__img--second'
+                                  }}
+                                {%- endif -%}
+                              {%- else -%}
+                                {{ 'product-1' | placeholder_svg_tag: 'cps__img cps__placeholder' }}
+                              {%- endif -%}
+
+                              {%- if product.available == false and s.show_sold_out_badge -%}
+                                <span class="cps__badge">Sold out</span>
+                              {%- elsif on_sale and s.show_sale_badge -%}
+                                <span class="cps__badge cps__badge--sale">Sale</span>
+                              {%- endif -%}
+                            </div>
+
+                            <div class="cps__card-info">
+                              {%- if s.show_vendor and product.vendor != blank -%}
+                                <p class="cps__vendor">{{ product.vendor | escape }}</p>
+                              {%- endif -%}
+                              <p class="cps__card-title">{{ product.title | escape }}</p>
+                              <div class="cps__price">
+                                {%- if on_sale and s.show_compare_price -%}
+                                  <span class="cps__sr">Regular price</span>
+                                  <s class="cps__compare">{{ product.compare_at_price | money }}</s>
+                                  <span class="cps__sr">Sale price</span>
+                                {%- endif -%}
+                                <span class="cps__amount{% if on_sale %} is-sale{% endif %}">
+                                  {%- if product.price_varies -%}From {% endif -%}
+                                  {{- product.price | money -}}
+                                </span>
+                              </div>
+                            </div>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    {%- endif -%}
+                  </ul>
+
+                  <div class="cps__end">
+                    {%- if s.show_view_all and collection != blank -%}
+                      <a class="cps__view-all" href="{{ c_url }}">
+                        {{ s.view_all_text | default: 'View all' | escape }}<span class="cps__sr"> {{ c_title }}</span>
+                      </a>
+                    {%- endif -%}
+                    {%- if switch_on_scroll and has_next -%}
+                      <p class="cps__next-hint">Keep scrolling for <strong>{{ titles[next_i] }}</strong></p>
+                      <span class="cps__intent" aria-hidden="true"><span class="cps__intent-bar cps__intent-bar--down"></span></span>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+
+      <div class="cps__sr" aria-live="polite" aria-atomic="true" data-cps-live></div>
+    {%- endif -%}
+  </div>
+</collection-product-scroll>
+
+{% schema %}
+{
+  "name": "Collection product scroll",
+  "tag": "section",
+  "class": "section-collection-product-scroll",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 8,
+  "settings": [
+    { "type": "header", "content": "Heading" },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by collection"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+
+    { "type": "header", "content": "Section layout" },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "Collection image position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "media_width",
+      "label": "Image column width (desktop)",
+      "min": 30,
+      "max": 65,
+      "step": 5,
+      "unit": "%",
+      "default": 45
+    },
+    {
+      "type": "range",
+      "id": "media_width_tablet",
+      "label": "Image column width (tablet)",
+      "min": 30,
+      "max": 60,
+      "step": 5,
+      "unit": "%",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "Scroll area height (desktop)",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 85
+    },
+    {
+      "type": "range",
+      "id": "height_tablet",
+      "label": "Scroll area height (tablet)",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 75
+    },
+    {
+      "type": "range",
+      "id": "media_height_mobile",
+      "label": "Image height (mobile)",
+      "min": 160,
+      "max": 520,
+      "step": 10,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "scroll_height_mobile",
+      "label": "Product area height (mobile)",
+      "min": 40,
+      "max": 90,
+      "step": 5,
+      "unit": "vh",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "layout_gap",
+      "label": "Space between columns",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "side_padding",
+      "label": "Side padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Secondary text",
+      "default": "#6b6b6b"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "info": "Used for the scroll progress bar and switch indicator.",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "color",
+      "id": "image_bg",
+      "label": "Image placeholder background",
+      "default": "#f2f2f2"
+    },
+
+    { "type": "header", "content": "Collection image" },
+    {
+      "type": "range",
+      "id": "media_radius",
+      "label": "Image corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Text position",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "color",
+      "id": "media_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_media_title",
+      "label": "Show collection title",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_media_description",
+      "label": "Show description",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "use_collection_description",
+      "label": "Use collection description when block description is empty",
+      "default": false
+    },
+
+    { "type": "header", "content": "Typography" },
+    {
+      "type": "checkbox",
+      "id": "use_custom_font",
+      "label": "Use custom title font",
+      "info": "Off uses your theme's heading font.",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Title weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "checkbox",
+      "id": "title_uppercase",
+      "label": "Uppercase collection title",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "media_title_size",
+      "label": "Collection title size",
+      "min": 18,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "media_description_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "product_title_size",
+      "label": "Product title size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Price size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+
+    { "type": "header", "content": "Button" },
+    {
+      "type": "checkbox",
+      "id": "show_media_button",
+      "label": "Show button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Shop collection"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button text color",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button corner radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 50
+    },
+
+    { "type": "header", "content": "Product grid" },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Products per collection",
+      "min": 2,
+      "max": 48,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "grid_column_gap",
+      "label": "Column spacing",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "grid_row_gap",
+      "label": "Row spacing",
+      "min": 8,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "grid_column_gap_mobile",
+      "label": "Column spacing (mobile)",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "grid_row_gap_mobile",
+      "label": "Row spacing (mobile)",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show “View all” link after products",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "“View all” text",
+      "default": "View all"
+    },
+
+    { "type": "header", "content": "Product card" },
+    {
+      "type": "select",
+      "id": "product_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "adapt", "label": "Adapt to image" },
+        { "value": "1 / 1", "label": "Square" },
+        { "value": "4 / 5", "label": "Portrait (4:5)" },
+        { "value": "3 / 4", "label": "Portrait (3:4)" },
+        { "value": "2 / 3", "label": "Tall (2:3)" },
+        { "value": "4 / 3", "label": "Landscape (4:3)" }
+      ],
+      "default": "4 / 5"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        { "value": "cover", "label": "Fill (crop)" },
+        { "value": "contain", "label": "Fit (no crop)" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "card_text_alignment",
+      "label": "Card text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border color",
+      "default": "#e6e6e6"
+    },
+    {
+      "type": "range",
+      "id": "card_border_width",
+      "label": "Card border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card padding",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "card_shadow",
+      "label": "Card shadow",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "Show second image on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_compare_price",
+      "label": "Show compare-at price",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sale_badge",
+      "label": "Show sale badge",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sold_out_badge",
+      "label": "Show sold out badge",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "color",
+      "id": "sale_color",
+      "label": "Sale price color",
+      "default": "#b42318"
+    },
+    {
+      "type": "color",
+      "id": "badge_bg",
+      "label": "Badge background",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "color",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "#ffffff"
+    },
+
+    { "type": "header", "content": "Collection navigation" },
+    {
+      "type": "checkbox",
+      "id": "switch_on_scroll",
+      "label": "Switch collections by scrolling",
+      "info": "Scrolling past the last row moves to the next collection; scrolling up at the top moves to the previous one.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "scroll_sensitivity",
+      "label": "Extra scroll needed to switch",
+      "options": [
+        { "value": "short", "label": "Short" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "long", "label": "Long" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop from last collection to first",
+      "info": "When off, scrolling continues down the page after the last collection.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tabs",
+      "label": "Show collection tabs",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "tab_style",
+      "label": "Tab style",
+      "options": [
+        { "value": "pills", "label": "Pills" },
+        { "value": "underline", "label": "Underline" }
+      ],
+      "default": "pills"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_bg",
+      "label": "Active tab background",
+      "default": "#1c1c1c"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text",
+      "label": "Active tab text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show previous/next arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_counter",
+      "label": "Show collection counter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress",
+      "label": "Show scroll progress bar",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "transition_style",
+      "label": "Switch animation",
+      "options": [
+        { "value": "slide", "label": "Slide" },
+        { "value": "fade", "label": "Fade" }
+      ],
+      "default": "slide"
+    },
+    {
+      "type": "range",
+      "id": "transition_speed",
+      "label": "Animation speed",
+      "min": 200,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "default": 500
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Leave empty to use the collection image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "info": "Leave empty to use the collection name."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button text override",
+          "info": "Leave empty to use the section button text."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection product scroll",
+      "blocks": [
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" }
+      ]
+    }
+  ]
+}
+{% endschema %}
