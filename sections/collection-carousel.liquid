@@ -1,0 +1,1708 @@
+{%- comment -%}
+  Collection Carousel — single-file Shopify OS 2.0 section
+  Markup, scoped CSS ({% style %}) and vanilla JS (<script>) live in this one file.
+  No external libraries. Safe for multiple instances and Theme Editor reloads.
+{%- endcomment -%}
+
+{%- liquid
+  assign s = section.settings
+  assign block_count = section.blocks.size
+  assign cid = 'CCar-' | append: section.id
+  capture S
+    echo '#'
+    echo cid
+  endcapture
+
+  assign center_scale = s.center_scale | divided_by: 100.0
+  assign side_scale = s.side_scale | divided_by: 100.0
+  assign side_opacity = s.side_opacity | divided_by: 100.0
+  assign overlay_opacity = s.overlay_opacity | divided_by: 100.0
+  assign title_ls = s.title_letter_spacing | divided_by: 100.0
+  assign heading_size_mobile = s.heading_size | times: 0.72 | round
+  assign title_size_mobile = s.title_size | times: 0.82 | round
+
+  assign size_d = s.card_width_desktop | times: center_scale | ceil
+  assign size_t = s.card_width_tablet | times: center_scale | ceil
+  assign size_m = s.card_width_mobile | times: center_scale | ceil
+  capture img_sizes
+    echo '(min-width: 990px) '
+    echo size_d
+    echo 'px, (min-width: 750px) '
+    echo size_t
+    echo 'px, '
+    echo size_m
+    echo 'vw'
+  endcapture
+
+  assign use_height = false
+  if s.card_ratio == 'height'
+    assign use_height = true
+  endif
+
+  case s.text_position
+    when 'overlay-top'
+      assign justify = 'flex-start'
+      assign gradient_dir = 'to bottom'
+    when 'overlay-center'
+      assign justify = 'center'
+      assign gradient_dir = 'to top'
+    else
+      assign justify = 'flex-end'
+      assign gradient_dir = 'to top'
+  endcase
+
+  case s.text_alignment
+    when 'left'
+      assign align_items = 'flex-start'
+    when 'right'
+      assign align_items = 'flex-end'
+    else
+      assign align_items = 'center'
+  endcase
+
+  assign show_controls = false
+  if block_count > 1
+    if s.show_dots or s.autoplay
+      assign show_controls = true
+    endif
+    if s.show_arrows and s.arrow_position == 'bottom'
+      assign show_controls = true
+    endif
+  endif
+-%}
+
+{%- if s.use_custom_font -%}
+  {%- style -%}
+    {{ s.title_font | font_face: font_display: 'swap' }}
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  {{ S }} {
+    --ccar-card-w: min({{ s.card_width_desktop }}px, 62%);
+    --ccar-card-h: {{ s.card_height_desktop }}px;
+    --ccar-gap: {{ s.gap_desktop }}px;
+    --ccar-center-scale: {{ center_scale }};
+    --ccar-side-scale: {{ side_scale }};
+    --ccar-side-opacity: {{ side_opacity }};
+    --ccar-radius: {{ s.border_radius }}px;
+    --ccar-speed: {{ s.transition_speed }}ms;
+    --ccar-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --ccar-text: {{ s.text_color }};
+    --ccar-card-bg: {{ s.card_bg }};
+    --ccar-title-size: {{ s.title_size }}px;
+    --ccar-desc-size: {{ s.description_size }}px;
+    --ccar-heading-size: {{ s.heading_size }}px;
+    --ccar-btn-bg: {{ s.button_bg }};
+    --ccar-btn-color: {{ s.button_color }};
+    --ccar-btn-radius: {{ s.button_radius }}px;
+    --ccar-arrow-size: {{ s.arrow_size }}px;
+    --ccar-arrow-bg: {{ s.arrow_bg }};
+    --ccar-arrow-color: {{ s.arrow_color }};
+    --ccar-dot: {{ s.dot_color }};
+    --ccar-dot-active: {{ s.dot_active_color }};
+
+    display: block;
+    position: relative;
+    max-width: 100%;
+    background: {{ s.background }};
+    padding-top: {{ s.padding_top }}px;
+    padding-bottom: {{ s.padding_bottom }}px;
+  }
+
+  @media screen and (max-width: 989px) {
+    {{ S }} {
+      --ccar-card-w: min({{ s.card_width_tablet }}px, 66%);
+      --ccar-card-h: {{ s.card_height_tablet }}px;
+      --ccar-gap: {{ s.gap_tablet }}px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    {{ S }} {
+      --ccar-card-w: {{ s.card_width_mobile }}%;
+      --ccar-card-h: {{ s.card_height_mobile }}px;
+      --ccar-gap: {{ s.gap_mobile }}px;
+      --ccar-heading-size: {{ heading_size_mobile }}px;
+      --ccar-title-size: {{ title_size_mobile }}px;
+      padding-top: {{ s.padding_top | times: 0.7 | round }}px;
+      padding-bottom: {{ s.padding_bottom | times: 0.7 | round }}px;
+    }
+  }
+
+  {{ S }} *,
+  {{ S }} *::before,
+  {{ S }} *::after { box-sizing: border-box; }
+
+  {{ S }} .ccar__inner {
+    width: 100%;
+    {%- unless s.full_width %}
+    max-width: var(--page-width, 1200px);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+    {%- endunless %}
+  }
+
+  /* ---------- Header ---------- */
+  {{ S }} .ccar__header {
+    text-align: {{ s.heading_alignment }};
+    margin: 0 auto 2.5rem;
+    padding-inline: 1.5rem;
+    max-width: 52rem;
+    {%- if s.heading_alignment == 'left' %} margin-left: 0;{% endif %}
+    {%- if s.heading_alignment == 'right' %} margin-right: 0;{% endif %}
+  }
+  {{ S }} .ccar__heading {
+    margin: 0;
+    font-size: var(--ccar-heading-size);
+    line-height: 1.12;
+    color: {{ s.heading_color }};
+    letter-spacing: -0.01em;
+  }
+  {{ S }} .ccar__subheading {
+    margin: 0.75rem 0 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: {{ s.subheading_color }};
+  }
+
+  /* ---------- Stage / viewport ---------- */
+  {{ S }} .ccar__stage { position: relative; }
+  {{ S }} .ccar__viewport {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    touch-action: pan-y;
+  }
+  {%- if block_count > 1 %}
+  {{ S }}.is-ready .ccar__viewport { cursor: grab; }
+  {{ S }}.is-dragging .ccar__viewport { cursor: grabbing; user-select: none; }
+  {%- endif %}
+
+  /* No-JS fallback: a simple snapping row */
+  {{ S }} .ccar__track {
+    display: flex;
+    gap: var(--ccar-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 1rem 1.5rem;
+  }
+  {{ S }} .ccar__slide {
+    flex: 0 0 var(--ccar-card-w);
+    width: var(--ccar-card-w);
+    scroll-snap-align: center;
+  }
+
+  /* Enhanced, JS-driven centered carousel */
+  {{ S }}.is-ready .ccar__track {
+    display: block;
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+    padding: 0;
+    transition: transform var(--ccar-speed) var(--ccar-ease);
+    will-change: transform;
+  }
+  {{ S }}.is-ready .ccar__slide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: center center;
+    transition:
+      transform var(--ccar-speed) var(--ccar-ease),
+      opacity var(--ccar-speed) var(--ccar-ease);
+    will-change: transform, opacity;
+  }
+
+  /* ---------- Card ---------- */
+  {{ S }} .ccar__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-radius: var(--ccar-radius);
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--ccar-card-bg);
+    color: var(--ccar-text);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: box-shadow var(--ccar-speed) var(--ccar-ease);
+    {%- if s.text_position == 'below' %}
+    height: {% if use_height %}var(--ccar-card-h){% else %}auto{% endif %};
+    {%- else %}
+    {%- if use_height %}
+    height: var(--ccar-card-h);
+    {%- else %}
+    aspect-ratio: {{ s.card_ratio }};
+    {%- endif %}
+    {%- endif %}
+  }
+  {%- if s.card_shadow %}
+  {{ S }} .ccar__slide.is-active .ccar__card {
+    box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.45), 0 10px 24px -16px rgba(0, 0, 0, 0.25);
+  }
+  {%- endif %}
+  {{ S }} .ccar__card:focus-visible {
+    outline: 2px solid {{ s.heading_color }};
+    outline-offset: 4px;
+  }
+
+  {{ S }} .ccar__media {
+    overflow: hidden;
+    {%- if s.text_position == 'below' %}
+    position: relative;
+    border-radius: var(--ccar-radius) var(--ccar-radius) 0 0;
+    {%- if use_height %}
+    flex: 1 1 auto;
+    min-height: 0;
+    {%- else %}
+    aspect-ratio: {{ s.card_ratio }};
+    {%- endif %}
+    {%- else %}
+    position: absolute;
+    inset: 0;
+    {%- endif %}
+  }
+  {{ S }} .ccar__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-user-drag: none;
+    user-select: none;
+    transition: transform 1.2s var(--ccar-ease);
+  }
+  {{ S }} .ccar__placeholder { background: rgba(127, 127, 127, 0.18); fill: rgba(127, 127, 127, 0.5); }
+  @media (hover: hover) {
+    {{ S }} .ccar__slide.is-active .ccar__card:hover .ccar__img { transform: scale(1.04); }
+  }
+
+  {{ S }} .ccar__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: {{ overlay_opacity }};
+    {%- if s.overlay_style == 'gradient' and s.text_position != 'overlay-center' %}
+    background: linear-gradient({{ gradient_dir }}, {{ s.overlay_color }} 0%, transparent 72%);
+    {%- else %}
+    background: {{ s.overlay_color }};
+    {%- endif %}
+  }
+
+  {{ S }} .ccar__content {
+    display: flex;
+    flex-direction: column;
+    align-items: {{ align_items }};
+    text-align: {{ s.text_alignment }};
+    gap: 0.6rem;
+    padding: clamp(1.1rem, 3vw, 2rem);
+    {%- if s.text_position == 'below' %}
+    position: relative;
+    {%- else %}
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    justify-content: {{ justify }};
+    {%- endif %}
+  }
+  {{ S }} .ccar__title {
+    margin: 0;
+    font-size: var(--ccar-title-size);
+    font-weight: {{ s.title_weight }};
+    line-height: 1.15;
+    color: var(--ccar-text);
+    letter-spacing: {{ title_ls }}em;
+    {%- if s.title_uppercase %} text-transform: uppercase;{% endif %}
+    {%- if s.use_custom_font %}
+    font-family: {{ s.title_font.family }}, {{ s.title_font.fallback_families }};
+    font-style: {{ s.title_font.style }};
+    {%- endif %}
+  }
+  {{ S }} .ccar__desc {
+    margin: 0;
+    max-width: 34ch;
+    font-size: var(--ccar-desc-size);
+    line-height: 1.5;
+    color: var(--ccar-text);
+    opacity: 0.88;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  {{ S }} .ccar__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.4rem;
+    padding: 0.8em 1.6em;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    background: var(--ccar-btn-bg);
+    color: var(--ccar-btn-color);
+    border-radius: var(--ccar-btn-radius);
+    transition:
+      opacity var(--ccar-speed) var(--ccar-ease),
+      transform var(--ccar-speed) var(--ccar-ease),
+      filter 0.2s ease;
+  }
+  {{ S }} .ccar__card:hover .ccar__btn { filter: brightness(1.08); }
+  {{ S }}.is-ready .ccar__slide:not(.is-active) .ccar__btn {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  /* ---------- Arrows ---------- */
+  {{ S }} .ccar__arrow {
+    display: inline-grid;
+    place-items: center;
+    width: var(--ccar-arrow-size);
+    height: var(--ccar-arrow-size);
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    color: var(--ccar-arrow-color);
+    background: var(--ccar-arrow-bg);
+    transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+    {%- case s.arrow_style -%}
+      {%- when 'outline' %}
+    background: transparent;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+      {%- when 'square' %}
+    border-radius: 8px;
+      {%- when 'minimal' %}
+    background: transparent;
+    border-radius: 50%;
+      {%- else %}
+    border-radius: 50%;
+    box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.35);
+    {%- endcase %}
+  }
+  {{ S }} .ccar__arrow svg { width: 42%; height: 42%; }
+  {{ S }} .ccar__arrow:hover { transform: scale(1.06); }
+  {{ S }} .ccar__arrow:focus-visible {
+    outline: 2px solid var(--ccar-arrow-color);
+    outline-offset: 3px;
+  }
+  {{ S }} .ccar__stage > .ccar__arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 30;
+    transform: translateY(-50%);
+  }
+  {{ S }} .ccar__stage > .ccar__arrow:hover { transform: translateY(-50%) scale(1.06); }
+  {{ S }} .ccar__stage > .ccar__arrow--prev { left: clamp(0.75rem, 3vw, 2.5rem); }
+  {{ S }} .ccar__stage > .ccar__arrow--next { right: clamp(0.75rem, 3vw, 2.5rem); }
+
+  /* ---------- Controls (dots, pause, bottom arrows) ---------- */
+  {{ S }} .ccar__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    padding-inline: 1rem;
+  }
+  {{ S }} .ccar__dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; }
+  {{ S }} .ccar__dot,
+  {{ S }} .ccar__pause {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    color: var(--ccar-dot-active);
+  }
+  {{ S }} .ccar__dot::before {
+    content: "";
+    display: block;
+    background: var(--ccar-dot);
+    transition: width var(--ccar-speed) var(--ccar-ease), background-color 0.3s ease;
+    {%- if s.dot_style == 'bars' %}
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+    {%- else %}
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    {%- endif %}
+  }
+  {{ S }} .ccar__dot.is-active::before {
+    background: var(--ccar-dot-active);
+    width: {% if s.dot_style == 'bars' %}32px{% else %}22px{% endif %};
+  }
+  {%- if s.dot_style == 'bars' %}
+  {{ S }} .ccar__dot { width: auto; min-width: 28px; padding-inline: 2px; }
+  {%- endif %}
+  {{ S }} .ccar__dot:focus-visible,
+  {{ S }} .ccar__pause:focus-visible {
+    outline: 2px solid var(--ccar-dot-active);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  {{ S }} .ccar__pause svg { width: 14px; height: 14px; }
+  {{ S }} .ccar__pause .ccar__icon-play { display: none; }
+  {{ S }} .ccar__pause.is-paused .ccar__icon-play { display: block; }
+  {{ S }} .ccar__pause.is-paused .ccar__icon-pause { display: none; }
+
+  {{ S }} .ccar__sr {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  {{ S }} .ccar__empty {
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    max-width: 36rem;
+    text-align: center;
+    border: 1px dashed rgba(127, 127, 127, 0.5);
+    border-radius: 12px;
+    color: {{ s.heading_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    {{ S }} .ccar__header { margin-bottom: 1.75rem; }
+    {%- if s.hide_arrows_mobile %}
+    {{ S }} .ccar__arrow { display: none; }
+    {%- endif %}
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    {{ S }}.is-ready .ccar__track,
+    {{ S }}.is-ready .ccar__slide,
+    {{ S }} .ccar__img,
+    {{ S }} .ccar__btn,
+    {{ S }} .ccar__card,
+    {{ S }} .ccar__dot::before {
+      transition: none !important;
+    }
+  }
+{%- endstyle -%}
+
+{%- capture arrow_prev -%}
+  <button type="button" class="ccar__arrow ccar__arrow--prev" data-ccar-prev aria-label="Previous collection" aria-controls="{{ cid }}-track">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+{%- endcapture -%}
+{%- capture arrow_next -%}
+  <button type="button" class="ccar__arrow ccar__arrow--next" data-ccar-next aria-label="Next collection" aria-controls="{{ cid }}-track">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
+{%- endcapture -%}
+
+<ccar-carousel
+  id="{{ cid }}"
+  class="ccar"
+  data-section-id="{{ section.id }}"
+  data-autoplay="{{ s.autoplay }}"
+  data-interval="{{ s.autoplay_interval }}"
+  data-speed="{{ s.transition_speed }}"
+  data-side-click="{{ s.side_click }}"
+>
+  <div class="ccar__inner">
+    {%- if s.heading != blank or s.subheading != blank -%}
+      <div class="ccar__header">
+        {%- if s.heading != blank -%}
+          <h2 class="ccar__heading" id="{{ cid }}-heading">{{ s.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if s.subheading != blank -%}
+          <p class="ccar__subheading">{{ s.subheading | escape | newline_to_br }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block_count == 0 -%}
+      {%- if request.design_mode -%}
+        <p class="ccar__empty">Add a Collection block to start building this carousel.</p>
+      {%- endif -%}
+    {%- else -%}
+      <div
+        class="ccar__stage"
+        role="region"
+        aria-roledescription="carousel"
+        {% if s.heading != blank %}aria-labelledby="{{ cid }}-heading"{% else %}aria-label="Collections"{% endif %}
+      >
+        <div class="ccar__viewport" data-ccar-viewport>
+          <div class="ccar__track" id="{{ cid }}-track" data-ccar-track>
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign collection = block.settings.collection
+                assign card_title = block.settings.title | default: collection.title | default: 'Collection title'
+                assign card_desc = block.settings.description
+                assign btn_label = block.settings.button_label | default: s.button_text
+                assign card_image = block.settings.image | default: collection.featured_image
+                assign card_url = collection.url | default: routes.collections_url
+
+                assign img_alt = card_image.alt | default: card_title
+                if block.settings.image == blank and collection.featured_image != blank
+                  assign img_alt = collection.title
+                endif
+
+                assign img_loading = 'lazy'
+                if forloop.index <= 3 and section.index != nil and section.index <= 2
+                  assign img_loading = 'eager'
+                endif
+
+                assign ph_index = forloop.index0 | modulo: 6 | plus: 1
+                assign ph_name = 'collection-' | append: ph_index
+              -%}
+              <div
+                class="ccar__slide{% if forloop.first %} is-active{% endif %}"
+                role="group"
+                aria-roledescription="slide"
+                aria-label="{{ forloop.index }} of {{ block_count }}"
+                data-ccar-slide
+                data-index="{{ forloop.index0 }}"
+                data-block-id="{{ block.id }}"
+                data-title="{{ card_title | escape }}"
+                {{ block.shopify_attributes }}
+              >
+                <a class="ccar__card" href="{{ card_url }}" data-ccar-link aria-label="{{ card_title | escape }}" draggable="false">
+                  <div class="ccar__media">
+                    {%- if card_image != blank -%}
+                      {{
+                        card_image
+                        | image_url: width: 1800
+                        | image_tag:
+                          widths: '360, 540, 720, 900, 1080, 1440, 1800',
+                          sizes: img_sizes,
+                          loading: img_loading,
+                          alt: img_alt,
+                          class: 'ccar__img',
+                          draggable: 'false'
+                      }}
+                    {%- else -%}
+                      {{ ph_name | placeholder_svg_tag: 'ccar__img ccar__placeholder' }}
+                    {%- endif -%}
+                    {%- if s.text_position != 'below' -%}
+                      <span class="ccar__overlay" aria-hidden="true"></span>
+                    {%- endif -%}
+                  </div>
+
+                  {%- if s.show_title or s.show_description or s.show_button -%}
+                    <div class="ccar__content">
+                      {%- if s.show_title -%}
+                        <h3 class="ccar__title">{{ card_title | escape }}</h3>
+                      {%- endif -%}
+                      {%- if s.show_description and card_desc != blank -%}
+                        <p class="ccar__desc">{{ card_desc | escape }}</p>
+                      {%- endif -%}
+                      {%- if s.show_button and btn_label != blank -%}
+                        <span class="ccar__btn" aria-hidden="true">{{ btn_label | escape }}</span>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+                </a>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        {%- if block_count > 1 and s.show_arrows and s.arrow_position == 'edges' -%}
+          {{ arrow_prev }}
+          {{ arrow_next }}
+        {%- endif -%}
+      </div>
+
+      {%- if show_controls -%}
+        <div class="ccar__controls">
+          {%- if s.show_arrows and s.arrow_position == 'bottom' -%}{{ arrow_prev }}{%- endif -%}
+
+          {%- if s.show_dots -%}
+            <div class="ccar__dots">
+              {%- for block in section.blocks -%}
+                {%- assign dot_title = block.settings.title | default: block.settings.collection.title | default: 'Collection' -%}
+                <button
+                  type="button"
+                  class="ccar__dot{% if forloop.first %} is-active{% endif %}"
+                  data-ccar-dot
+                  data-index="{{ forloop.index0 }}"
+                  aria-label="Show {{ dot_title | escape }} ({{ forloop.index }} of {{ block_count }})"
+                  {% if forloop.first %}aria-current="true"{% endif %}
+                ></button>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
+          {%- if s.show_arrows and s.arrow_position == 'bottom' -%}{{ arrow_next }}{%- endif -%}
+
+          {%- if s.autoplay -%}
+            <button type="button" class="ccar__pause" data-ccar-pause aria-label="Pause autoplay">
+              <svg class="ccar__icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+              <svg class="ccar__icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+            </button>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <div class="ccar__sr" data-ccar-live aria-live="polite" aria-atomic="true"></div>
+    {%- endif -%}
+  </div>
+</ccar-carousel>
+
+<script>
+  (function () {
+    if (window.customElements.get('ccar-carousel')) return;
+
+    class CCarCarousel extends HTMLElement {
+      connectedCallback() {
+        if (this._connected) return;
+        this._connected = true;
+
+        this.slides = Array.from(this.querySelectorAll('[data-ccar-slide]'));
+        this.count = this.slides.length;
+        if (!this.count) return;
+
+        this.ac = new AbortController();
+        const signal = this.ac.signal;
+
+        this.viewport = this.querySelector('[data-ccar-viewport]');
+        this.track = this.querySelector('[data-ccar-track]');
+        this.dots = Array.from(this.querySelectorAll('[data-ccar-dot]'));
+        this.prevBtns = Array.from(this.querySelectorAll('[data-ccar-prev]'));
+        this.nextBtns = Array.from(this.querySelectorAll('[data-ccar-next]'));
+        this.pauseBtn = this.querySelector('[data-ccar-pause]');
+        this.live = this.querySelector('[data-ccar-live]');
+
+        this.sectionId = this.dataset.sectionId;
+        this.speed = parseInt(this.dataset.speed, 10) || 600;
+        this.interval = (parseInt(this.dataset.interval, 10) || 5) * 1000;
+        this.sideClick = this.dataset.sideClick || 'center';
+        this.reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+        this.autoplayEnabled =
+          this.dataset.autoplay === 'true' && this.count > 1 && !this.reduceMQ.matches;
+
+        this.index = 0;
+        this.offsets = new Array(this.count).fill(null);
+        this.pauseReasons = new Set();
+        this.timer = null;
+        this.drag = null;
+        this.wheelAcc = 0;
+        this.wheelLock = false;
+
+        this.classList.add('is-ready');
+        this.measure();
+        this.render(false);
+
+        if (this.count > 1) this.bindEvents(signal);
+        this.bindEditorEvents(signal);
+
+        if ('ResizeObserver' in window) {
+          this.ro = new ResizeObserver(() => {
+            cancelAnimationFrame(this.raf);
+            this.raf = requestAnimationFrame(() => {
+              this.measure();
+              this.render(false);
+            });
+          });
+          this.ro.observe(this);
+          this.slides.forEach((slide) => this.ro.observe(slide));
+        } else {
+          window.addEventListener('resize', () => { this.measure(); this.render(false); }, { signal });
+        }
+
+        if (this.pauseBtn && !this.autoplayEnabled) this.pauseBtn.hidden = true;
+        if (this.autoplayEnabled) {
+          if ('IntersectionObserver' in window) {
+            this.io = new IntersectionObserver((entries) => {
+              entries.forEach((entry) =>
+                entry.isIntersecting ? this.resume('offscreen') : this.pause('offscreen')
+              );
+            }, { threshold: 0.25 });
+            this.io.observe(this);
+          }
+          this.startAutoplay();
+        }
+      }
+
+      disconnectedCallback() {
+        this._connected = false;
+        if (this.ac) this.ac.abort();
+        if (this.ro) this.ro.disconnect();
+        if (this.io) this.io.disconnect();
+        cancelAnimationFrame(this.raf);
+        clearInterval(this.timer);
+        clearTimeout(this.wheelTimer);
+        this.timer = null;
+      }
+
+      /* ---------- Layout ---------- */
+      measure() {
+        const cs = getComputedStyle(this);
+        const num = (name, fallback) => {
+          const v = parseFloat(cs.getPropertyValue(name));
+          return Number.isFinite(v) ? v : fallback;
+        };
+        this.gap = num('--ccar-gap', 24);
+        this.centerScale = num('--ccar-center-scale', 1);
+        this.sideScale = num('--ccar-side-scale', 0.85);
+        this.sideOpacity = num('--ccar-side-opacity', 0.7);
+        this.cardW = this.slides[0].offsetWidth;
+
+        let maxH = 0;
+        this.slides.forEach((slide) => { maxH = Math.max(maxH, slide.offsetHeight); });
+        const scale = Math.max(this.centerScale, this.sideScale);
+        this.viewport.style.height = Math.ceil(maxH * scale + 48) + 'px';
+      }
+
+      offsetFor(i, dir) {
+        const n = this.count;
+        let o = (((i - this.index) % n) + n) % n;
+        if (o > n / 2) o -= n;
+        if (n % 2 === 0 && Math.abs(o) === n / 2) o = dir > 0 ? -n / 2 : n / 2;
+        return o;
+      }
+
+      xFor(o) {
+        if (!o) return 0;
+        const a = Math.abs(o);
+        const w = this.cardW;
+        const d =
+          (w * this.centerScale) / 2 +
+          this.gap +
+          (w * this.sideScale) / 2 +
+          (a - 1) * (w * this.sideScale + this.gap);
+        return Math.sign(o) * d;
+      }
+
+      place(slide, o, forcedOpacity) {
+        const a = Math.abs(o);
+        const scale = o === 0 ? this.centerScale : this.sideScale;
+        slide.style.transform =
+          'translate(-50%, -50%) translateX(' + this.xFor(o).toFixed(2) + 'px) scale(' + scale + ')';
+        slide.style.opacity =
+          forcedOpacity !== undefined ? forcedOpacity : o === 0 ? 1 : a === 1 ? this.sideOpacity : 0;
+        slide.style.zIndex = String(Math.max(1, 10 - a));
+      }
+
+      setState(slide, o) {
+        const a = Math.abs(o);
+        const link = slide.querySelector('[data-ccar-link]');
+        slide.classList.toggle('is-active', o === 0);
+        slide.classList.toggle('is-adjacent', a === 1);
+        slide.setAttribute('aria-hidden', a === 0 ? 'false' : 'true');
+        if ('inert' in slide) slide.inert = a > 1;
+        if (link) link.tabIndex = a === 0 ? 0 : -1;
+      }
+
+      render(animate = true, dir = 0) {
+        const anim = animate && !this.reduceMQ.matches;
+        const restore = [];
+        const finals = [];
+
+        this.slides.forEach((slide, i) => {
+          const o = this.offsetFor(i, dir);
+          const prev = this.offsets[i];
+          this.offsets[i] = o;
+          this.setState(slide, o);
+
+          const wrapped = prev !== null && Math.abs(o - prev) > 1;
+
+          if (!anim || (wrapped && Math.abs(o) > 1)) {
+            slide.style.transition = 'none';
+            this.place(slide, o);
+            restore.push(slide);
+          } else if (wrapped) {
+            // Card wrapped around the loop: start it just outside its new slot, then glide in.
+            slide.style.transition = 'none';
+            this.place(slide, o + (Math.sign(o) || dir || 1), 0);
+            restore.push(slide);
+            finals.push([slide, o]);
+          } else {
+            this.place(slide, o);
+          }
+        });
+
+        if (restore.length) {
+          void this.viewport.offsetHeight; // commit the no-transition frame
+          restore.forEach((slide) => { slide.style.transition = ''; });
+          finals.forEach(([slide, o]) => this.place(slide, o));
+        }
+
+        this.updateUI();
+      }
+
+      updateUI() {
+        this.dots.forEach((dot, i) => {
+          const active = i === this.index;
+          dot.classList.toggle('is-active', active);
+          if (active) dot.setAttribute('aria-current', 'true');
+          else dot.removeAttribute('aria-current');
+        });
+        if (this.live) {
+          const title = this.slides[this.index].dataset.title || '';
+          this.live.textContent = title + ', ' + (this.index + 1) + ' of ' + this.count;
+        }
+      }
+
+      /* ---------- Navigation ---------- */
+      goTo(target, dir = 0, opts = {}) {
+        const n = this.count;
+        const next = ((target % n) + n) % n;
+        if (next === this.index) return;
+        if (!dir) {
+          let d = next - this.index;
+          if (d > n / 2) d -= n;
+          if (d < -n / 2) d += n;
+          dir = Math.sign(d) || 1;
+        }
+        const hadFocus = this.track.contains(document.activeElement);
+        this.index = next;
+        this.render(true, dir);
+
+        if (hadFocus) {
+          const link = this.slides[next].querySelector('[data-ccar-link]');
+          if (link) link.focus({ preventScroll: true });
+        }
+        if (opts.user !== false) this.restartAutoplay();
+        this.dispatchEvent(new CustomEvent('ccar:change', { bubbles: true, detail: { index: next } }));
+      }
+
+      next(opts) { this.goTo(this.index + 1, 1, opts); }
+      prev(opts) { this.goTo(this.index - 1, -1, opts); }
+
+      bindEvents(signal) {
+        this.prevBtns.forEach((b) => b.addEventListener('click', () => this.prev(), { signal }));
+        this.nextBtns.forEach((b) => b.addEventListener('click', () => this.next(), { signal }));
+        this.dots.forEach((dot) =>
+          dot.addEventListener('click', () => this.goTo(parseInt(dot.dataset.index, 10)), { signal })
+        );
+
+        // Keyboard
+        this.addEventListener('keydown', (e) => {
+          if (e.target.closest('input, textarea, select')) return;
+          const keys = { ArrowLeft: () => this.prev(), ArrowRight: () => this.next(),
+            Home: () => this.goTo(0), End: () => this.goTo(this.count - 1) };
+          if (keys[e.key]) { e.preventDefault(); keys[e.key](); }
+        }, { signal });
+
+        // Pointer drag / touch swipe
+        const vp = this.viewport;
+        vp.addEventListener('pointerdown', (e) => this.onPointerDown(e), { signal });
+        vp.addEventListener('pointermove', (e) => this.onPointerMove(e), { signal });
+        vp.addEventListener('pointerup', (e) => this.onPointerUp(e, false), { signal });
+        vp.addEventListener('pointercancel', (e) => this.onPointerUp(e, true), { signal });
+        vp.addEventListener('dragstart', (e) => e.preventDefault(), { signal });
+
+        // Clicks: suppress after drag; side cards center themselves
+        vp.addEventListener('click', (e) => this.onClick(e), { signal, capture: true });
+
+        // Horizontal trackpad / shift+wheel: one card per gesture
+        vp.addEventListener('wheel', (e) => this.onWheel(e), { signal, passive: false });
+
+        // Autoplay pause triggers
+        this.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') this.pause('hover'); }, { signal });
+        this.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') this.resume('hover'); }, { signal });
+        this.addEventListener('focusin', () => this.pause('focus'), { signal });
+        this.addEventListener('focusout', (e) => { if (!this.contains(e.relatedTarget)) this.resume('focus'); }, { signal });
+        document.addEventListener('visibilitychange', () => {
+          document.hidden ? this.pause('hidden') : this.resume('hidden');
+        }, { signal });
+
+        if (this.pauseBtn) {
+          this.pauseBtn.addEventListener('click', () => {
+            this.pauseReasons.has('user') ? this.resume('user') : this.pause('user');
+          }, { signal });
+        }
+
+        const onMotionChange = () => {
+          if (this.reduceMQ.matches) { this.pause('motion'); this.render(false); }
+          else this.resume('motion');
+        };
+        if (this.reduceMQ.addEventListener) this.reduceMQ.addEventListener('change', onMotionChange, { signal });
+      }
+
+      onPointerDown(e) {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        this.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, active: false };
+      }
+
+      onPointerMove(e) {
+        const d = this.drag;
+        if (!d || e.pointerId !== d.id) return;
+        const dx = e.clientX - d.x;
+        const dy = e.clientY - d.y;
+
+        if (!d.active) {
+          if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+            d.active = true;
+            try { this.viewport.setPointerCapture(e.pointerId); } catch (err) {}
+            this.classList.add('is-dragging');
+            this.pause('drag');
+          } else if (Math.abs(dy) > 10) {
+            this.drag = null; // vertical scroll wins
+            return;
+          } else {
+            return;
+          }
+        }
+        d.dx = dx;
+        this.track.style.transition = 'none';
+        this.track.style.transform = 'translateX(' + dx * 0.55 + 'px)';
+      }
+
+      onPointerUp(e, cancelled) {
+        const d = this.drag;
+        this.drag = null;
+        if (!d || !d.active) return;
+
+        this.classList.remove('is-dragging');
+        this.track.style.transition = '';
+        this.track.style.transform = '';
+
+        if (!cancelled) {
+          const threshold = Math.min(80, this.cardW * 0.15);
+          if (d.dx <= -threshold) this.next();
+          else if (d.dx >= threshold) this.prev();
+        }
+        this.suppressClick = true;
+        setTimeout(() => { this.suppressClick = false; }, 60);
+        this.resume('drag');
+      }
+
+      onClick(e) {
+        if (this.suppressClick) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        const slide = e.target.closest('[data-ccar-slide]');
+        if (!slide) return;
+        const i = this.slides.indexOf(slide);
+        if (i !== this.index && this.sideClick === 'center') {
+          e.preventDefault();
+          this.goTo(i);
+        }
+      }
+
+      onWheel(e) {
+        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+        e.preventDefault();
+
+        clearTimeout(this.wheelTimer);
+        this.wheelTimer = setTimeout(() => {
+          this.wheelLock = false;
+          this.wheelAcc = 0;
+        }, 200);
+
+        if (this.wheelLock) return;
+        this.wheelAcc += e.deltaX;
+        if (Math.abs(this.wheelAcc) > 30) {
+          this.wheelAcc > 0 ? this.next() : this.prev();
+          this.wheelAcc = 0;
+          this.wheelLock = true;
+        }
+      }
+
+      /* ---------- Autoplay ---------- */
+      startAutoplay() {
+        if (!this.autoplayEnabled) return;
+        clearInterval(this.timer);
+        this.timer = null;
+        if (!this.pauseReasons.size) {
+          this.timer = setInterval(() => this.next({ user: false }), this.interval);
+        }
+        this.updatePlayState();
+      }
+
+      restartAutoplay() {
+        if (this.timer) this.startAutoplay();
+      }
+
+      pause(reason) {
+        if (!this.autoplayEnabled) return;
+        this.pauseReasons.add(reason);
+        clearInterval(this.timer);
+        this.timer = null;
+        this.updatePlayState();
+      }
+
+      resume(reason) {
+        if (!this.autoplayEnabled) return;
+        this.pauseReasons.delete(reason);
+        if (!this.pauseReasons.size && !this.timer) this.startAutoplay();
+        else this.updatePlayState();
+      }
+
+      updatePlayState() {
+        const playing = !!this.timer;
+        this.classList.toggle('is-playing', playing);
+        if (this.live) this.live.setAttribute('aria-live', playing ? 'off' : 'polite');
+        if (this.pauseBtn) {
+          const userPaused = this.pauseReasons.has('user');
+          this.pauseBtn.classList.toggle('is-paused', userPaused);
+          this.pauseBtn.setAttribute('aria-label', userPaused ? 'Play autoplay' : 'Pause autoplay');
+        }
+      }
+
+      /* ---------- Theme Editor ---------- */
+      bindEditorEvents(signal) {
+        const mine = (e) => e.detail && e.detail.sectionId === this.sectionId;
+
+        document.addEventListener('shopify:block:select', (e) => {
+          if (!mine(e)) return;
+          const i = this.slides.findIndex((s) => s.dataset.blockId === e.detail.blockId);
+          this.pause('editor');
+          if (i > -1) this.goTo(i, 0, { user: false });
+        }, { signal });
+
+        document.addEventListener('shopify:block:deselect', (e) => {
+          if (mine(e)) this.resume('editor');
+        }, { signal });
+
+        document.addEventListener('shopify:section:select', (e) => {
+          if (mine(e)) this.pause('editor');
+        }, { signal });
+
+        document.addEventListener('shopify:section:deselect', (e) => {
+          if (mine(e)) this.resume('editor');
+        }, { signal });
+      }
+    }
+
+    window.customElements.define('ccar-carousel', CCarCarousel);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Collection carousel",
+  "tag": "section",
+  "class": "section-collection-carousel",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by collection"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Browse our latest collections, picked for the season."
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading color",
+      "default": "#5c5c5c"
+    },
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width carousel",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "select",
+      "id": "card_ratio",
+      "label": "Card shape",
+      "info": "\"Fixed height\" uses the height settings below for each screen size.",
+      "options": [
+        { "value": "height", "label": "Fixed height" },
+        { "value": "1/1", "label": "Square (1:1)" },
+        { "value": "4/5", "label": "Portrait (4:5)" },
+        { "value": "3/4", "label": "Portrait (3:4)" },
+        { "value": "2/3", "label": "Tall (2:3)" },
+        { "value": "4/3", "label": "Landscape (4:3)" },
+        { "value": "16/9", "label": "Wide (16:9)" }
+      ],
+      "default": "height"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "center_scale",
+      "label": "Center card scale",
+      "min": 90,
+      "max": 125,
+      "step": 1,
+      "unit": "%",
+      "default": 106
+    },
+    {
+      "type": "range",
+      "id": "side_scale",
+      "label": "Side card scale",
+      "min": 60,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 84
+    },
+    {
+      "type": "range",
+      "id": "side_opacity",
+      "label": "Side card opacity",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 70
+    },
+    {
+      "type": "checkbox",
+      "id": "card_shadow",
+      "label": "Shadow on center card",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "info": "Visible behind text when text is placed below the image.",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "header",
+      "content": "Desktop size (990px and up)"
+    },
+    {
+      "type": "range",
+      "id": "card_width_desktop",
+      "label": "Card width",
+      "min": 280,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "default": 440
+    },
+    {
+      "type": "range",
+      "id": "card_height_desktop",
+      "label": "Card height",
+      "min": 300,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "label": "Card spacing",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Tablet size (750–989px)"
+    },
+    {
+      "type": "range",
+      "id": "card_width_tablet",
+      "label": "Card width",
+      "min": 220,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 360
+    },
+    {
+      "type": "range",
+      "id": "card_height_tablet",
+      "label": "Card height",
+      "min": 260,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 440
+    },
+    {
+      "type": "range",
+      "id": "gap_tablet",
+      "label": "Card spacing",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Mobile size (under 750px)"
+    },
+    {
+      "type": "range",
+      "id": "card_width_mobile",
+      "label": "Card width",
+      "info": "Percentage of screen width. Lower values show more of the neighbouring cards.",
+      "min": 55,
+      "max": 95,
+      "step": 1,
+      "unit": "%",
+      "default": 76
+    },
+    {
+      "type": "range",
+      "id": "card_height_mobile",
+      "label": "Card height",
+      "min": 240,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Card spacing",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Image overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "overlay_style",
+      "label": "Overlay style",
+      "options": [
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "solid", "label": "Solid" }
+      ],
+      "default": "gradient"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 55
+    },
+    {
+      "type": "header",
+      "content": "Card text"
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Text position",
+      "options": [
+        { "value": "overlay-bottom", "label": "On image, bottom" },
+        { "value": "overlay-center", "label": "On image, center" },
+        { "value": "overlay-top", "label": "On image, top" },
+        { "value": "below", "label": "Below image" }
+      ],
+      "default": "overlay-bottom"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show collection title",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show description",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_font",
+      "label": "Use custom title font",
+      "info": "Off uses your theme's heading font.",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size",
+      "min": 14,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 26
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Title weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "title_letter_spacing",
+      "label": "Title letter spacing",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "title_uppercase",
+      "label": "Uppercase title",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Shop collection"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button text color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button corner radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Carousel behavior"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "info": "Pauses on hover, focus, swipe and when off screen. Turned off for visitors who prefer reduced motion.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "Autoplay interval",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "transition_speed",
+      "label": "Transition speed",
+      "min": 200,
+      "max": 1200,
+      "step": 50,
+      "unit": "ms",
+      "default": 600
+    },
+    {
+      "type": "select",
+      "id": "side_click",
+      "label": "Clicking a side card",
+      "options": [
+        { "value": "center", "label": "Moves it to the center" },
+        { "value": "link", "label": "Opens the collection" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Arrows"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "arrow_position",
+      "label": "Arrow position",
+      "options": [
+        { "value": "edges", "label": "Sides of carousel" },
+        { "value": "bottom", "label": "Below, beside dots" }
+      ],
+      "default": "edges"
+    },
+    {
+      "type": "select",
+      "id": "arrow_style",
+      "label": "Arrow style",
+      "options": [
+        { "value": "circle", "label": "Filled circle" },
+        { "value": "outline", "label": "Outline circle" },
+        { "value": "square", "label": "Rounded square" },
+        { "value": "minimal", "label": "Icon only" }
+      ],
+      "default": "circle"
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "label": "Arrow size",
+      "min": 32,
+      "max": 72,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg",
+      "label": "Arrow background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow icon color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_arrows_mobile",
+      "label": "Hide arrows on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Pagination"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show pagination",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "dot_style",
+      "label": "Pagination style",
+      "options": [
+        { "value": "dots", "label": "Dots" },
+        { "value": "bars", "label": "Bars" }
+      ],
+      "default": "dots"
+    },
+    {
+      "type": "color",
+      "id": "dot_color",
+      "label": "Inactive color",
+      "default": "#c8c8c8"
+    },
+    {
+      "type": "color",
+      "id": "dot_active_color",
+      "label": "Active color",
+      "default": "#1a1a1a"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image",
+          "info": "Leave empty to use the collection image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom title",
+          "info": "Leave empty to use the collection name."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button text override",
+          "info": "Leave empty to use the section button text."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection carousel",
+      "blocks": [
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" }
+      ]
+    }
+  ]
+}
+{% endschema %}
