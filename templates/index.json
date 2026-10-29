@@ -330,13 +330,13 @@
         "label_close": "Close",
         "label_view": "View product",
         "label_show": "Show",
-        "color_bg": "#FAFAF9",
-        "color_text": "#0A0A0A",
+        "color_bg": "#fafaf9",
+        "color_text": "#0a0a0a",
         "color_muted": "#737373",
-        "color_rail": "#8A8A8A",
-        "color_tag_bg": "#FFFFFF",
-        "color_button_bg": "#0A0A0A",
-        "color_button_text": "#FFFFFF",
+        "color_rail": "#8a8a8a",
+        "color_tag_bg": "#ffffff",
+        "color_button_bg": "#0a0a0a",
+        "color_button_text": "#ffffff",
         "padding_top": 0,
         "padding_bottom": 0
       }
@@ -418,7 +418,7 @@
         "title_color": "#111111",
         "description_color": "#6b6b6b",
         "icon_color": "#111111",
-        "icon_bg_color": "#00000000",
+        "icon_bg_color": "rgba(0,0,0,0)",
         "show_pattern": true,
         "pattern_color": "#00000014",
         "pattern_size": 24,
@@ -772,6 +772,127 @@
         "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
         "color_scheme": ""
       }
+    },
+    "collection_carousel_fVVH8k": {
+      "type": "collection-carousel",
+      "blocks": {
+        "collection_FF9rJe": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_MFgjAg": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_xUGPWW": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_X9GbRr": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_dpG6WP": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_FF9rJe",
+        "collection_MFgjAg",
+        "collection_xUGPWW",
+        "collection_X9GbRr",
+        "collection_dpG6WP"
+      ],
+      "name": "Collection carousel",
+      "settings": {
+        "heading": "Shop by collection",
+        "subheading": "Browse our latest collections, picked for the season.",
+        "heading_alignment": "center",
+        "heading_size": 40,
+        "heading_color": "#1a1a1a",
+        "subheading_color": "#5c5c5c",
+        "background": "#ffffff",
+        "full_width": true,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "card_ratio": "height",
+        "border_radius": 16,
+        "center_scale": 106,
+        "side_scale": 84,
+        "side_opacity": 70,
+        "card_shadow": true,
+        "card_bg": "#f4f4f4",
+        "card_width_desktop": 440,
+        "card_height_desktop": 520,
+        "gap_desktop": 24,
+        "card_width_tablet": 360,
+        "card_height_tablet": 440,
+        "gap_tablet": 20,
+        "card_width_mobile": 76,
+        "card_height_mobile": 400,
+        "gap_mobile": 12,
+        "overlay_color": "#000000",
+        "overlay_style": "gradient",
+        "overlay_opacity": 55,
+        "text_position": "overlay-bottom",
+        "text_alignment": "left",
+        "text_color": "#ffffff",
+        "show_title": true,
+        "show_description": true,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "title_size": 26,
+        "title_weight": "600",
+        "title_letter_spacing": 0,
+        "title_uppercase": false,
+        "description_size": 15,
+        "show_button": true,
+        "button_text": "Shop collection",
+        "button_bg": "#ffffff",
+        "button_color": "#1a1a1a",
+        "button_radius": 50,
+        "autoplay": false,
+        "autoplay_interval": 5,
+        "transition_speed": 600,
+        "side_click": "center",
+        "show_arrows": true,
+        "arrow_position": "edges",
+        "arrow_style": "circle",
+        "arrow_size": 48,
+        "arrow_bg": "#ffffff",
+        "arrow_color": "#1a1a1a",
+        "hide_arrows_mobile": true,
+        "show_dots": true,
+        "dot_style": "dots",
+        "dot_color": "#c8c8c8",
+        "dot_active_color": "#1a1a1a"
+      }
     }
   },
   "order": [
@@ -785,6 +906,7 @@
     "featured_product",
     "hotspots",
     "rich_text",
-    "newsletter"
+    "newsletter",
+    "collection_carousel_fVVH8k"
   ]
 }
