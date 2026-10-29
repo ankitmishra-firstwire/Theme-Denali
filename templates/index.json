@@ -893,6 +893,126 @@
         "dot_color": "#c8c8c8",
         "dot_active_color": "#1a1a1a"
       }
+    },
+    "collection_product_scroll_iXcUpD": {
+      "type": "collection-product-scroll",
+      "blocks": {
+        "collection_MtWD4R": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_37QWdg": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_zWNyde": {
+          "type": "collection",
+          "settings": {
+            "collection": "",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_MtWD4R",
+        "collection_37QWdg",
+        "collection_zWNyde"
+      ],
+      "name": "Collection product scroll",
+      "settings": {
+        "heading": "Shop by collection",
+        "subheading": "",
+        "heading_alignment": "left",
+        "heading_size": 36,
+        "media_position": "left",
+        "media_width": 45,
+        "media_width_tablet": 40,
+        "height_desktop": 85,
+        "height_tablet": 75,
+        "media_height_mobile": 300,
+        "scroll_height_mobile": 70,
+        "layout_gap": 40,
+        "full_width": false,
+        "side_padding": 32,
+        "padding_top": 60,
+        "padding_bottom": 60,
+        "background": "#ffffff",
+        "text_color": "#1c1c1c",
+        "muted_color": "#6b6b6b",
+        "accent_color": "#1c1c1c",
+        "image_bg": "#f2f2f2",
+        "media_radius": 12,
+        "overlay_color": "#000000",
+        "overlay_opacity": 35,
+        "text_position": "bottom",
+        "text_alignment": "left",
+        "media_text_color": "#ffffff",
+        "show_media_title": true,
+        "show_media_description": true,
+        "use_collection_description": false,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "title_weight": "600",
+        "title_uppercase": false,
+        "media_title_size": 36,
+        "media_description_size": 16,
+        "product_title_size": 15,
+        "price_size": 14,
+        "show_media_button": true,
+        "button_text": "Shop collection",
+        "button_bg": "#ffffff",
+        "button_color": "#1c1c1c",
+        "button_radius": 50,
+        "products_limit": 12,
+        "grid_column_gap": 16,
+        "grid_row_gap": 28,
+        "grid_column_gap_mobile": 10,
+        "grid_row_gap_mobile": 18,
+        "show_view_all": true,
+        "view_all_text": "View all",
+        "product_ratio": "4 / 5",
+        "image_fit": "cover",
+        "card_text_alignment": "left",
+        "card_bg": "#ffffff",
+        "card_border_color": "#e6e6e6",
+        "card_border_width": 0,
+        "card_radius": 8,
+        "card_padding": 0,
+        "card_shadow": false,
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_compare_price": true,
+        "show_sale_badge": true,
+        "show_sold_out_badge": true,
+        "price_color": "#1c1c1c",
+        "sale_color": "#b42318",
+        "badge_bg": "#1c1c1c",
+        "badge_text": "#ffffff",
+        "switch_on_scroll": true,
+        "scroll_sensitivity": "medium",
+        "loop": false,
+        "show_tabs": true,
+        "tab_style": "pills",
+        "tab_active_bg": "#1c1c1c",
+        "tab_active_text": "#ffffff",
+        "show_arrows": true,
+        "show_counter": true,
+        "show_progress": true,
+        "transition_style": "slide",
+        "transition_speed": 500
+      }
     }
   },
   "order": [
@@ -907,6 +1027,7 @@
     "hotspots",
     "rich_text",
     "newsletter",
-    "collection_carousel_fVVH8k"
+    "collection_carousel_fVVH8k",
+    "collection_product_scroll_iXcUpD"
   ]
 }
