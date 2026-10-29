@@ -1,12 +1,758 @@
 {%- comment -%}
   Collection Product Scroll — Shopify OS 2.0 section
-  Assets: assets/collection-product-scroll.css, assets/collection-product-scroll.js
+  Single file: markup, CSS (<style>) and JS (<script>) are all included here.
   Left: fixed collection image. Right: 2-column product grid that scrolls on its own.
   Scrolling past the end of a collection's products switches to the next collection.
 {%- endcomment -%}
 
-{{ 'collection-product-scroll.css' | asset_url | stylesheet_tag }}
-<script src="{{ 'collection-product-scroll.js' | asset_url }}" defer="defer"></script>
+<style>
+/* =========================================================
+   Collection Product Scroll
+   Every rule is prefixed with .cps; per-instance values are
+   CSS variables set on #CPS-{section.id} in the section file.
+   ========================================================= */
+
+.cps {
+  --cps-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --cps-media-h: 300px;
+  --cps-scroll-h: 70vh;
+  --cps-progress: 0;
+  display: block;
+  background: var(--cps-bg);
+  color: var(--cps-text);
+  padding-top: var(--cps-pad-top);
+  padding-bottom: var(--cps-pad-bottom);
+}
+
+.cps *,
+.cps *::before,
+.cps *::after {
+  box-sizing: border-box;
+}
+
+.cps__inner {
+  width: 100%;
+  max-width: var(--page-width, 1320px);
+  margin-inline: auto;
+  padding-inline: var(--cps-pad-x);
+}
+
+.cps--full .cps__inner {
+  max-width: none;
+}
+
+/* ---------- Header ---------- */
+.cps__header {
+  margin-bottom: 2rem;
+  text-align: var(--cps-heading-align);
+}
+
+.cps__heading {
+  margin: 0;
+  font-size: var(--cps-heading-size);
+  line-height: 1.15;
+  color: var(--cps-text);
+}
+
+.cps__subheading {
+  margin: 0.6rem 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--cps-muted);
+}
+
+/* ---------- Layout ---------- */
+.cps__layout {
+  display: grid;
+  grid-template-columns: minmax(0, var(--cps-media-w)) minmax(0, 1fr);
+  gap: var(--cps-layout-gap);
+  height: clamp(420px, var(--cps-height), 1100px);
+}
+
+.cps--media-right .cps__layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--cps-media-w));
+}
+
+.cps--media-right .cps__media-col {
+  order: 2;
+}
+
+/* ---------- Collection image (left, fixed) ---------- */
+.cps__media-col {
+  position: relative;
+  min-height: 0;
+}
+
+.cps__media-stack {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--cps-media-radius);
+  background: var(--cps-image-bg);
+}
+
+.cps__media {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.cps__media.is-active,
+.cps__media.is-leaving {
+  display: block;
+}
+
+.cps__media.is-active {
+  z-index: 2;
+}
+
+.cps__media.is-leaving {
+  z-index: 1;
+}
+
+.cps__media-img {
+  position: absolute;
+  inset: 0;
+}
+
+.cps__media-img .cps__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cps__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--cps-image-bg);
+  fill: rgba(120, 120, 120, 0.35);
+}
+
+.cps__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--cps-overlay-color);
+  opacity: var(--cps-overlay-opacity);
+}
+
+.cps--text-bottom .cps__overlay {
+  background: linear-gradient(to top, var(--cps-overlay-color) 0%, transparent 75%);
+}
+
+.cps--text-top .cps__overlay {
+  background: linear-gradient(to bottom, var(--cps-overlay-color) 0%, transparent 75%);
+}
+
+.cps__media-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: clamp(1.25rem, 3.5vw, 3rem);
+  color: var(--cps-media-text);
+}
+
+.cps--text-top .cps__media-content { justify-content: flex-start; }
+.cps--text-center .cps__media-content { justify-content: center; }
+.cps--text-bottom .cps__media-content { justify-content: flex-end; }
+
+.cps--align-left .cps__media-content { align-items: flex-start; text-align: left; }
+.cps--align-center .cps__media-content { align-items: center; text-align: center; }
+.cps--align-right .cps__media-content { align-items: flex-end; text-align: right; }
+
+.cps__media-title {
+  margin: 0;
+  font-family: var(--cps-title-font, inherit);
+  font-style: var(--cps-title-style, normal);
+  font-size: var(--cps-media-title-size);
+  font-weight: var(--cps-title-weight);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--cps-media-text);
+}
+
+.cps--upper .cps__media-title {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cps__media-desc {
+  margin: 0;
+  max-width: 38ch;
+  font-size: var(--cps-media-desc-size);
+  line-height: 1.55;
+  color: var(--cps-media-text);
+  opacity: 0.9;
+}
+
+.cps__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  padding: 0.9em 1.75em;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  background: var(--cps-btn-bg);
+  color: var(--cps-btn-color);
+  border-radius: var(--cps-btn-radius);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.cps__btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+/* ---------- Product column ---------- */
+.cps__products-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.cps__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cps__tabs {
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+}
+
+.cps__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cps__tab {
+  flex: none;
+  padding: 0.55em 1.1em;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--cps-text);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--cps-text) 22%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.cps__tab:hover {
+  border-color: var(--cps-text);
+}
+
+.cps__tab[aria-selected="true"] {
+  background: var(--cps-tab-active-bg);
+  color: var(--cps-tab-active-text);
+  border-color: var(--cps-tab-active-bg);
+}
+
+.cps--tabs-underline .cps__tabs {
+  gap: 1.5rem;
+}
+
+.cps--tabs-underline .cps__tab {
+  padding: 0.5em 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--cps-muted);
+}
+
+.cps--tabs-underline .cps__tab[aria-selected="true"] {
+  background: transparent;
+  color: var(--cps-text);
+  border-bottom-color: var(--cps-tab-active-bg);
+}
+
+.cps__nav-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+}
+
+.cps__arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--cps-text);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--cps-text) 22%, transparent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.cps__arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.cps__arrow:hover:not([disabled]) {
+  border-color: var(--cps-text);
+}
+
+.cps__arrow[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.cps__counter {
+  min-width: 3.5em;
+  text-align: center;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--cps-muted);
+}
+
+.cps__progress {
+  height: 2px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--cps-text) 12%, transparent);
+}
+
+.cps__progress-bar {
+  display: block;
+  height: 100%;
+  background: var(--cps-accent);
+  transform-origin: left center;
+  transform: scaleX(var(--cps-progress));
+  transition: transform 0.12s linear;
+}
+
+/* ---------- Panels ---------- */
+.cps__panels {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.cps__panel {
+  position: relative;
+  display: none;
+  height: 100%;
+}
+
+.cps__panel.is-active {
+  display: block;
+  z-index: 2;
+}
+
+.cps__panel.is-leaving {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cps__scroller {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--cps-text) 25%, transparent) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cps__scroller:focus-visible {
+  outline: 2px solid var(--cps-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Exactly two products per row at every breakpoint */
+.cps__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--cps-col-gap);
+  row-gap: var(--cps-row-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cps__item--empty {
+  grid-column: 1 / -1;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--cps-muted);
+}
+
+/* ---------- Product card ---------- */
+.cps__card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--cps-card-pad);
+  color: var(--cps-text);
+  text-decoration: none;
+  background: var(--cps-card-bg);
+  border: var(--cps-card-border-w) solid var(--cps-card-border);
+  border-radius: var(--cps-card-radius);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.cps--card-shadow .cps__card {
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.35);
+}
+
+.cps--card-shadow .cps__card:hover {
+  box-shadow: 0 16px 36px -18px rgba(0, 0, 0, 0.45);
+}
+
+.cps__card:focus-visible {
+  outline: 2px solid var(--cps-accent);
+  outline-offset: 2px;
+}
+
+.cps__card-media {
+  position: relative;
+  aspect-ratio: var(--cps-ratio);
+  overflow: hidden;
+  background: var(--cps-image-bg);
+  border-radius: calc(var(--cps-card-radius) - var(--cps-card-pad) / 2);
+}
+
+.cps__card-media .cps__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.45s ease, transform 0.8s var(--cps-ease);
+}
+
+.cps--fit-contain .cps__card-media .cps__img {
+  object-fit: contain;
+}
+
+.cps__img--second {
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .cps__card:hover .cps__card-media .cps__img {
+    transform: scale(1.03);
+  }
+  .cps__card:hover .has-second .cps__img--second {
+    opacity: 1;
+  }
+}
+
+.cps__badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 2;
+  padding: 0.3em 0.7em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--cps-badge-text);
+  background: var(--cps-badge-bg);
+  border-radius: 999px;
+}
+
+.cps__badge--sale {
+  background: var(--cps-sale-color);
+}
+
+.cps__card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.8rem;
+}
+
+.cps--card-center .cps__card-info {
+  align-items: center;
+  text-align: center;
+}
+
+.cps__vendor {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--cps-muted);
+}
+
+.cps__card-title {
+  margin: 0;
+  font-size: var(--cps-product-title-size);
+  line-height: 1.35;
+  color: var(--cps-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cps__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: var(--cps-price-size);
+  color: var(--cps-price-color);
+}
+
+.cps--card-center .cps__price {
+  justify-content: center;
+}
+
+.cps__compare {
+  color: var(--cps-muted);
+}
+
+.cps__amount.is-sale {
+  color: var(--cps-sale-color);
+}
+
+/* ---------- End of list + switch indicators ---------- */
+.cps__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 0 1.5rem;
+  text-align: center;
+}
+
+.cps__view-all {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cps-text);
+  text-underline-offset: 4px;
+}
+
+.cps__next-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--cps-muted);
+}
+
+.cps__next-hint strong {
+  color: var(--cps-text);
+  font-weight: 600;
+}
+
+.cps__intent {
+  display: block;
+  width: 120px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--cps-text) 12%, transparent);
+}
+
+.cps__intent-bar {
+  display: block;
+  height: 100%;
+  background: var(--cps-accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.15s ease-out;
+}
+
+.cps__intent-bar--down {
+  transform: scaleX(var(--cps-intent-down, 0));
+}
+
+.cps__intent-bar--up {
+  transform: scaleX(var(--cps-intent-up, 0));
+}
+
+.cps__pull {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: var(--cps-text);
+  background: var(--cps-bg);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translate(-50%, -8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cps__pull .cps__intent {
+  width: 80px;
+}
+
+.cps__panel.is-pulling-up .cps__pull {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------- Switch animations ---------- */
+.cps__panel.is-enter-next,
+.cps__panel.is-enter-prev {
+  animation: cps-fade-in var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps__panel.is-leave-next,
+.cps__panel.is-leave-prev {
+  animation: cps-fade-out var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps--anim-slide .cps__panel.is-enter-next { animation-name: cps-in-from-below; }
+.cps--anim-slide .cps__panel.is-enter-prev { animation-name: cps-in-from-above; }
+.cps--anim-slide .cps__panel.is-leave-next { animation-name: cps-out-upward; }
+.cps--anim-slide .cps__panel.is-leave-prev { animation-name: cps-out-downward; }
+
+.cps__media.is-enter-next,
+.cps__media.is-enter-prev {
+  animation: cps-media-in var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps__media.is-enter-next .cps__media-content > *,
+.cps__media.is-enter-prev .cps__media-content > * {
+  animation: cps-rise var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps__media-content > *:nth-child(2) { animation-delay: 60ms; }
+.cps__media-content > *:nth-child(3) { animation-delay: 120ms; }
+
+@keyframes cps-fade-in { from { opacity: 0; } }
+@keyframes cps-fade-out { to { opacity: 0; } }
+@keyframes cps-in-from-below { from { opacity: 0; transform: translateY(36px); } }
+@keyframes cps-in-from-above { from { opacity: 0; transform: translateY(-36px); } }
+@keyframes cps-out-upward { to { opacity: 0; transform: translateY(-36px); } }
+@keyframes cps-out-downward { to { opacity: 0; transform: translateY(36px); } }
+@keyframes cps-media-in { from { opacity: 0; transform: scale(1.04); } }
+@keyframes cps-rise { from { opacity: 0; transform: translateY(14px); } }
+
+/* ---------- Utilities ---------- */
+.cps__sr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cps__empty {
+  margin: 0;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--cps-muted);
+  border: 1px dashed color-mix(in srgb, var(--cps-text) 30%, transparent);
+  border-radius: 12px;
+}
+
+/* ---------- Tablet ---------- */
+@media screen and (max-width: 989px) {
+  .cps__layout {
+    height: clamp(380px, var(--cps-height), 900px);
+  }
+
+  .cps__counter {
+    display: none;
+  }
+}
+
+/* ---------- Mobile: image on top, products scroll below ---------- */
+@media screen and (max-width: 749px) {
+  .cps__header {
+    margin-bottom: 1.25rem;
+  }
+
+  .cps__layout,
+  .cps--media-right .cps__layout {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    gap: 1.25rem;
+  }
+
+  .cps--media-right .cps__media-col {
+    order: 0;
+  }
+
+  .cps__media-col {
+    height: var(--cps-media-h);
+  }
+
+  .cps__products-col {
+    height: var(--cps-scroll-h);
+  }
+
+  .cps__nav {
+    gap: 0.5rem;
+  }
+
+  .cps__arrow {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cps__scroller {
+    padding-right: 0;
+  }
+
+  .cps__media-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cps__panel,
+  .cps__media,
+  .cps__media-content > *,
+  .cps__card,
+  .cps__img,
+  .cps__progress-bar,
+  .cps__intent-bar,
+  .cps__pull {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+</style>
 
 {%- liquid
   assign s = section.settings
@@ -450,6 +1196,454 @@
     {%- endif -%}
   </div>
 </collection-product-scroll>
+
+
+<script>
+/* =========================================================
+   Collection Product Scroll — vanilla JS custom element
+   - Product grid scrolls independently of the fixed image
+   - At the bottom of a collection, an extra deliberate scroll
+     switches to the next one; at the top, to the previous one
+   - Momentum that carries the grid to its edge never switches
+   - One instance per section, cleaned up on Theme Editor reloads
+   ========================================================= */
+(function () {
+  if (window.customElements.get('collection-product-scroll')) return;
+
+  const now = () => performance.now();
+  const GESTURE_GAP = 180;   // ms between wheel events that starts a new gesture
+  const INTENT_RESET = 450;  // ms of no input before switch intent is cleared
+
+  class CollectionProductScroll extends HTMLElement {
+    connectedCallback() {
+      if (this._ready) return;
+
+      this.panels = Array.from(this.querySelectorAll('[data-cps-panel]'));
+      this.count = this.panels.length;
+      if (!this.count) return;
+      this._ready = true;
+
+      this.medias = Array.from(this.querySelectorAll('[data-cps-media]'));
+      this.tabs = Array.from(this.querySelectorAll('[data-cps-tab]'));
+      this.tablist = this.querySelector('[data-cps-tablist]');
+      this.prevBtn = this.querySelector('[data-cps-prev]');
+      this.nextBtn = this.querySelector('[data-cps-next]');
+      this.counter = this.querySelector('[data-cps-counter]');
+      this.live = this.querySelector('[data-cps-live]');
+
+      this.sectionId = this.dataset.sectionId;
+      this.switchOnScroll = this.dataset.switchOnScroll === 'true' && this.count > 1;
+      this.loop = this.dataset.loop === 'true' && this.count > 1;
+      this.threshold = parseInt(this.dataset.threshold, 10) || 160;
+      this.speed = parseInt(this.dataset.speed, 10) || 500;
+      this.reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      const active = this.panels.findIndex((p) => p.classList.contains('is-active'));
+      this.index = active > -1 ? active : 0;
+
+      this.intent = 0;
+      this.intentDir = 0;
+      this.switching = false;
+      this.lastWheel = 0;
+      this.gestureStart = 0;
+      this.touch = null;
+      this.resetEdges();
+
+      this.ac = new AbortController();
+      const signal = this.ac.signal;
+
+      this.panels.forEach((panel) => {
+        const sc = panel.querySelector('[data-cps-scroller]');
+        if (!sc) return;
+        sc.addEventListener('scroll', () => this.onScroll(sc), { signal, passive: true });
+        sc.addEventListener('wheel', (e) => this.onWheel(e, sc), { signal, passive: false });
+        sc.addEventListener('touchstart', (e) => this.onTouchStart(e, sc), { signal, passive: true });
+        sc.addEventListener('touchmove', (e) => this.onTouchMove(e, sc), { signal, passive: false });
+        sc.addEventListener('touchend', () => this.onTouchEnd(), { signal });
+        sc.addEventListener('touchcancel', () => { this.touch = null; this.resetIntent(); }, { signal });
+        sc.addEventListener('keydown', (e) => this.onKey(e, sc), { signal });
+      });
+
+      this.tabs.forEach((tab) => {
+        tab.addEventListener('click', () => this.activate(parseInt(tab.dataset.index, 10)), { signal });
+        tab.addEventListener('keydown', (e) => this.onTabKey(e), { signal });
+      });
+      if (this.prevBtn) this.prevBtn.addEventListener('click', () => this.prev(), { signal });
+      if (this.nextBtn) this.nextBtn.addEventListener('click', () => this.next(), { signal });
+
+      this.bindEditorEvents(signal);
+      this.applyState();
+      this.updateProgress();
+      this.classList.add('is-ready');
+    }
+
+    disconnectedCallback() {
+      this._ready = false;
+      if (this.ac) this.ac.abort();
+      clearTimeout(this.intentTimer);
+      clearTimeout(this.leaveTimer);
+      clearTimeout(this.lockTimer);
+      cancelAnimationFrame(this.progressRaf);
+    }
+
+    /* ---------- Helpers ---------- */
+    get scroller() {
+      return this.panels[this.index].querySelector('[data-cps-scroller]');
+    }
+
+    hasNext() {
+      return this.count > 1 && (this.loop || this.index < this.count - 1);
+    }
+
+    hasPrev() {
+      return this.count > 1 && (this.loop || this.index > 0);
+    }
+
+    edgesOf(sc) {
+      const max = sc.scrollHeight - sc.clientHeight;
+      return { top: sc.scrollTop <= 1, bottom: sc.scrollTop >= max - 2 };
+    }
+
+    resetEdges() {
+      const t = now();
+      this.arrived = { top: t, bottom: t };
+      this.edge = this.scroller ? this.edgesOf(this.scroller) : { top: true, bottom: false };
+    }
+
+    normalizeDelta(e, sc) {
+      if (e.deltaMode === 1) return e.deltaY * 16;
+      if (e.deltaMode === 2) return e.deltaY * sc.clientHeight;
+      return e.deltaY;
+    }
+
+    /* ---------- Scroll tracking ---------- */
+    onScroll(sc) {
+      if (sc !== this.scroller) return;
+      const edge = this.edgesOf(sc);
+      const t = now();
+      // Record the moment the grid reaches an edge; input that was already
+      // in flight at that moment (momentum) must not trigger a switch.
+      if (edge.bottom && !this.edge.bottom) this.arrived.bottom = t;
+      if (edge.top && !this.edge.top) this.arrived.top = t;
+      if ((this.intentDir > 0 && !edge.bottom) || (this.intentDir < 0 && !edge.top)) this.resetIntent();
+      this.edge = edge;
+
+      cancelAnimationFrame(this.progressRaf);
+      this.progressRaf = requestAnimationFrame(() => this.updateProgress());
+    }
+
+    updateProgress() {
+      const sc = this.scroller;
+      if (!sc) return;
+      const max = sc.scrollHeight - sc.clientHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, sc.scrollTop / max)) : 1;
+      this.style.setProperty('--cps-progress', p.toFixed(4));
+    }
+
+    /* ---------- Wheel / trackpad ---------- */
+    onWheel(e, sc) {
+      if (!this.switchOnScroll || sc !== this.scroller) return;
+
+      const t = now();
+      if (t - this.lastWheel > GESTURE_GAP) this.gestureStart = t;
+      this.lastWheel = t;
+
+      if (this.switching) {
+        e.preventDefault(); // swallow momentum while a switch settles
+        return;
+      }
+
+      const dy = this.normalizeDelta(e, sc);
+      if (!dy || Math.abs(e.deltaX) > Math.abs(dy)) return;
+
+      const dir = dy > 0 ? 1 : -1;
+      const edge = this.edgesOf(sc);
+      const canSwitch = dir > 0 ? edge.bottom && this.hasNext() : edge.top && this.hasPrev();
+
+      if (!canSwitch) {
+        // Normal product scrolling, or the page continues past the first/last collection.
+        if (this.intentDir === dir) this.resetIntent();
+        return;
+      }
+
+      e.preventDefault();
+      const arrivedAt = dir > 0 ? this.arrived.bottom : this.arrived.top;
+      if (this.gestureStart < arrivedAt) return; // same gesture that reached the edge
+
+      this.addIntent(dir, Math.abs(dy));
+    }
+
+    /* ---------- Touch ---------- */
+    onTouchStart(e, sc) {
+      if (!this.switchOnScroll || sc !== this.scroller || e.touches.length !== 1 || this.switching) {
+        this.touch = null;
+        return;
+      }
+      const edge = this.edgesOf(sc);
+      // A switch is only possible when the swipe starts at an edge,
+      // so a fling that reaches the end never changes collection.
+      this.touch = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        atTop: edge.top,
+        atBottom: edge.bottom,
+        dir: 0,
+        amount: 0
+      };
+    }
+
+    onTouchMove(e) {
+      const tch = this.touch;
+      if (!tch) return;
+      const dy = tch.y - e.touches[0].clientY;
+      const dx = tch.x - e.touches[0].clientX;
+      if (Math.abs(dx) > Math.abs(dy)) return;
+
+      const dir = dy > 0 ? 1 : -1;
+      const ok = dir > 0 ? tch.atBottom && this.hasNext() : tch.atTop && this.hasPrev();
+      if (!ok) {
+        if (tch.dir) { tch.dir = 0; this.resetIntent(); }
+        return;
+      }
+      if (e.cancelable) e.preventDefault();
+
+      tch.dir = dir;
+      tch.amount = Math.abs(dy);
+      const p = Math.min(1, tch.amount / this.touchThreshold());
+      this.intentDir = dir;
+      this.setIntentVisual(dir, p);
+    }
+
+    onTouchEnd() {
+      const tch = this.touch;
+      this.touch = null;
+      if (!tch || !tch.dir) return;
+      const done = tch.amount >= this.touchThreshold();
+      this.resetIntent();
+      if (done) tch.dir > 0 ? this.next({ via: 'scroll' }) : this.prev({ via: 'scroll' });
+    }
+
+    touchThreshold() {
+      return Math.max(70, this.threshold * 0.6);
+    }
+
+    /* ---------- Keyboard (inside the product grid) ---------- */
+    onKey(e, sc) {
+      if (!this.switchOnScroll || sc !== this.scroller || this.switching) return;
+      if (e.target !== sc) return; // let links inside the grid behave normally
+
+      let dir = 0;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) dir = 1;
+      if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) dir = -1;
+      if (!dir) return;
+
+      const edge = this.edgesOf(sc);
+      const ok = dir > 0 ? edge.bottom && this.hasNext() : edge.top && this.hasPrev();
+      if (!ok) return;
+
+      e.preventDefault();
+      // Two presses at the edge switch collections.
+      this.addIntent(dir, this.threshold / 2 + 1);
+    }
+
+    onTabKey(e) {
+      const map = {
+        ArrowRight: this.index + 1,
+        ArrowLeft: this.index - 1,
+        Home: 0,
+        End: this.count - 1
+      };
+      if (!(e.key in map)) return;
+      e.preventDefault();
+      let target = map[e.key];
+      if (target < 0) target = this.count - 1;
+      if (target >= this.count) target = 0;
+      this.activate(target);
+      if (this.tabs[this.index]) this.tabs[this.index].focus();
+    }
+
+    /* ---------- Switch intent ---------- */
+    addIntent(dir, amount) {
+      if (this.intentDir !== dir) {
+        this.intent = 0;
+        this.intentDir = dir;
+      }
+      this.intent += amount;
+      const p = Math.min(1, this.intent / this.threshold);
+      this.setIntentVisual(dir, p);
+
+      clearTimeout(this.intentTimer);
+      this.intentTimer = setTimeout(() => this.resetIntent(), INTENT_RESET);
+
+      if (p >= 1) {
+        this.resetIntent();
+        dir > 0 ? this.next({ via: 'scroll' }) : this.prev({ via: 'scroll' });
+      }
+    }
+
+    setIntentVisual(dir, p) {
+      const panel = this.panels[this.index];
+      panel.style.setProperty(dir > 0 ? '--cps-intent-down' : '--cps-intent-up', p.toFixed(3));
+      panel.classList.toggle('is-pulling-up', dir < 0 && p > 0);
+      panel.classList.toggle('is-pulling-down', dir > 0 && p > 0);
+    }
+
+    resetIntent() {
+      clearTimeout(this.intentTimer);
+      this.intent = 0;
+      this.intentDir = 0;
+      this.panels.forEach((panel) => {
+        panel.style.removeProperty('--cps-intent-down');
+        panel.style.removeProperty('--cps-intent-up');
+        panel.classList.remove('is-pulling-up', 'is-pulling-down');
+      });
+    }
+
+    /* ---------- Switching ---------- */
+    next(opts = {}) {
+      this.activate(this.index + 1, Object.assign({ dir: 1, position: 'top' }, opts));
+    }
+
+    prev(opts = {}) {
+      // Scrolling up into the previous collection lands at its last row.
+      const position = opts.via === 'scroll' ? 'bottom' : 'top';
+      this.activate(this.index - 1, Object.assign({ dir: -1, position }, opts));
+    }
+
+    activate(target, opts = {}) {
+      const n = this.count;
+      let next = target;
+      if (next < 0 || next >= n) {
+        if (!this.loop) return;
+        next = ((next % n) + n) % n;
+      }
+      if (next === this.index) return;
+
+      const dir = opts.dir || (next > this.index ? 1 : -1);
+      const prev = this.index;
+      const hadFocus = this.panels[prev].contains(document.activeElement);
+
+      this.cleanupLeaving();
+      this.resetIntent();
+      this.index = next;
+
+      this.swap(this.panels, prev, next, dir);
+      this.swap(this.medias, prev, next, dir);
+
+      const sc = this.scroller;
+      if (sc) sc.scrollTop = opts.position === 'bottom' ? sc.scrollHeight : 0;
+      this.resetEdges();
+
+      this.applyState();
+      this.updateProgress();
+      this.announce();
+
+      if (hadFocus && sc) sc.focus({ preventScroll: true });
+      if (opts.via === 'scroll') this.lockSwitching();
+
+      this.dispatchEvent(new CustomEvent('cps:change', { bubbles: true, detail: { index: next } }));
+    }
+
+    swap(list, prev, next, dir) {
+      const out = list[prev];
+      const inn = list[next];
+      if (!out || !inn) return;
+      const animate = !this.reduceMQ.matches;
+      const key = dir > 0 ? 'next' : 'prev';
+
+      out.classList.remove('is-active', 'is-enter-next', 'is-enter-prev');
+      inn.classList.remove('is-leaving', 'is-leave-next', 'is-leave-prev', 'is-enter-next', 'is-enter-prev');
+      inn.classList.add('is-active');
+
+      if (animate) {
+        out.classList.add('is-leaving', 'is-leave-' + key);
+        void inn.offsetWidth; // restart the entrance animation
+        inn.classList.add('is-enter-' + key);
+        clearTimeout(this.leaveTimer);
+        this.leaveTimer = setTimeout(() => this.cleanupLeaving(), this.speed + 80);
+      }
+    }
+
+    cleanupLeaving() {
+      clearTimeout(this.leaveTimer);
+      this.querySelectorAll('.is-leaving').forEach((el) =>
+        el.classList.remove('is-leaving', 'is-leave-next', 'is-leave-prev')
+      );
+      this.querySelectorAll('.is-enter-next, .is-enter-prev').forEach((el) =>
+        el.classList.remove('is-enter-next', 'is-enter-prev')
+      );
+    }
+
+    lockSwitching() {
+      this.switching = true;
+      clearTimeout(this.lockTimer);
+      const release = () => {
+        if (now() - this.lastWheel > 200) {
+          this.switching = false;
+          this.resetEdges();
+        } else {
+          this.lockTimer = setTimeout(release, 120);
+        }
+      };
+      this.lockTimer = setTimeout(release, Math.max(this.speed, 350));
+    }
+
+    applyState() {
+      const setVisible = (el, visible) => {
+        if (visible) {
+          el.removeAttribute('aria-hidden');
+          el.inert = false;
+        } else {
+          el.setAttribute('aria-hidden', 'true');
+          el.inert = true;
+        }
+      };
+      this.panels.forEach((p, i) => setVisible(p, i === this.index));
+      this.medias.forEach((m, i) => setVisible(m, i === this.index));
+
+      this.tabs.forEach((tab, i) => {
+        const on = i === this.index;
+        tab.classList.toggle('is-active', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        tab.tabIndex = on ? 0 : -1;
+      });
+      this.scrollTabIntoView();
+
+      if (this.counter) this.counter.textContent = this.index + 1 + ' / ' + this.count;
+      if (this.prevBtn) this.prevBtn.disabled = !this.hasPrev();
+      if (this.nextBtn) this.nextBtn.disabled = !this.hasNext();
+    }
+
+    scrollTabIntoView() {
+      const tab = this.tabs[this.index];
+      if (!this.tablist || !tab) return;
+      const left = tab.offsetLeft - (this.tablist.clientWidth - tab.offsetWidth) / 2;
+      this.tablist.scrollTo({ left, behavior: this.reduceMQ.matches ? 'auto' : 'smooth' });
+    }
+
+    announce() {
+      if (!this.live) return;
+      const title = this.panels[this.index].dataset.title || '';
+      this.live.textContent = title + ', collection ' + (this.index + 1) + ' of ' + this.count;
+    }
+
+    /* ---------- Shopify Theme Editor ---------- */
+    bindEditorEvents(signal) {
+      document.addEventListener(
+        'shopify:block:select',
+        (e) => {
+          if (!e.detail || e.detail.sectionId !== this.sectionId) return;
+          const i = this.panels.findIndex((p) => p.dataset.blockId === e.detail.blockId);
+          if (i > -1) this.activate(i, { position: 'top' });
+        },
+        { signal }
+      );
+    }
+  }
+
+  window.customElements.define('collection-product-scroll', CollectionProductScroll);
+})();
+</script>
 
 {% schema %}
 {
