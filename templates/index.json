@@ -1341,7 +1341,7 @@
         "heading": "Dressed for <em>every</em> season",
         "description": "Hover over a collection to preview the look. New pieces arrive every week.",
         "view_all_label": "View all collections",
-        "view_all_link": "",
+        "view_all_link": "shopify://collections",
         "header_layout": "split",
         "heading_size": 56,
         "title_size_desktop": 88,
