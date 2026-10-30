@@ -201,20 +201,20 @@
 <strip-slider
   id="StripSlider-{{ section.id }}"
   class="pss"
-  data-strips="{{ section.settings.strip_count }}"
-  data-reveal="{{ section.settings.reveal_duration }}"
-  data-stagger="{{ section.settings.strip_stagger }}"
-  data-zoom="{{ section.settings.zoom_from }}"
-  data-zoom-duration="{{ section.settings.zoom_duration }}"
-  data-autoplay="{{ section.settings.autoplay }}"
-  data-interval="{{ section.settings.autoplay_interval | times: 1000 }}"
-  data-cursor="{{ section.settings.show_cursor }}"
+  data-opt-strips="{{ section.settings.strip_count }}"
+  data-opt-reveal="{{ section.settings.reveal_duration }}"
+  data-opt-stagger="{{ section.settings.strip_stagger }}"
+  data-opt-zoom="{{ section.settings.zoom_from }}"
+  data-opt-zoom-duration="{{ section.settings.zoom_duration }}"
+  data-opt-autoplay="{{ section.settings.autoplay }}"
+  data-opt-interval="{{ section.settings.autoplay_interval | times: 1000 }}"
+  data-opt-cursor="{{ section.settings.show_cursor }}"
   role="region"
   aria-roledescription="carousel"
   aria-label="{{ section.settings.label | default: 'Featured collections' | escape }}"
 >
   <div class="pss__container{% unless section.settings.full_width %} pss__container--boxed{% endunless %}">
-    <div class="pss__frame" data-frame>
+    <div class="pss__frame" data-pss-frame>
       {%- if total == 0 -%}
         <div class="pss__empty">Add slides in the theme editor to start the slider.</div>
       {%- else -%}
@@ -240,17 +240,17 @@
           -%}
           <div
             class="pss__slide"
-            data-slide
+            data-pss-slide
             data-index="{{ forloop.index0 }}"
-            data-title="{{ block.settings.title | escape }}"
-            data-chapter="{{ chapter | escape }}"
-            data-link="{{ block.settings.link }}"
-            data-link-label="{{ link_label | escape }}"
+            data-slide-title="{{ block.settings.title | escape }}"
+            data-slide-chapter="{{ chapter | escape }}"
+            data-slide-link="{{ block.settings.link }}"
+            data-slide-link-label="{{ link_label | escape }}"
             aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
             {% if forloop.first %}data-active{% endif %}
             {{ block.shopify_attributes }}
           >
-            <div class="pss__media" data-media>
+            <div class="pss__media" data-pss-media>
               {%- if img != blank -%}
                 {%- capture img_style -%}--pss-pos: {{ img.presentation.focal_point | default: 'center' }};{%- if img_m != blank %} --pss-pos-m: {{ img_m.presentation.focal_point | default: 'center' }};{%- endif -%}{%- endcapture -%}
                 <picture>
@@ -274,13 +274,13 @@
           </div>
         {%- endfor -%}
 
-        <div class="pss__strips" data-strips aria-hidden="true"></div>
+        <div class="pss__strips" data-pss-strips aria-hidden="true"></div>
         <div class="pss__shade" aria-hidden="true"></div>
 
         {%- if total > 1 -%}
           <div class="pss__nav">
-            <button type="button" class="pss__nav-btn" data-prev aria-label="Previous slide"></button>
-            <button type="button" class="pss__nav-btn" data-next aria-label="Next slide"></button>
+            <button type="button" class="pss__nav-btn" data-pss-prev aria-label="Previous slide"></button>
+            <button type="button" class="pss__nav-btn" data-pss-next aria-label="Next slide"></button>
           </div>
         {%- endif -%}
 
@@ -293,35 +293,35 @@
         <div class="pss__ui">
           {%- if section.settings.show_progress -%}
             <div class="pss__progress" aria-hidden="true">
-              <div class="pss__progress-fill" data-progress style="--pss-progress: {{ progress_start }};"></div>
+              <div class="pss__progress-fill" data-pss-progress style="--pss-progress: {{ progress_start }};"></div>
             </div>
           {%- endif -%}
 
           {%- if section.settings.show_chapter -%}
-            <div class="pss__top" data-top>
-              <span class="pss__chapter" data-chapter>{{ first_chapter | escape }}</span>
+            <div class="pss__top" data-pss-top>
+              <span class="pss__chapter" data-pss-chapter>{{ first_chapter | escape }}</span>
             </div>
           {%- endif -%}
 
           <div class="pss__bottom">
-            <div class="pss__title-col" data-title-col>
-              <h2 class="pss__title" data-title>{{ first_block.settings.title | escape }}</h2>
+            <div class="pss__title-col" data-pss-title-col>
+              <h2 class="pss__title" data-pss-title>{{ first_block.settings.title | escape }}</h2>
               <a
                 class="pss__link"
-                data-link
+                data-pss-link
                 href="{{ first_block.settings.link | default: '#' }}"
                 {% if first_block.settings.link == blank %}hidden{% endif %}
               >{{ first_block.settings.link_label | default: 'Shop now' | escape }}</a>
             </div>
             <div class="pss__meta">
               {%- if section.settings.show_counter -%}
-                <span class="pss__counter" data-counter aria-hidden="true">
-                  <span class="pss__num-box"><span class="pss__num" data-num>01</span></span>
+                <span class="pss__counter" data-pss-counter aria-hidden="true">
+                  <span class="pss__num-box"><span class="pss__num" data-pss-num>01</span></span>
                   <span>&nbsp;/ {{ total_padded }}</span>
                 </span>
               {%- endif -%}
               {%- if section.settings.autoplay and total > 1 -%}
-                <button type="button" class="pss__pause" data-pause data-paused="false" aria-label="Pause slideshow">
+                <button type="button" class="pss__pause" data-pss-pause data-paused="false" aria-label="Pause slideshow">
                   <svg class="pss__icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
                   <svg class="pss__icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
                 </button>
@@ -331,14 +331,14 @@
         </div>
 
         {%- if total > 1 -%}
-          <div class="pss__cursor" data-cursor aria-hidden="true">
+          <div class="pss__cursor" data-pss-cursor aria-hidden="true">
             <div class="pss__cursor-dot">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </div>
           </div>
         {%- endif -%}
 
-        <span class="pss__sr" role="status" aria-live="polite" aria-atomic="true" data-live></span>
+        <span class="pss__sr" role="status" aria-live="polite" aria-atomic="true" data-pss-live></span>
       {%- endif -%}
     </div>
   </div>
@@ -361,34 +361,34 @@
     class StripSlider extends HTMLElement {
       connectedCallback() {
         if (this.ready) return;
-        this.slides = Array.from(this.querySelectorAll('[data-slide]'));
+        this.slides = Array.from(this.querySelectorAll('[data-pss-slide]'));
         this.total = this.slides.length;
         if (this.total === 0) return;
         this.ready = true;
 
-        this.frameEl = this.querySelector('[data-frame]');
-        this.stripLayer = this.querySelector('[data-strips]');
-        this.progressEl = this.querySelector('[data-progress]');
-        this.topEl = this.querySelector('[data-top]');
-        this.chapterEl = this.querySelector('[data-chapter]');
-        this.titleCol = this.querySelector('[data-title-col]');
-        this.titleEl = this.querySelector('[data-title]');
-        this.linkEl = this.querySelector('[data-link]');
-        this.counterEl = this.querySelector('[data-counter]');
-        this.numEl = this.querySelector('[data-num]');
-        this.liveEl = this.querySelector('[data-live]');
-        this.cursorEl = this.querySelector('[data-cursor]');
-        this.pauseBtn = this.querySelector('[data-pause]');
+        this.frameEl = this.querySelector('[data-pss-frame]');
+        this.stripLayer = this.querySelector('[data-pss-strips]');
+        this.progressEl = this.querySelector('[data-pss-progress]');
+        this.topEl = this.querySelector('[data-pss-top]');
+        this.chapterEl = this.querySelector('[data-pss-chapter]');
+        this.titleCol = this.querySelector('[data-pss-title-col]');
+        this.titleEl = this.querySelector('[data-pss-title]');
+        this.linkEl = this.querySelector('[data-pss-link]');
+        this.counterEl = this.querySelector('[data-pss-counter]');
+        this.numEl = this.querySelector('[data-pss-num]');
+        this.liveEl = this.querySelector('[data-pss-live]');
+        this.cursorEl = this.querySelector('[data-pss-cursor]');
+        this.pauseBtn = this.querySelector('[data-pss-pause]');
 
         const d = this.dataset;
         this.opts = {
-          strips: Math.min(30, Math.max(2, Math.round(num(d.strips, 10)))),
-          reveal: Math.max(100, num(d.reveal, 500)),
-          stagger: Math.max(0, num(d.stagger, 40)),
-          zoomFrom: Math.max(1, num(d.zoom, 120) / 100),
-          zoomDuration: Math.max(100, num(d.zoomDuration, 900)),
-          autoplay: d.autoplay === 'true' && this.total > 1,
-          interval: Math.max(2000, num(d.interval, 5000)),
+          strips: Math.min(30, Math.max(2, Math.round(num(d.optStrips, 10)))),
+          reveal: Math.max(100, num(d.optReveal, 500)),
+          stagger: Math.max(0, num(d.optStagger, 40)),
+          zoomFrom: Math.max(1, num(d.optZoom, 120) / 100),
+          zoomDuration: Math.max(100, num(d.optZoomDuration, 900)),
+          autoplay: d.optAutoplay === 'true' && this.total > 1,
+          interval: Math.max(2000, num(d.optInterval, 5000)),
         };
 
         const active = this.slides.findIndex((slide) => slide.hasAttribute('data-active'));
@@ -409,11 +409,11 @@
         };
         this.on = on;
 
-        on(this.querySelector('[data-prev]'), 'click', () => {
+        on(this.querySelector('[data-pss-prev]'), 'click', () => {
           if (performance.now() < (this.suppressClick || 0)) return;
           this.prev();
         });
-        on(this.querySelector('[data-next]'), 'click', () => {
+        on(this.querySelector('[data-pss-next]'), 'click', () => {
           if (performance.now() < (this.suppressClick || 0)) return;
           this.next();
         });
@@ -453,7 +453,7 @@
 
         // Theme editor: selecting a slide block shows it and holds autoplay.
         on(this, 'shopify:block:select', (event) => {
-          const slide = event.target.closest && event.target.closest('[data-slide]');
+          const slide = event.target.closest && event.target.closest('[data-pss-slide]');
           if (!slide) return;
           this.held = true;
           const index = Number(slide.dataset.index);
@@ -541,12 +541,28 @@
         this.setProgress(next);
 
         if (this.reduced) {
-          this.activate(next);
-          this.setCaption(next);
-          this.finish(next);
+          this.jumpTo(next);
           return;
         }
 
+        try {
+          await this.transition(next, direction, token);
+        } catch (error) {
+          // Never leave the slider locked: show the slide without the effect.
+          if (this.ready && token === this.token) this.jumpTo(next);
+        }
+      }
+
+      jumpTo(index) {
+        (this.outAnimations || []).forEach((animation) => animation.cancel());
+        this.outAnimations = [];
+        this.stripLayer.replaceChildren();
+        this.activate(index);
+        this.setCaption(index);
+        this.finish(index);
+      }
+
+      async transition(next, direction, token) {
         await this.mediaReady(next);
         if (!this.ready || token !== this.token) return;
 
@@ -572,11 +588,7 @@
           if (token === this.token) this.captionIn(next);
         }, 500);
 
-        try {
-          await Promise.all(animations.map((animation) => animation.finished));
-        } catch (error) {
-          // Cancelled because the section was removed.
-        }
+        await Promise.all(animations.map((animation) => animation.finished.catch(() => {})));
         if (!this.ready || token !== this.token) return;
 
         this.activate(next);
@@ -606,7 +618,8 @@
         const width = this.frameEl.clientWidth;
         const count = this.opts.strips;
         const stripWidth = width / count;
-        const source = this.slides[index].querySelector('[data-media]');
+        const source = this.slides[index].querySelector('[data-pss-media]');
+        if (!source) throw new Error('Slide has no media');
         const from = direction === 'prev' ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)';
         const fragment = document.createDocumentFragment();
         const strips = [];
@@ -629,7 +642,7 @@
           zoom.className = 'pss__zoom';
 
           const clone = source.cloneNode(true);
-          clone.removeAttribute('data-media');
+          clone.removeAttribute('data-pss-media');
           clone.querySelectorAll('img').forEach((img) => {
             img.loading = 'eager';
             img.alt = '';
@@ -662,15 +675,15 @@
       setCaption(index) {
         const data = this.slides[index].dataset;
         this.captionToken += 1;
-        if (this.chapterEl) this.chapterEl.textContent = data.chapter || '';
+        if (this.chapterEl) this.chapterEl.textContent = data.slideChapter || '';
         if (this.titleEl) {
           this.titleEl.removeAttribute('aria-label');
-          this.titleEl.textContent = data.title || '';
+          this.titleEl.textContent = data.slideTitle || '';
         }
         if (this.linkEl) {
-          if (data.link) {
-            this.linkEl.href = data.link;
-            this.linkEl.textContent = data.linkLabel || 'Shop now';
+          if (data.slideLink) {
+            this.linkEl.href = data.slideLink;
+            this.linkEl.textContent = data.slideLinkLabel || 'Shop now';
             this.linkEl.hidden = false;
           } else {
             this.linkEl.hidden = true;
@@ -747,7 +760,7 @@
 
       announce() {
         if (!this.liveEl) return;
-        const title = this.slides[this.current].dataset.title;
+        const title = this.slides[this.current].dataset.slideTitle;
         this.liveEl.textContent = `Slide ${this.current + 1} of ${this.total}${title ? `: ${title}` : ''}`;
       }
 
@@ -765,7 +778,7 @@
 
       // Circle that trails the mouse; its arrow flips to show which way a click goes.
       setupCursor() {
-        if (!this.cursorEl || this.dataset.cursor !== 'true' || this.total < 2) return;
+        if (!this.cursorEl || this.dataset.optCursor !== 'true' || this.total < 2) return;
         if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
         this.classList.add('pss--cursor');
 
@@ -795,7 +808,7 @@
           const rect = this.frameEl.getBoundingClientRect();
           targetX = event.clientX - rect.left;
           targetY = event.clientY - rect.top;
-          const overControl = event.target.closest('a, [data-pause], input, select, textarea');
+          const overControl = event.target.closest('a, [data-pss-pause], input, select, textarea');
           if (!visible && !overControl) {
             x = targetX;
             y = targetY;
