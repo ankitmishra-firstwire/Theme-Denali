@@ -1288,6 +1288,115 @@
         "mobile_overlap": 40,
         "mobile_side_space": 16
       }
+    },
+    "fashion_hover_reveal_KT6XNt": {
+      "type": "fashion-hover-reveal",
+      "blocks": {
+        "item_taLjM8": {
+          "type": "item",
+          "settings": {
+            "title": "New Arrivals",
+            "tag": "SS26",
+            "link": ""
+          }
+        },
+        "item_thbDGn": {
+          "type": "item",
+          "settings": {
+            "title": "Outerwear",
+            "tag": "24 pieces",
+            "link": ""
+          }
+        },
+        "item_YKMgie": {
+          "type": "item",
+          "settings": {
+            "title": "Knitwear",
+            "tag": "Bestseller",
+            "link": ""
+          }
+        },
+        "item_9E3kcK": {
+          "type": "item",
+          "settings": {
+            "title": "Tailoring",
+            "tag": "New",
+            "link": ""
+          }
+        },
+        "item_DqLCNL": {
+          "type": "item",
+          "settings": {
+            "title": "Accessories",
+            "tag": "Gifts",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "item_taLjM8",
+        "item_thbDGn",
+        "item_YKMgie",
+        "item_9E3kcK",
+        "item_DqLCNL"
+      ],
+      "name": "Fashion hover reveal",
+      "settings": {
+        "eyebrow": "The Edit",
+        "heading": "Dressed for <em>every</em> season",
+        "description": "Hover over a collection to preview the look. New pieces arrive every week.",
+        "view_all_label": "View all collections",
+        "view_all_link": "",
+        "header_layout": "split",
+        "heading_size": 56,
+        "title_size_desktop": 88,
+        "title_size_mobile": 34,
+        "title_weight": "400",
+        "title_tightening": 2,
+        "title_uppercase": false,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "show_numbers": true,
+        "show_tags": true,
+        "show_arrow": true,
+        "show_dividers": true,
+        "row_padding": 22,
+        "hover_style": "fill",
+        "dim_opacity": 25,
+        "reveal_on_scroll": true,
+        "animation_speed": 800,
+        "preview_width": 300,
+        "preview_ratio": "3 / 4",
+        "preview_radius": 4,
+        "preview_layer": "behind",
+        "follow_smoothness": 5,
+        "preview_tilt": true,
+        "preview_shadow": true,
+        "mobile_image": "thumb",
+        "thumb_size": 72,
+        "show_marquee": true,
+        "marquee_text": "New season|Free shipping over $150|Shop the lookbook|Made to last",
+        "marquee_separator": "✦",
+        "marquee_position": "bottom",
+        "marquee_direction": "left",
+        "marquee_speed": 30,
+        "marquee_size": 16,
+        "marquee_padding": 14,
+        "marquee_tilt": false,
+        "marquee_pause": true,
+        "marquee_use_font": false,
+        "marquee_bg": "#141414",
+        "marquee_text_color": "#f5f1ea",
+        "background": "#f5f1ea",
+        "text_color": "#141414",
+        "muted_color": "#7a7368",
+        "accent_color": "#a8432c",
+        "divider_color": "#d9d1c4",
+        "full_width": true,
+        "side_padding": 48,
+        "padding_top": 96,
+        "padding_bottom": 0
+      }
     }
   },
   "order": [
@@ -1306,6 +1415,7 @@
     "newsletter",
     "collection_carousel_fVVH8k",
     "collection_product_scroll_iXcUpD",
-    "image_with_overlap_card_i4MYrd"
+    "image_with_overlap_card_i4MYrd",
+    "fashion_hover_reveal_KT6XNt"
   ]
 }
