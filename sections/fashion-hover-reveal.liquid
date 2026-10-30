@@ -1,0 +1,1474 @@
+{%- comment -%}
+  Fashion Hover Reveal — single-file Shopify OS 2.0 section
+  An editorial, magazine-style list of large titles (collections, lookbooks, categories).
+  Desktop: hovering a title reveals an image that follows the cursor with a soft lag,
+  tilts with movement and wipes between images. Titles reveal line-by-line on scroll.
+  Touch / mobile: images appear inline as thumbnails or full images.
+  Optional infinite marquee band. Markup, scoped CSS and vanilla JS are all in this file.
+{%- endcomment -%}
+
+{%- liquid
+  assign s = section.settings
+  assign sid = 'FHL-' | append: section.id
+  assign block_count = section.blocks.size
+
+  assign title_vw = s.title_size_desktop | times: 100.0 | divided_by: 1440 | round: 2
+  assign heading_vw = s.heading_size | times: 100.0 | divided_by: 1440 | round: 2
+  assign ls = s.title_tightening | divided_by: 100.0
+  assign dim = s.dim_opacity | divided_by: 100.0
+  assign ease_step = s.follow_smoothness | times: 0.028
+  assign ease = 0.32 | minus: ease_step
+
+  capture pv_sizes
+    echo s.preview_width
+    echo 'px'
+  endcapture
+  capture thumb_sizes
+    echo '(max-width: 749px) '
+    if s.mobile_image == 'full'
+      echo '100vw'
+    else
+      echo s.thumb_size | times: 2
+      echo 'px'
+    endif
+    echo ', 300px'
+  endcapture
+
+  assign marquee_items = s.marquee_text | split: '|'
+-%}
+
+{%- if s.use_custom_font -%}
+  {%- style -%}
+    {{ s.title_font | font_face: font_display: 'swap' }}
+    {%- assign title_font_italic = s.title_font | font_modify: 'style', 'italic' -%}
+    {%- if title_font_italic -%}
+      {{ title_font_italic | font_face: font_display: 'swap' }}
+    {%- endif -%}
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  #{{ sid }} {
+    --fhl-bg: {{ s.background }};
+    --fhl-text: {{ s.text_color }};
+    --fhl-muted: {{ s.muted_color }};
+    --fhl-accent: {{ s.accent_color }};
+    --fhl-divider: {{ s.divider_color }};
+    --fhl-dim: {{ dim }};
+    --fhl-title-size: clamp({{ s.title_size_mobile }}px, {{ title_vw }}vw, {{ s.title_size_desktop }}px);
+    --fhl-heading-size: clamp({{ s.heading_size | times: 0.6 | round }}px, {{ heading_vw }}vw, {{ s.heading_size }}px);
+    --fhl-title-weight: {{ s.title_weight }};
+    --fhl-title-ls: -{{ ls }}em;
+    --fhl-row-pad: {{ s.row_padding }}px;
+    --fhl-pv-w: {{ s.preview_width }}px;
+    --fhl-pv-ratio: {{ s.preview_ratio }};
+    --fhl-pv-radius: {{ s.preview_radius }}px;
+    --fhl-thumb: {{ s.thumb_size }}px;
+    --fhl-speed: {{ s.animation_speed }}ms;
+    --fhl-ease: cubic-bezier(0.65, 0, 0.35, 1);
+    --fhl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --fhl-mq-bg: {{ s.marquee_bg }};
+    --fhl-mq-text: {{ s.marquee_text_color }};
+    --fhl-mq-size: {{ s.marquee_size }}px;
+    --fhl-mq-pad: {{ s.marquee_padding }}px;
+    --fhl-mq-speed: {{ s.marquee_speed }}s;
+    {%- if s.use_custom_font %}
+    --fhl-font: {{ s.title_font.family }}, {{ s.title_font.fallback_families }};
+    {%- endif %}
+
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: var(--fhl-bg);
+    color: var(--fhl-text);
+    padding-top: {{ s.padding_top }}px;
+    padding-bottom: {{ s.padding_bottom }}px;
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ sid }} {
+      padding-top: {{ s.padding_top | times: 0.6 | round }}px;
+      padding-bottom: {{ s.padding_bottom | times: 0.6 | round }}px;
+      --fhl-row-pad: {{ s.row_padding | times: 0.7 | round }}px;
+    }
+  }
+
+  #{{ sid }} *,
+  #{{ sid }} *::before,
+  #{{ sid }} *::after { box-sizing: border-box; }
+
+  #{{ sid }} .fhl__wrap {
+    position: relative;
+    width: 100%;
+    padding-inline: {{ s.side_padding }}px;
+    {%- unless s.full_width %}
+    max-width: calc(var(--page-width, 1280px) + {{ s.side_padding | times: 2 }}px);
+    margin-inline: auto;
+    {%- endunless %}
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ sid }} .fhl__wrap { padding-inline: 1.25rem; }
+  }
+
+  /* ---------- Marquee ---------- */
+  #{{ sid }} .fhl__marquee {
+    overflow: hidden;
+    background: var(--fhl-mq-bg);
+    color: var(--fhl-mq-text);
+    padding-block: var(--fhl-mq-pad);
+    {%- if s.marquee_position == 'top' %}
+    margin-bottom: clamp(2rem, 5vw, 4rem);
+    {%- else %}
+    margin-top: clamp(2rem, 5vw, 4rem);
+    {%- endif %}
+    {%- if s.marquee_tilt %}
+    transform: rotate(-1.5deg) scale(1.03);
+    {%- endif %}
+  }
+
+  #{{ sid }} .fhl__marquee-track {
+    display: flex;
+    width: max-content;
+    animation: fhl-marquee var(--fhl-mq-speed) linear infinite;
+    {%- if s.marquee_direction == 'right' %}
+    animation-direction: reverse;
+    {%- endif %}
+  }
+
+  {%- if s.marquee_pause %}
+  #{{ sid }} .fhl__marquee:hover .fhl__marquee-track { animation-play-state: paused; }
+  {%- endif %}
+
+  #{{ sid }} .fhl__marquee-group {
+    display: flex;
+    flex: none;
+    align-items: center;
+  }
+
+  #{{ sid }} .fhl__mq-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5em;
+    padding-right: 1.5em;
+    font-size: var(--fhl-mq-size);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    {%- if s.use_custom_font and s.marquee_use_font %}
+    font-family: var(--fhl-font);
+    text-transform: none;
+    letter-spacing: 0;
+    {%- endif %}
+  }
+
+  #{{ sid }} .fhl__mq-sep { opacity: 0.6; }
+
+  @keyframes fhl-marquee {
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---------- Header ---------- */
+  #{{ sid }} .fhl__header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 3rem;
+    margin-bottom: clamp(1.75rem, 4vw, 3.5rem);
+    {%- if s.header_layout == 'center' %}
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    {%- else %}
+    justify-content: space-between;
+    align-items: flex-end;
+    {%- endif %}
+  }
+
+  #{{ sid }} .fhl__eyebrow {
+    margin: 0 0 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fhl-muted);
+  }
+
+  #{{ sid }} .fhl__heading {
+    margin: 0;
+    font-size: var(--fhl-heading-size);
+    font-weight: var(--fhl-title-weight);
+    line-height: 1.02;
+    letter-spacing: var(--fhl-title-ls);
+    color: var(--fhl-text);
+    font-family: var(--fhl-font, inherit);
+  }
+
+  #{{ sid }} .fhl__heading em,
+  #{{ sid }} .fhl__heading i { font-style: italic; color: var(--fhl-accent); }
+
+  #{{ sid }} .fhl__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 26rem;
+    {%- if s.header_layout == 'center' %}
+    align-items: center;
+    {%- else %}
+    align-items: flex-start;
+    {%- endif %}
+  }
+
+  #{{ sid }} .fhl__desc {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--fhl-muted);
+  }
+
+  #{{ sid }} .fhl__view-all {
+    position: relative;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fhl-text);
+    text-decoration: none;
+    padding-bottom: 4px;
+  }
+
+  #{{ sid }} .fhl__view-all::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform-origin: right;
+    transition: transform 0.5s var(--fhl-ease);
+  }
+
+  #{{ sid }} .fhl__view-all:hover::after {
+    transform: scaleX(0);
+  }
+
+  /* ---------- List ---------- */
+  #{{ sid }} .fhl__list {
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    {%- if s.show_dividers %}
+    border-top: 1px solid var(--fhl-divider);
+    {%- endif %}
+  }
+
+  {%- if s.show_dividers %}
+  #{{ sid }} .fhl__item { border-bottom: 1px solid var(--fhl-divider); }
+  {%- endif %}
+
+  #{{ sid }} .fhl__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "num title tag arrow";
+    align-items: center;
+    column-gap: clamp(1rem, 3vw, 3rem);
+    padding-block: var(--fhl-row-pad);
+    color: var(--fhl-text);
+    text-decoration: none;
+    transition: opacity 0.5s var(--fhl-ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #{{ sid }}.is-hovering .fhl__row:not(.is-active) { opacity: var(--fhl-dim); }
+
+  #{{ sid }} .fhl__row:focus-visible {
+    outline: 2px solid var(--fhl-accent);
+    outline-offset: 4px;
+  }
+
+  #{{ sid }} .fhl__num {
+    grid-area: num;
+    align-self: start;
+    padding-top: 0.5em;
+    min-width: 2ch;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    color: var(--fhl-muted);
+  }
+
+  #{{ sid }} .fhl__title-wrap {
+    grid-area: title;
+    display: block;
+    overflow: hidden;
+    padding-block: 0.08em;
+  }
+
+  #{{ sid }} .fhl__reveal { display: block; }
+
+  #{{ sid }} .fhl__title {
+    position: relative;
+    display: inline-block;
+    font-family: var(--fhl-font, inherit);
+    font-size: var(--fhl-title-size);
+    font-weight: var(--fhl-title-weight);
+    line-height: 1;
+    letter-spacing: var(--fhl-title-ls);
+    color: var(--fhl-text);
+    transition:
+      transform var(--fhl-speed) var(--fhl-ease-out),
+      color calc(var(--fhl-speed) * 0.6) ease;
+    {%- if s.title_uppercase %}
+    text-transform: uppercase;
+    {%- endif %}
+  }
+
+  /* Hover style: colour fill wipe */
+  #{{ sid }}.fhl--hover-fill .fhl__title::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: var(--fhl-accent);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path var(--fhl-speed) var(--fhl-ease);
+    pointer-events: none;
+  }
+  #{{ sid }}.fhl--hover-fill .fhl__row.is-active .fhl__title::after,
+  #{{ sid }}.fhl--hover-fill .fhl__row:focus-visible .fhl__title::after {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* Hover style: slide */
+  #{{ sid }}.fhl--hover-slide .fhl__row.is-active .fhl__title,
+  #{{ sid }}.fhl--hover-slide .fhl__row:focus-visible .fhl__title {
+    transform: translateX(0.3em);
+    color: var(--fhl-accent);
+  }
+
+  /* Hover style: slant (italic feel) */
+  #{{ sid }}.fhl--hover-slant .fhl__title { transform-origin: left bottom; }
+  #{{ sid }}.fhl--hover-slant .fhl__row.is-active .fhl__title,
+  #{{ sid }}.fhl--hover-slant .fhl__row:focus-visible .fhl__title {
+    transform: translateX(0.18em) skewX(-10deg);
+  }
+  {%- if s.use_custom_font %}
+  #{{ sid }}.fhl--hover-slant .fhl__row.is-active .fhl__title,
+  #{{ sid }}.fhl--hover-slant .fhl__row:focus-visible .fhl__title {
+    font-style: italic;
+    transform: translateX(0.18em);
+  }
+  {%- endif %}
+
+  /* Hover style: outline → solid */
+  #{{ sid }}.fhl--hover-outline .fhl__title {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--fhl-text);
+  }
+  #{{ sid }}.fhl--hover-outline .fhl__row.is-active .fhl__title,
+  #{{ sid }}.fhl--hover-outline .fhl__row:focus-visible .fhl__title {
+    color: var(--fhl-text);
+  }
+
+  #{{ sid }} .fhl__tag {
+    grid-area: tag;
+    padding: 0.5em 1em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--fhl-muted);
+    border: 1px solid var(--fhl-divider);
+    border-radius: 999px;
+    transition: color 0.4s ease, border-color 0.4s ease;
+  }
+
+  #{{ sid }} .fhl__row.is-active .fhl__tag {
+    color: var(--fhl-text);
+    border-color: var(--fhl-text);
+  }
+
+  #{{ sid }} .fhl__arrow {
+    grid-area: arrow;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    color: var(--fhl-bg);
+    background: var(--fhl-text);
+    opacity: 0;
+    transform: scale(0.6) rotate(-45deg);
+    transition:
+      opacity 0.4s ease,
+      transform var(--fhl-speed) var(--fhl-ease-out),
+      background-color 0.3s ease;
+  }
+
+  #{{ sid }} .fhl__arrow svg { width: 18px; height: 18px; }
+
+  #{{ sid }} .fhl__row.is-active .fhl__arrow,
+  #{{ sid }} .fhl__row:focus-visible .fhl__arrow {
+    opacity: 1;
+    transform: none;
+    background: var(--fhl-accent);
+  }
+
+  #{{ sid }} .fhl__thumb { display: none; }
+
+  /* ---------- Scroll reveal ---------- */
+  #{{ sid }}.fhl--reveal .fhl__reveal {
+    transform: translateY(110%);
+    transition: transform calc(var(--fhl-speed) * 1.4) var(--fhl-ease-out);
+    transition-delay: calc(var(--i, 0) * 90ms + 100ms);
+  }
+
+  #{{ sid }}.fhl--reveal .fhl__num,
+  #{{ sid }}.fhl--reveal .fhl__tag,
+  #{{ sid }}.fhl--reveal .fhl__thumb,
+  #{{ sid }}.fhl--reveal .fhl__header > * {
+    opacity: 0;
+    transition: opacity 0.9s ease, color 0.4s ease, border-color 0.4s ease;
+    transition-delay: calc(var(--i, 0) * 90ms + 300ms);
+  }
+
+  {%- if s.show_dividers %}
+  #{{ sid }}.fhl--reveal .fhl__item {
+    border-bottom-color: transparent;
+    background-image: linear-gradient(var(--fhl-divider), var(--fhl-divider));
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-size: 0% 1px;
+    transition: background-size 1.2s var(--fhl-ease);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+  #{{ sid }}.fhl--reveal.is-inview .fhl__item { background-size: 100% 1px; }
+  {%- endif %}
+
+  #{{ sid }}.fhl--reveal.is-inview .fhl__reveal { transform: none; }
+  #{{ sid }}.fhl--reveal.is-inview .fhl__num,
+  #{{ sid }}.fhl--reveal.is-inview .fhl__tag,
+  #{{ sid }}.fhl--reveal.is-inview .fhl__thumb,
+  #{{ sid }}.fhl--reveal.is-inview .fhl__header > * { opacity: 1; }
+
+  /* ---------- Cursor-following preview (desktop) ---------- */
+  #{{ sid }} .fhl__preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--fhl-pv-w);
+    aspect-ratio: var(--fhl-pv-ratio);
+    pointer-events: none;
+    z-index: {% if s.preview_layer == 'above' %}3{% else %}1{% endif %};
+    will-change: transform;
+  }
+
+  #{{ sid }} .fhl__preview-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--fhl-pv-radius);
+    opacity: 0;
+    transform: scale(0.7);
+    transition:
+      opacity 0.35s ease,
+      transform 0.6s var(--fhl-ease-out);
+    {%- if s.preview_shadow %}
+    box-shadow: 0 30px 60px -25px rgba(0, 0, 0, 0.45);
+    {%- endif %}
+  }
+
+  #{{ sid }} .fhl__preview.is-visible .fhl__preview-inner {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  #{{ sid }} .fhl__pimg {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    clip-path: inset(100% 0 0 0);
+    background: var(--fhl-divider);
+  }
+
+  #{{ sid }} .fhl__pimg.is-prev {
+    z-index: 1;
+    clip-path: inset(0 0 0 0);
+  }
+
+  #{{ sid }} .fhl__pimg.is-active {
+    z-index: 2;
+    clip-path: inset(0 0 0 0);
+    transition: clip-path var(--fhl-speed) var(--fhl-ease);
+  }
+
+  #{{ sid }} .fhl__pimg img,
+  #{{ sid }} .fhl__pimg svg,
+  #{{ sid }} .fhl__thumb img,
+  #{{ sid }} .fhl__thumb svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #{{ sid }} .fhl__pimg img,
+  #{{ sid }} .fhl__pimg svg {
+    transform: scale(1.25);
+    transition: transform calc(var(--fhl-speed) * 1.6) var(--fhl-ease-out);
+  }
+
+  #{{ sid }} .fhl__pimg.is-active img,
+  #{{ sid }} .fhl__pimg.is-active svg { transform: scale(1); }
+
+  #{{ sid }} .fhl__placeholder {
+    background: var(--fhl-divider);
+    fill: rgba(127, 127, 127, 0.45);
+  }
+
+  #{{ sid }} .fhl__empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--fhl-muted);
+    border: 1px dashed var(--fhl-divider);
+  }
+
+  /* ---------- Touch devices & mobile ---------- */
+  @media (hover: none), (pointer: coarse), screen and (max-width: 749px) {
+    #{{ sid }} .fhl__preview { display: none; }
+    #{{ sid }} .fhl__arrow { display: none; }
+
+    {%- if s.mobile_image != 'hidden' %}
+    #{{ sid }} .fhl__thumb {
+      grid-area: thumb;
+      display: block;
+      overflow: hidden;
+      border-radius: var(--fhl-pv-radius);
+      background: var(--fhl-divider);
+      aspect-ratio: var(--fhl-pv-ratio);
+    }
+    {%- endif %}
+
+    {%- if s.mobile_image == 'full' %}
+    #{{ sid }} .fhl__row {
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-areas:
+        "num title"
+        "num tag"
+        "thumb thumb";
+      row-gap: 0.75rem;
+      align-items: start;
+    }
+    #{{ sid }} .fhl__thumb { width: 100%; margin-top: 0.5rem; }
+    {%- else %}
+    #{{ sid }} .fhl__row {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "num title thumb"
+        "num tag thumb";
+      row-gap: 0.6rem;
+      column-gap: 1rem;
+    }
+    #{{ sid }} .fhl__thumb { width: var(--fhl-thumb); }
+    {%- endif %}
+
+    #{{ sid }} .fhl__tag {
+      justify-self: start;
+      padding: 0.4em 0.85em;
+      font-size: 0.62rem;
+    }
+  }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    #{{ sid }} .fhl__marquee-track { animation: none; }
+    #{{ sid }} .fhl__reveal,
+    #{{ sid }} .fhl__title,
+    #{{ sid }} .fhl__title::after,
+    #{{ sid }} .fhl__preview-inner,
+    #{{ sid }} .fhl__pimg,
+    #{{ sid }} .fhl__pimg img,
+    #{{ sid }} .fhl__arrow,
+    #{{ sid }} .fhl__item {
+      transition: none !important;
+    }
+    #{{ sid }}.fhl--reveal .fhl__reveal { transform: none; }
+    #{{ sid }}.fhl--reveal .fhl__num,
+    #{{ sid }}.fhl--reveal .fhl__tag,
+    #{{ sid }}.fhl--reveal .fhl__thumb,
+    #{{ sid }}.fhl--reveal .fhl__header > * { opacity: 1; }
+  }
+{%- endstyle -%}
+
+{%- capture marquee_markup -%}
+  {%- if s.show_marquee and s.marquee_text != blank -%}
+    <div class="fhl__marquee" aria-label="{{ s.marquee_text | replace: '|', ', ' | escape }}" role="marquee">
+      <div class="fhl__marquee-track" aria-hidden="true">
+        {%- for g in (1..2) -%}
+          <div class="fhl__marquee-group">
+            {%- for r in (1..6) -%}
+              {%- for item in marquee_items -%}
+                {%- assign item_clean = item | strip -%}
+                {%- if item_clean != blank -%}
+                  <span class="fhl__mq-item">{{ item_clean | escape }}<span class="fhl__mq-sep">{{ s.marquee_separator | escape }}</span></span>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+<fashion-hover-reveal
+  id="{{ sid }}"
+  class="fhl fhl--hover-{{ s.hover_style }}{% if s.reveal_on_scroll %} fhl--reveal{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-ease="{{ ease }}"
+  data-tilt="{{ s.preview_tilt }}"
+  data-speed="{{ s.animation_speed }}"
+>
+  {%- if s.marquee_position == 'top' -%}{{ marquee_markup }}{%- endif -%}
+
+  <div class="fhl__wrap">
+    {%- if s.eyebrow != blank or s.heading != blank or s.description != blank or s.view_all_label != blank -%}
+      <div class="fhl__header">
+        <div>
+          {%- if s.eyebrow != blank -%}
+            <p class="fhl__eyebrow">{{ s.eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- if s.heading != blank -%}
+            <h2 class="fhl__heading">{{ s.heading }}</h2>
+          {%- endif -%}
+        </div>
+        {%- if s.description != blank or s.view_all_label != blank -%}
+          <div class="fhl__intro">
+            {%- if s.description != blank -%}
+              <p class="fhl__desc">{{ s.description | escape }}</p>
+            {%- endif -%}
+            {%- if s.view_all_label != blank -%}
+              <a class="fhl__view-all" href="{{ s.view_all_link | default: routes.collections_url }}">{{ s.view_all_label | escape }}</a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block_count == 0 -%}
+      {%- if request.design_mode -%}
+        <p class="fhl__empty">Add an Item block to build your list.</p>
+      {%- endif -%}
+    {%- else -%}
+      <ul class="fhl__list" role="list" data-fhl-list>
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign b = block.settings
+            assign item_title = b.title | default: 'Collection'
+            assign item_url = b.link | default: '#'
+            assign ph_n = forloop.index0 | modulo: 4 | plus: 1
+            assign ph_name = 'lifestyle-' | append: ph_n
+            if ph_n > 2
+              assign ph_n = ph_n | minus: 2
+              assign ph_name = 'collection-' | append: ph_n
+            endif
+            assign img_alt = b.image.alt | default: item_title | escape
+          -%}
+          <li class="fhl__item" style="--i: {{ forloop.index0 }};" {{ block.shopify_attributes }}>
+            <a
+              class="fhl__row"
+              href="{{ item_url }}"
+              data-fhl-row
+              data-index="{{ forloop.index0 }}"
+              data-block-id="{{ block.id }}"
+            >
+              {%- if s.show_numbers -%}
+                <span class="fhl__num" aria-hidden="true">{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>
+              {%- endif -%}
+
+              <span class="fhl__title-wrap">
+                <span class="fhl__reveal">
+                  <span class="fhl__title" data-text="{{ item_title | escape }}">{{ item_title | escape }}</span>
+                </span>
+              </span>
+
+              {%- if s.show_tags and b.tag != blank -%}
+                <span class="fhl__tag">{{ b.tag | escape }}</span>
+              {%- endif -%}
+
+              {%- if s.mobile_image != 'hidden' -%}
+                <span class="fhl__thumb" aria-hidden="true">
+                  {%- if b.image != blank -%}
+                    {{
+                      b.image
+                      | image_url: width: 900
+                      | image_tag: widths: '160, 240, 360, 540, 720, 900', sizes: thumb_sizes, loading: 'lazy', alt: ''
+                    }}
+                  {%- else -%}
+                    {{ ph_name | placeholder_svg_tag: 'fhl__placeholder' }}
+                  {%- endif -%}
+                </span>
+              {%- endif -%}
+
+              {%- if s.show_arrow -%}
+                <span class="fhl__arrow" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M7 17L17 7M9 7h8v8"/></svg>
+                </span>
+              {%- endif -%}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <div class="fhl__preview" data-fhl-preview aria-hidden="true">
+        <div class="fhl__preview-inner">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign b = block.settings
+              assign ph_n = forloop.index0 | modulo: 4 | plus: 1
+              assign ph_name = 'lifestyle-' | append: ph_n
+              if ph_n > 2
+                assign ph_n = ph_n | minus: 2
+                assign ph_name = 'collection-' | append: ph_n
+              endif
+            -%}
+            <div class="fhl__pimg" data-fhl-pimg>
+              {%- if b.image != blank -%}
+                {{
+                  b.image
+                  | image_url: width: 1000
+                  | image_tag: widths: '300, 450, 600, 800, 1000', sizes: pv_sizes, loading: 'lazy', alt: ''
+                }}
+              {%- else -%}
+                {{ ph_name | placeholder_svg_tag: 'fhl__placeholder' }}
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if s.marquee_position == 'bottom' -%}{{ marquee_markup }}{%- endif -%}
+</fashion-hover-reveal>
+
+<script>
+  (function () {
+    if (window.customElements.get('fashion-hover-reveal')) return;
+
+    const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+    class FashionHoverReveal extends HTMLElement {
+      connectedCallback() {
+        if (this._init) return;
+        this._init = true;
+
+        this.list = this.querySelector('[data-fhl-list]');
+        this.rows = Array.from(this.querySelectorAll('[data-fhl-row]'));
+        this.preview = this.querySelector('[data-fhl-preview]');
+        this.pimgs = Array.from(this.querySelectorAll('[data-fhl-pimg]'));
+
+        this.reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        this.fineMQ = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 750px)');
+        this.ease = clamp(parseFloat(this.dataset.ease) || 0.18, 0.03, 1);
+        this.tilt = this.dataset.tilt === 'true';
+        this.speed = parseInt(this.dataset.speed, 10) || 800;
+
+        this.pos = { x: 0, y: 0 };
+        this.target = { x: 0, y: 0 };
+        this.active = -1;
+        this.visible = false;
+        this.raf = null;
+
+        this.ac = new AbortController();
+        const signal = this.ac.signal;
+
+        this.setupReveal();
+        if (this.list && this.preview && this.rows.length) this.bindHover(signal);
+        this.bindEditor(signal);
+      }
+
+      disconnectedCallback() {
+        this._init = false;
+        if (this.ac) this.ac.abort();
+        if (this.io) this.io.disconnect();
+        cancelAnimationFrame(this.raf);
+        this.raf = null;
+        clearTimeout(this.prevTimer);
+      }
+
+      /* ---------- Scroll reveal ---------- */
+      setupReveal() {
+        if (!this.classList.contains('fhl--reveal')) return;
+        const inEditor = window.Shopify && window.Shopify.designMode;
+        if (this.reduce || inEditor || !('IntersectionObserver' in window)) {
+          this.classList.add('is-inview');
+          return;
+        }
+        this.io = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((e) => e.isIntersecting)) {
+              this.classList.add('is-inview');
+              this.io.disconnect();
+            }
+          },
+          { threshold: 0.15 }
+        );
+        this.io.observe(this);
+      }
+
+      /* ---------- Hover preview ---------- */
+      bindHover(signal) {
+        this.rows.forEach((row, i) => {
+          row.addEventListener('pointerenter', (e) => {
+            if (e.pointerType !== 'mouse' || !this.fineMQ.matches) return;
+            this.trackPointer(e);
+            this.show(i);
+          }, { signal });
+
+          row.addEventListener('focus', () => {
+            if (!this.fineMQ.matches) return;
+            this.placeAtRow(row);
+            this.show(i);
+          }, { signal });
+
+          row.addEventListener('blur', () => this.hide(), { signal });
+        });
+
+        this.list.addEventListener('pointermove', (e) => {
+          if (e.pointerType === 'mouse' && this.visible) this.trackPointer(e);
+        }, { signal });
+
+        this.list.addEventListener('pointerleave', () => this.hide(), { signal });
+
+        // Keep the image under the cursor while the page scrolls.
+        window.addEventListener('scroll', () => {
+          if (this.visible && this.lastClient) this.setTarget(this.lastClient.x, this.lastClient.y);
+        }, { passive: true, signal });
+
+        if (this.fineMQ.addEventListener) {
+          this.fineMQ.addEventListener('change', () => this.hide(), { signal });
+        }
+      }
+
+      trackPointer(e) {
+        this.lastClient = { x: e.clientX, y: e.clientY };
+        this.setTarget(e.clientX, e.clientY);
+      }
+
+      setTarget(clientX, clientY) {
+        const r = this.getBoundingClientRect();
+        const w = this.preview.offsetWidth;
+        const h = this.preview.offsetHeight;
+        this.target.x = clamp(clientX - r.left - w / 2, 0, Math.max(0, r.width - w));
+        this.target.y = clamp(clientY - r.top - h / 2, 0, Math.max(0, r.height - h));
+        if (!this.visible || this.reduce) {
+          this.pos.x = this.target.x;
+          this.pos.y = this.target.y;
+        }
+        this.startLoop();
+      }
+
+      placeAtRow(row) {
+        const rr = row.getBoundingClientRect();
+        this.lastClient = null;
+        this.setTarget(rr.left + rr.width * 0.72, rr.top + rr.height / 2);
+      }
+
+      show(i) {
+        this.rows.forEach((row, n) => row.classList.toggle('is-active', n === i));
+        this.classList.add('is-hovering');
+        if (i !== this.active) this.swapImage(i);
+        this.preview.classList.add('is-visible');
+        this.visible = true;
+        this.startLoop();
+      }
+
+      hide() {
+        this.visible = false;
+        this.preview.classList.remove('is-visible');
+        this.classList.remove('is-hovering');
+        this.rows.forEach((row) => row.classList.remove('is-active'));
+      }
+
+      swapImage(i) {
+        const prev = this.pimgs[this.active];
+        const next = this.pimgs[i];
+        clearTimeout(this.prevTimer);
+        this.pimgs.forEach((p) => p.classList.remove('is-prev'));
+
+        if (prev && this.visible) {
+          prev.classList.remove('is-active');
+          prev.classList.add('is-prev');
+        } else if (prev) {
+          prev.classList.remove('is-active');
+        }
+
+        if (next) {
+          next.classList.remove('is-prev');
+          void next.offsetWidth; // restart the wipe
+          next.classList.add('is-active');
+        }
+
+        this.active = i;
+        this.prevTimer = setTimeout(() => {
+          this.pimgs.forEach((p) => p.classList.remove('is-prev'));
+        }, this.speed + 50);
+      }
+
+      startLoop() {
+        if (this.raf) return;
+        const tick = () => {
+          const k = this.reduce ? 1 : this.ease;
+          this.pos.x += (this.target.x - this.pos.x) * k;
+          this.pos.y += (this.target.y - this.pos.y) * k;
+
+          const vx = this.target.x - this.pos.x;
+          const vy = this.target.y - this.pos.y;
+          const rot = this.tilt && !this.reduce ? clamp(vx * 0.045, -10, 10) : 0;
+
+          this.preview.style.transform =
+            'translate3d(' + this.pos.x.toFixed(2) + 'px,' + this.pos.y.toFixed(2) + 'px,0) rotate(' + rot.toFixed(2) + 'deg)';
+
+          if (Math.abs(vx) < 0.15 && Math.abs(vy) < 0.15) {
+            this.raf = null;
+            return;
+          }
+          this.raf = requestAnimationFrame(tick);
+        };
+        this.raf = requestAnimationFrame(tick);
+      }
+
+      /* ---------- Shopify Theme Editor ---------- */
+      bindEditor(signal) {
+        const mine = (e) => e.detail && e.detail.sectionId === this.dataset.sectionId;
+
+        document.addEventListener('shopify:block:select', (e) => {
+          if (!mine(e)) return;
+          this.classList.add('is-inview');
+          const i = this.rows.findIndex((r) => r.dataset.blockId === e.detail.blockId);
+          if (i < 0 || !this.preview || !this.fineMQ.matches) return;
+          this.placeAtRow(this.rows[i]);
+          this.show(i);
+        }, { signal });
+
+        document.addEventListener('shopify:block:deselect', (e) => {
+          if (mine(e) && this.preview) this.hide();
+        }, { signal });
+      }
+    }
+
+    window.customElements.define('fashion-hover-reveal', FashionHoverReveal);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Fashion hover reveal",
+  "tag": "section",
+  "class": "section-fashion-hover-reveal",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 10,
+  "settings": [
+    { "type": "header", "content": "Heading" },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small text above heading",
+      "default": "The Edit"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Use italics to highlight a word in the accent color.",
+      "default": "Dressed for <em>every</em> season"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Hover over a collection to preview the look. New pieces arrive every week."
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "Link label",
+      "default": "View all collections"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "header_layout",
+      "label": "Heading layout",
+      "options": [
+        { "value": "split", "label": "Split (heading left, text right)" },
+        { "value": "center", "label": "Centered" }
+      ],
+      "default": "split"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+
+    { "type": "header", "content": "List titles" },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "label": "Title size (desktop)",
+      "min": 32,
+      "max": 140,
+      "step": 2,
+      "unit": "px",
+      "default": 88
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Title size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Title weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "title_tightening",
+      "label": "Letter tightening",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "title_uppercase",
+      "label": "Uppercase titles",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_font",
+      "label": "Use custom font",
+      "info": "Off uses your theme's heading font. Serif fonts such as Playfair Display or Bodoni Moda suit fashion stores.",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Font",
+      "default": "assistant_n4"
+    },
+
+    { "type": "header", "content": "List details" },
+    {
+      "type": "checkbox",
+      "id": "show_numbers",
+      "label": "Show numbers",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show tags",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dividers",
+      "label": "Show dividing lines",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "row_padding",
+      "label": "Row spacing",
+      "min": 8,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+
+    { "type": "header", "content": "Animation" },
+    {
+      "type": "select",
+      "id": "hover_style",
+      "label": "Title hover effect",
+      "options": [
+        { "value": "fill", "label": "Color fill wipe" },
+        { "value": "slide", "label": "Slide and color" },
+        { "value": "slant", "label": "Italic slant" },
+        { "value": "outline", "label": "Outline to solid" }
+      ],
+      "default": "fill"
+    },
+    {
+      "type": "range",
+      "id": "dim_opacity",
+      "label": "Other titles opacity on hover",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 25
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal_on_scroll",
+      "label": "Reveal titles on scroll",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "animation_speed",
+      "label": "Animation speed",
+      "min": 300,
+      "max": 1500,
+      "step": 50,
+      "unit": "ms",
+      "default": 800
+    },
+
+    { "type": "header", "content": "Hover image (desktop)" },
+    {
+      "type": "range",
+      "id": "preview_width",
+      "label": "Image width",
+      "min": 180,
+      "max": 480,
+      "step": 10,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "select",
+      "id": "preview_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "3 / 4", "label": "Portrait (3:4)" },
+        { "value": "4 / 5", "label": "Portrait (4:5)" },
+        { "value": "2 / 3", "label": "Tall (2:3)" },
+        { "value": "1 / 1", "label": "Square" }
+      ],
+      "default": "3 / 4"
+    },
+    {
+      "type": "range",
+      "id": "preview_radius",
+      "label": "Image corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "preview_layer",
+      "label": "Image layer",
+      "options": [
+        { "value": "behind", "label": "Behind the titles" },
+        { "value": "above", "label": "Above the titles" }
+      ],
+      "default": "behind"
+    },
+    {
+      "type": "range",
+      "id": "follow_smoothness",
+      "label": "Cursor follow smoothness",
+      "info": "Higher values make the image trail further behind the cursor.",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "preview_tilt",
+      "label": "Tilt image while moving",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "preview_shadow",
+      "label": "Image shadow",
+      "default": true
+    },
+
+    { "type": "header", "content": "Mobile and touch" },
+    {
+      "type": "select",
+      "id": "mobile_image",
+      "label": "Images on mobile",
+      "options": [
+        { "value": "thumb", "label": "Thumbnail beside title" },
+        { "value": "full", "label": "Full image below title" },
+        { "value": "hidden", "label": "Hidden" }
+      ],
+      "default": "thumb"
+    },
+    {
+      "type": "range",
+      "id": "thumb_size",
+      "label": "Thumbnail width",
+      "min": 48,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+
+    { "type": "header", "content": "Marquee" },
+    {
+      "type": "checkbox",
+      "id": "show_marquee",
+      "label": "Show scrolling text band",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "marquee_text",
+      "label": "Marquee text",
+      "info": "Separate phrases with a | character.",
+      "default": "New season|Free shipping over $150|Shop the lookbook|Made to last"
+    },
+    {
+      "type": "text",
+      "id": "marquee_separator",
+      "label": "Separator symbol",
+      "default": "✦"
+    },
+    {
+      "type": "select",
+      "id": "marquee_position",
+      "label": "Marquee position",
+      "options": [
+        { "value": "top", "label": "Top of section" },
+        { "value": "bottom", "label": "Bottom of section" }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "select",
+      "id": "marquee_direction",
+      "label": "Direction",
+      "options": [
+        { "value": "left", "label": "Right to left" },
+        { "value": "right", "label": "Left to right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "Loop duration",
+      "info": "Lower is faster.",
+      "min": 10,
+      "max": 80,
+      "step": 2,
+      "unit": "s",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "marquee_size",
+      "label": "Text size",
+      "min": 12,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "marquee_padding",
+      "label": "Band height",
+      "min": 6,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "checkbox",
+      "id": "marquee_tilt",
+      "label": "Slightly tilted band",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "marquee_pause",
+      "label": "Pause on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "marquee_use_font",
+      "label": "Use custom font in marquee",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "marquee_bg",
+      "label": "Band background",
+      "default": "#141414"
+    },
+    {
+      "type": "color",
+      "id": "marquee_text_color",
+      "label": "Band text",
+      "default": "#f5f1ea"
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#f5f1ea"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#141414"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Secondary text",
+      "default": "#7a7368"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#a8432c"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Lines and tag borders",
+      "default": "#d9d1c4"
+    },
+
+    { "type": "header", "content": "Section spacing" },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "side_padding",
+      "label": "Side padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "New Arrivals"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Tag",
+          "info": "Short label such as a season, count or \"New\".",
+          "default": "SS26"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Hover image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Fashion hover reveal",
+      "blocks": [
+        { "type": "item", "settings": { "title": "New Arrivals", "tag": "SS26" } },
+        { "type": "item", "settings": { "title": "Outerwear", "tag": "24 pieces" } },
+        { "type": "item", "settings": { "title": "Knitwear", "tag": "Bestseller" } },
+        { "type": "item", "settings": { "title": "Tailoring", "tag": "New" } },
+        { "type": "item", "settings": { "title": "Accessories", "tag": "Gifts" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
