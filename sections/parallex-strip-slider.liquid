@@ -1,0 +1,1131 @@
+{%- comment -%}
+  Parallax strip slider
+  Full-bleed image slider. Each new slide is revealed through vertical strips
+  that wipe in one after another while the image settles from a slight zoom.
+  Click the left half to go back, the right half to go forward.
+  No external libraries: the animation uses the browser's Web Animations API.
+{%- endcomment -%}
+
+{%- liquid
+  assign total = section.blocks.size
+  assign total_padded = total | prepend: '0' | slice: -2, 2
+  assign progress_start = 0
+  if total > 0
+    assign progress_start = 1.0 | divided_by: total
+  endif
+  assign first_block = section.blocks.first
+-%}
+
+{%- if section.settings.title_font == 'instrument' -%}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+{%- endif -%}
+
+{%- style -%}
+  #StripSlider-{{ section.id }} {
+    --pss-accent: {{ section.settings.color_accent }};
+    --pss-bg: {{ section.settings.color_background }};
+    --pss-cursor-icon: {{ section.settings.color_cursor_icon }};
+    --pss-title-d: {{ section.settings.title_size_desktop }}px;
+    --pss-title-m: {{ section.settings.title_size_mobile }}px;
+    --pss-radius: {{ section.settings.corner_radius }}px;
+    {%- if section.settings.title_font == 'instrument' %}
+      --pss-title-font: "Instrument Serif", Georgia, "Times New Roman", serif;
+    {%- else %}
+      --pss-title-font: var(--font-heading-family, inherit);
+    {%- endif %}
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+  #StripSlider-{{ section.id }} .pss__frame {
+    height: {{ section.settings.height_desktop }}vh;
+    height: {{ section.settings.height_desktop }}svh;
+  }
+  #StripSlider-{{ section.id }} .pss__shade {
+    background:
+      linear-gradient(to top, color-mix(in srgb, {{ section.settings.color_overlay }} {{ section.settings.overlay_opacity }}%, transparent) 0%, transparent 50%),
+      linear-gradient(to bottom, color-mix(in srgb, {{ section.settings.color_overlay }} {{ section.settings.overlay_opacity | times: 0.6 | round }}%, transparent) 0%, transparent 28%);
+  }
+  @media (max-width: 749px) {
+    #StripSlider-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top | times: 0.75 | round }}px;
+      padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round }}px;
+    }
+    #StripSlider-{{ section.id }} .pss__frame {
+      height: {{ section.settings.height_mobile }}vh;
+      height: {{ section.settings.height_mobile }}svh;
+    }
+  }
+{%- endstyle -%}
+
+<style>
+  strip-slider.pss { display: block; color: var(--pss-accent); }
+  .pss *, .pss *::before, .pss *::after { box-sizing: border-box; }
+  .pss__container--boxed { max-width: 1400px; margin-inline: auto; padding-inline: 20px; }
+  @media (min-width: 750px) { .pss__container--boxed { padding-inline: 40px; } }
+
+  .pss__frame {
+    position: relative; min-height: 420px; overflow: hidden; isolation: isolate;
+    background: var(--pss-bg); border-radius: var(--pss-radius);
+    touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  }
+
+  /* Slides (bottom layer) */
+  .pss__slide { position: absolute; inset: 0; opacity: 0; }
+  .pss__slide[data-active] { opacity: 1; }
+  .pss__media { position: absolute; inset: 0; }
+  .pss__media picture,
+  .pss__media img,
+  .pss__media svg {
+    position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none;
+  }
+  .pss__media img { object-fit: cover; object-position: var(--pss-pos, center); }
+  @media (max-width: 749px) {
+    .pss__media img { object-position: var(--pss-pos-m, var(--pss-pos, center)); }
+  }
+  .pss__placeholder { background: color-mix(in srgb, var(--pss-accent) 8%, var(--pss-bg)); fill: color-mix(in srgb, var(--pss-accent) 35%, transparent); }
+
+  /* Strip reveal layer */
+  .pss__strips { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .pss__strip { position: absolute; top: 0; bottom: 0; overflow: hidden; will-change: clip-path; }
+  .pss__strip-inner { position: absolute; top: 0; bottom: 0; }
+  .pss__zoom { position: absolute; inset: 0; will-change: transform; }
+
+  .pss__shade { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+
+  /* Click halves */
+  .pss__nav { position: absolute; inset: 0; z-index: 3; display: flex; }
+  .pss__nav-btn {
+    appearance: none; -webkit-appearance: none; flex: 1 1 50%;
+    margin: 0; padding: 0; min-width: 0; min-height: 0; border: 0; border-radius: 0;
+    background: transparent; box-shadow: none; cursor: pointer;
+  }
+  .pss__nav-btn:focus-visible { outline: 2px solid var(--pss-accent); outline-offset: -8px; }
+  .pss--cursor .pss__nav-btn { cursor: none; }
+
+  /* Overlay UI */
+  .pss__ui { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+  .pss__progress {
+    position: absolute; left: 24px; right: 24px; top: 24px; height: 1px;
+    background: color-mix(in srgb, var(--pss-accent) 20%, transparent);
+  }
+  .pss__progress-fill {
+    width: 100%; height: 100%; background: var(--pss-accent); transform-origin: 0 50%;
+    transform: scaleX(var(--pss-progress, 0));
+    transition: transform 900ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  .pss__top { position: absolute; left: 0; right: 0; top: 0; padding: 48px 24px 0; }
+  .pss__chapter { display: block; font-size: 12px; font-weight: 500; letter-spacing: .03em; line-height: 1.4; }
+
+  .pss__bottom {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: flex-end; gap: 24px; padding: 0 24px 40px;
+  }
+  .pss__title-col { min-width: 0; flex: 0 1 66%; }
+  .pss__title {
+    margin: 0; font-family: var(--pss-title-font); font-weight: 400; line-height: 1;
+    font-size: clamp(var(--pss-title-m), 9vw, var(--pss-title-d));
+    letter-spacing: 0; color: var(--pss-accent); overflow-wrap: break-word; text-wrap: balance;
+  }
+  .pss__word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; margin-bottom: -.08em; }
+  .pss__char { display: inline-block; will-change: transform; }
+  .pss__link {
+    display: inline-block; margin-top: 16px; pointer-events: auto;
+    font-size: 13px; letter-spacing: .02em; color: var(--pss-accent);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px;
+  }
+  .pss__link[hidden] { display: none; }
+  .pss__link:focus-visible { outline: 2px solid var(--pss-accent); outline-offset: 4px; }
+
+  .pss__meta { margin-left: auto; display: flex; align-items: center; gap: 14px; padding-block: 20px; flex-shrink: 0; }
+  .pss__counter {
+    display: flex; align-items: center; font-size: 12px; font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--pss-accent) 70%, transparent);
+  }
+  .pss__num-box { display: inline-block; width: 2ch; overflow: hidden; text-align: right; vertical-align: bottom; }
+  .pss__num { display: inline-block; }
+  .pss__pause {
+    appearance: none; -webkit-appearance: none; pointer-events: auto;
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; min-width: 0; min-height: 0; margin: 0; padding: 0;
+    border: 1px solid color-mix(in srgb, var(--pss-accent) 45%, transparent); border-radius: 50%;
+    background: transparent; color: var(--pss-accent); cursor: pointer;
+  }
+  .pss__pause[hidden] { display: none; }
+  .pss__pause:focus-visible { outline: 2px solid var(--pss-accent); outline-offset: 3px; }
+  .pss__pause svg { width: 12px; height: 12px; }
+  .pss__pause[data-paused="true"] .pss__icon-pause,
+  .pss__pause[data-paused="false"] .pss__icon-play { display: none; }
+
+  @media (min-width: 750px) {
+    .pss__progress { left: 40px; right: 40px; top: 32px; }
+    .pss__top { padding: 64px 40px 0; }
+    .pss__bottom { padding: 0 40px 40px; }
+  }
+  /* Touch devices and phones: counter above a full-width title. */
+  @media (max-width: 749px), (pointer: coarse) {
+    .pss__bottom { flex-direction: column; align-items: stretch; gap: 16px; }
+    .pss__title-col { flex-basis: auto; }
+    .pss__meta { order: -1; margin-left: 0; justify-content: flex-end; padding-block: 0; }
+  }
+
+  /* Follow cursor (mouse only) */
+  .pss__cursor { display: none; position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 6; pointer-events: none; }
+  .pss--cursor .pss__cursor { display: block; }
+  .pss__cursor-dot {
+    position: absolute; left: -30px; top: -30px; width: 60px; height: 60px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--pss-accent); color: var(--pss-cursor-icon);
+    opacity: 0; transform: scale(.6);
+    transition: opacity 250ms ease, transform 250ms cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  .pss__cursor.is-visible .pss__cursor-dot { opacity: 1; transform: scale(1); }
+  .pss__cursor svg { width: 22px; height: 22px; transition: transform 350ms cubic-bezier(0.645, 0.045, 0.355, 1); }
+  .pss__cursor.is-left svg { transform: rotate(180deg); }
+
+  .pss__sr {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .pss__empty {
+    display: flex; align-items: center; justify-content: center; height: 100%; padding: 24px;
+    text-align: center; font-size: 14px; color: color-mix(in srgb, var(--pss-accent) 70%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pss__progress-fill, .pss__cursor-dot, .pss__cursor svg { transition: none; }
+  }
+</style>
+
+<strip-slider
+  id="StripSlider-{{ section.id }}"
+  class="pss"
+  data-strips="{{ section.settings.strip_count }}"
+  data-reveal="{{ section.settings.reveal_duration }}"
+  data-stagger="{{ section.settings.strip_stagger }}"
+  data-zoom="{{ section.settings.zoom_from }}"
+  data-zoom-duration="{{ section.settings.zoom_duration }}"
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-interval="{{ section.settings.autoplay_interval | times: 1000 }}"
+  data-cursor="{{ section.settings.show_cursor }}"
+  role="region"
+  aria-roledescription="carousel"
+  aria-label="{{ section.settings.label | default: 'Featured collections' | escape }}"
+>
+  <div class="pss__container{% unless section.settings.full_width %} pss__container--boxed{% endunless %}">
+    <div class="pss__frame" data-frame>
+      {%- if total == 0 -%}
+        <div class="pss__empty">Add slides in the theme editor to start the slider.</div>
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign number = forloop.index | prepend: '0' | slice: -2, 2
+            assign img = block.settings.image
+            assign img_m = block.settings.image_mobile
+            if img == blank
+              assign img = img_m
+            endif
+            assign chapter = block.settings.chapter
+            if chapter == blank
+              assign chapter = 'Collection ' | append: number
+            endif
+            assign alt = block.settings.alt | default: img.alt | default: block.settings.title
+            assign loading = 'lazy'
+            if forloop.first
+              assign loading = 'eager'
+            endif
+            assign placeholder = forloop.index0 | modulo: 2 | plus: 1 | prepend: 'lifestyle-'
+            assign link_label = block.settings.link_label | default: 'Shop now'
+          -%}
+          <div
+            class="pss__slide"
+            data-slide
+            data-index="{{ forloop.index0 }}"
+            data-title="{{ block.settings.title | escape }}"
+            data-chapter="{{ chapter | escape }}"
+            data-link="{{ block.settings.link }}"
+            data-link-label="{{ link_label | escape }}"
+            aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+            {% if forloop.first %}data-active{% endif %}
+            {{ block.shopify_attributes }}
+          >
+            <div class="pss__media" data-media>
+              {%- if img != blank -%}
+                {%- capture img_style -%}--pss-pos: {{ img.presentation.focal_point | default: 'center' }};{%- if img_m != blank %} --pss-pos-m: {{ img_m.presentation.focal_point | default: 'center' }};{%- endif -%}{%- endcapture -%}
+                <picture>
+                  {%- if img_m != blank and block.settings.image != blank -%}
+                    <source
+                      media="(max-width: 749px)"
+                      srcset="{{ img_m | image_url: width: 750 }} 750w, {{ img_m | image_url: width: 1100 }} 1100w, {{ img_m | image_url: width: 1500 }} 1500w"
+                      sizes="100vw"
+                    >
+                  {%- endif -%}
+                  {%- if section.index == 1 and forloop.first -%}
+                    {{ img | image_url: width: 3000 | image_tag: widths: '750, 1100, 1500, 1800, 2200, 3000', sizes: '100vw', class: 'pss__img', loading: loading, fetchpriority: 'high', alt: alt, style: img_style, draggable: 'false' }}
+                  {%- else -%}
+                    {{ img | image_url: width: 3000 | image_tag: widths: '750, 1100, 1500, 1800, 2200, 3000', sizes: '100vw', class: 'pss__img', loading: loading, alt: alt, style: img_style, draggable: 'false' }}
+                  {%- endif -%}
+                </picture>
+              {%- else -%}
+                {{ placeholder | placeholder_svg_tag: 'pss__placeholder' }}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+
+        <div class="pss__strips" data-strips aria-hidden="true"></div>
+        <div class="pss__shade" aria-hidden="true"></div>
+
+        {%- if total > 1 -%}
+          <div class="pss__nav">
+            <button type="button" class="pss__nav-btn" data-prev aria-label="Previous slide"></button>
+            <button type="button" class="pss__nav-btn" data-next aria-label="Next slide"></button>
+          </div>
+        {%- endif -%}
+
+        {%- liquid
+          assign first_chapter = first_block.settings.chapter
+          if first_chapter == blank
+            assign first_chapter = 'Collection 01'
+          endif
+        -%}
+        <div class="pss__ui">
+          {%- if section.settings.show_progress -%}
+            <div class="pss__progress" aria-hidden="true">
+              <div class="pss__progress-fill" data-progress style="--pss-progress: {{ progress_start }};"></div>
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.show_chapter -%}
+            <div class="pss__top" data-top>
+              <span class="pss__chapter" data-chapter>{{ first_chapter | escape }}</span>
+            </div>
+          {%- endif -%}
+
+          <div class="pss__bottom">
+            <div class="pss__title-col" data-title-col>
+              <h2 class="pss__title" data-title>{{ first_block.settings.title | escape }}</h2>
+              <a
+                class="pss__link"
+                data-link
+                href="{{ first_block.settings.link | default: '#' }}"
+                {% if first_block.settings.link == blank %}hidden{% endif %}
+              >{{ first_block.settings.link_label | default: 'Shop now' | escape }}</a>
+            </div>
+            <div class="pss__meta">
+              {%- if section.settings.show_counter -%}
+                <span class="pss__counter" data-counter aria-hidden="true">
+                  <span class="pss__num-box"><span class="pss__num" data-num>01</span></span>
+                  <span>&nbsp;/ {{ total_padded }}</span>
+                </span>
+              {%- endif -%}
+              {%- if section.settings.autoplay and total > 1 -%}
+                <button type="button" class="pss__pause" data-pause data-paused="false" aria-label="Pause slideshow">
+                  <svg class="pss__icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+                  <svg class="pss__icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                </button>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+        {%- if total > 1 -%}
+          <div class="pss__cursor" data-cursor aria-hidden="true">
+            <div class="pss__cursor-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+        {%- endif -%}
+
+        <span class="pss__sr" role="status" aria-live="polite" aria-atomic="true" data-live></span>
+      {%- endif -%}
+    </div>
+  </div>
+</strip-slider>
+
+<script>
+  (() => {
+    if (customElements.get('strip-slider')) return;
+
+    const EASE_OUT_3 = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
+    const EASE_OUT_2 = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    const EASE_IN_2 = 'cubic-bezier(0.55, 0.085, 0.68, 0.53)';
+    const pad = (n) => String(n).padStart(2, '0');
+    const num = (value, fallback) => {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    };
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    class StripSlider extends HTMLElement {
+      connectedCallback() {
+        if (this.ready) return;
+        this.slides = Array.from(this.querySelectorAll('[data-slide]'));
+        this.total = this.slides.length;
+        if (this.total === 0) return;
+        this.ready = true;
+
+        this.frameEl = this.querySelector('[data-frame]');
+        this.stripLayer = this.querySelector('[data-strips]');
+        this.progressEl = this.querySelector('[data-progress]');
+        this.topEl = this.querySelector('[data-top]');
+        this.chapterEl = this.querySelector('[data-chapter]');
+        this.titleCol = this.querySelector('[data-title-col]');
+        this.titleEl = this.querySelector('[data-title]');
+        this.linkEl = this.querySelector('[data-link]');
+        this.counterEl = this.querySelector('[data-counter]');
+        this.numEl = this.querySelector('[data-num]');
+        this.liveEl = this.querySelector('[data-live]');
+        this.cursorEl = this.querySelector('[data-cursor]');
+        this.pauseBtn = this.querySelector('[data-pause]');
+
+        const d = this.dataset;
+        this.opts = {
+          strips: Math.min(30, Math.max(2, Math.round(num(d.strips, 10)))),
+          reveal: Math.max(100, num(d.reveal, 500)),
+          stagger: Math.max(0, num(d.stagger, 40)),
+          zoomFrom: Math.max(1, num(d.zoom, 120) / 100),
+          zoomDuration: Math.max(100, num(d.zoomDuration, 900)),
+          autoplay: d.autoplay === 'true' && this.total > 1,
+          interval: Math.max(2000, num(d.interval, 5000)),
+        };
+
+        const active = this.slides.findIndex((slide) => slide.hasAttribute('data-active'));
+        this.current = active > -1 ? active : 0;
+        this.busy = false;
+        this.paused = false;
+        this.held = false;
+        this.inView = true;
+        this.token = 0;
+        this.captionToken = 0;
+        this.pending = null;
+        this.timers = [];
+        this.motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        this.controller = new AbortController();
+        const on = (target, type, handler, options = {}) => {
+          if (target) target.addEventListener(type, handler, { ...options, signal: this.controller.signal });
+        };
+        this.on = on;
+
+        on(this.querySelector('[data-prev]'), 'click', () => {
+          if (performance.now() < (this.suppressClick || 0)) return;
+          this.prev();
+        });
+        on(this.querySelector('[data-next]'), 'click', () => {
+          if (performance.now() < (this.suppressClick || 0)) return;
+          this.next();
+        });
+
+        on(this, 'keydown', (event) => {
+          if (event.altKey || event.ctrlKey || event.metaKey) return;
+          if (event.key === 'ArrowRight') { event.preventDefault(); this.next(); }
+          if (event.key === 'ArrowLeft') { event.preventDefault(); this.prev(); }
+        });
+
+        // Horizontal swipe on touch screens; vertical swipes still scroll the page.
+        on(this.frameEl, 'pointerdown', (event) => {
+          if (event.pointerType === 'mouse') return;
+          this.swipe = { id: event.pointerId, x: event.clientX, y: event.clientY };
+        });
+        on(this.frameEl, 'pointerup', (event) => {
+          const start = this.swipe;
+          this.swipe = null;
+          if (!start || start.id !== event.pointerId) return;
+          const dx = event.clientX - start.x;
+          const dy = event.clientY - start.y;
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+            this.suppressClick = performance.now() + 350;
+            if (dx < 0) this.next();
+            else this.prev();
+          }
+        });
+        on(this.frameEl, 'pointercancel', () => { this.swipe = null; });
+
+        on(this.pauseBtn, 'click', () => {
+          this.paused = !this.paused;
+          this.schedule();
+        });
+
+        on(this.motion, 'change', () => this.schedule());
+        on(document, 'visibilitychange', () => this.schedule());
+
+        // Theme editor: selecting a slide block shows it and holds autoplay.
+        on(this, 'shopify:block:select', (event) => {
+          const slide = event.target.closest && event.target.closest('[data-slide]');
+          if (!slide) return;
+          this.held = true;
+          const index = Number(slide.dataset.index);
+          this.goTo(index, index < this.current ? 'prev' : 'next', true);
+        });
+        on(this, 'shopify:block:deselect', () => {
+          this.held = false;
+          this.schedule();
+        });
+
+        if ('IntersectionObserver' in window) {
+          this.observer = new IntersectionObserver(([entry]) => {
+            this.inView = entry.isIntersecting;
+            this.schedule();
+          }, { threshold: 0.2 });
+          this.observer.observe(this);
+        }
+
+        this.setupCursor();
+        this.warmImages();
+        this.schedule();
+      }
+
+      disconnectedCallback() {
+        if (!this.ready) return;
+        this.ready = false;
+        this.token += 1;
+        this.controller.abort();
+        clearTimeout(this.autoTimer);
+        this.timers.forEach(clearTimeout);
+        this.timers = [];
+        if (this.observer) this.observer.disconnect();
+        if (this.stopCursor) this.stopCursor();
+      }
+
+      get reduced() {
+        return this.motion.matches;
+      }
+
+      later(fn, ms) {
+        const id = setTimeout(fn, ms);
+        this.timers.push(id);
+        return id;
+      }
+
+      next() { this.goTo(this.current + 1, 'next'); }
+      prev() { this.goTo(this.current - 1, 'prev'); }
+
+      // After the page has loaded, fetch the remaining slide images so each
+      // reveal has its picture ready.
+      warmImages() {
+        const warm = () => this.later(() => {
+          this.slides.forEach((slide) => {
+            slide.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = 'eager'; });
+          });
+        }, 300);
+        if (document.readyState === 'complete') warm();
+        else this.on(window, 'load', warm, { once: true });
+      }
+
+      async mediaReady(index) {
+        const img = this.slides[index].querySelector('img');
+        if (!img) return;
+        if (img.loading === 'lazy') img.loading = 'eager';
+        if (img.complete && img.naturalWidth > 0) return;
+        const loaded = typeof img.decode === 'function'
+          ? img.decode().catch(() => {})
+          : new Promise((resolve) => img.addEventListener('load', resolve, { once: true }));
+        await Promise.race([loaded, wait(700)]);
+      }
+
+      async goTo(index, direction = 'next', fromEditor = false) {
+        if (!this.ready || this.total < 2) return;
+        const next = ((Math.trunc(index) % this.total) + this.total) % this.total;
+        if (this.busy) {
+          if (fromEditor) this.pending = { index: next, direction };
+          return;
+        }
+        if (next === this.current) return;
+
+        this.busy = true;
+        clearTimeout(this.autoTimer);
+        const token = ++this.token;
+        this.dataset.state = 'animating';
+        this.setProgress(next);
+
+        if (this.reduced) {
+          this.activate(next);
+          this.setCaption(next);
+          this.finish(next);
+          return;
+        }
+
+        await this.mediaReady(next);
+        if (!this.ready || token !== this.token) return;
+
+        const { strips, zooms, from } = this.buildStrips(next, direction);
+        const ordered = direction === 'prev' ? strips.slice().reverse() : strips;
+        const animations = [];
+
+        ordered.forEach((strip, k) => {
+          animations.push(strip.animate(
+            [{ clipPath: from }, { clipPath: 'inset(0 0 0 0)' }],
+            { duration: this.opts.reveal, delay: k * this.opts.stagger, easing: EASE_OUT_3, fill: 'both' }
+          ));
+        });
+        zooms.forEach((zoom) => {
+          animations.push(zoom.animate(
+            [{ transform: `scale(${this.opts.zoomFrom})` }, { transform: 'scale(1)' }],
+            { duration: this.opts.zoomDuration, easing: EASE_OUT_3, fill: 'both' }
+          ));
+        });
+
+        this.captionOut();
+        this.later(() => {
+          if (token === this.token) this.captionIn(next);
+        }, 500);
+
+        try {
+          await Promise.all(animations.map((animation) => animation.finished));
+        } catch (error) {
+          // Cancelled because the section was removed.
+        }
+        if (!this.ready || token !== this.token) return;
+
+        this.activate(next);
+        this.stripLayer.replaceChildren();
+        this.finish(next);
+      }
+
+      finish(index) {
+        this.current = index;
+        this.busy = false;
+        this.dataset.state = 'idle';
+        this.announce();
+        if (this.pending) {
+          const { index: target, direction } = this.pending;
+          this.pending = null;
+          if (target !== this.current) {
+            this.goTo(target, direction, true);
+            return;
+          }
+        }
+        this.schedule();
+      }
+
+      // Each strip holds a full-size copy of the incoming image, shifted so
+      // the strips line up into one picture.
+      buildStrips(index, direction) {
+        const width = this.frameEl.clientWidth;
+        const count = this.opts.strips;
+        const stripWidth = width / count;
+        const source = this.slides[index].querySelector('[data-media]');
+        const from = direction === 'prev' ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)';
+        const fragment = document.createDocumentFragment();
+        const strips = [];
+        const zooms = [];
+
+        for (let k = 0; k < count; k += 1) {
+          const strip = document.createElement('div');
+          strip.className = 'pss__strip';
+          strip.style.left = `${k * stripWidth}px`;
+          // 1px overlap hides hairline seams between neighbouring strips.
+          strip.style.width = `${stripWidth + (k < count - 1 ? 1 : 0)}px`;
+          strip.style.clipPath = from;
+
+          const inner = document.createElement('div');
+          inner.className = 'pss__strip-inner';
+          inner.style.width = `${width}px`;
+          inner.style.left = `${-k * stripWidth}px`;
+
+          const zoom = document.createElement('div');
+          zoom.className = 'pss__zoom';
+
+          const clone = source.cloneNode(true);
+          clone.removeAttribute('data-media');
+          clone.querySelectorAll('img').forEach((img) => {
+            img.loading = 'eager';
+            img.alt = '';
+            img.removeAttribute('fetchpriority');
+          });
+
+          zoom.append(clone);
+          inner.append(zoom);
+          strip.append(inner);
+          fragment.append(strip);
+          strips.push(strip);
+          zooms.push(zoom);
+        }
+
+        this.stripLayer.replaceChildren(fragment);
+        return { strips, zooms, from };
+      }
+
+      activate(index) {
+        this.slides.forEach((slide, i) => {
+          slide.toggleAttribute('data-active', i === index);
+          slide.setAttribute('aria-hidden', i === index ? 'false' : 'true');
+        });
+      }
+
+      setProgress(index) {
+        if (this.progressEl) this.progressEl.style.setProperty('--pss-progress', String((index + 1) / this.total));
+      }
+
+      setCaption(index) {
+        const data = this.slides[index].dataset;
+        this.captionToken += 1;
+        if (this.chapterEl) this.chapterEl.textContent = data.chapter || '';
+        if (this.titleEl) {
+          this.titleEl.removeAttribute('aria-label');
+          this.titleEl.textContent = data.title || '';
+        }
+        if (this.linkEl) {
+          if (data.link) {
+            this.linkEl.href = data.link;
+            this.linkEl.textContent = data.linkLabel || 'Shop now';
+            this.linkEl.hidden = false;
+          } else {
+            this.linkEl.hidden = true;
+          }
+        }
+        if (this.numEl) this.numEl.textContent = pad(index + 1);
+      }
+
+      captionOut() {
+        const targets = [this.topEl, this.titleCol, this.counterEl].filter(Boolean);
+        this.outAnimations = targets.map((el) => el.animate(
+          [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-2px)' }],
+          { duration: 350, delay: 150, easing: EASE_IN_2, fill: 'forwards' }
+        ));
+      }
+
+      captionIn(index) {
+        (this.outAnimations || []).forEach((animation) => animation.cancel());
+        this.outAnimations = [];
+        this.setCaption(index);
+        const captionToken = this.captionToken;
+
+        if (this.titleEl) {
+          const text = this.titleEl.textContent;
+          const chars = this.splitChars(this.titleEl, text);
+          const charAnimations = chars.map((char, i) => char.animate(
+            [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }],
+            { duration: 600, delay: i * 40, easing: EASE_OUT_2, fill: 'backwards' }
+          ));
+          // Put the plain title text back once the letters have landed.
+          Promise.all(charAnimations.map((a) => a.finished)).then(() => {
+            if (this.ready && captionToken === this.captionToken) {
+              this.titleEl.removeAttribute('aria-label');
+              this.titleEl.textContent = text;
+            }
+          }).catch(() => {});
+        }
+
+        const fade = (el, duration) => {
+          if (el && !el.hidden) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: EASE_OUT_2, fill: 'backwards' });
+        };
+        fade(this.topEl, 500);
+        fade(this.linkEl, 500);
+        fade(this.counterEl, 450);
+        if (this.numEl) {
+          this.numEl.animate(
+            [{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }],
+            { duration: 550, easing: EASE_OUT_3, fill: 'backwards' }
+          );
+        }
+      }
+
+      splitChars(el, text) {
+        el.textContent = '';
+        el.setAttribute('aria-label', text);
+        const chars = [];
+        const words = text.split(' ');
+        words.forEach((word, wordIndex) => {
+          const wordEl = document.createElement('span');
+          wordEl.className = 'pss__word';
+          wordEl.setAttribute('aria-hidden', 'true');
+          for (const letter of word) {
+            const char = document.createElement('span');
+            char.className = 'pss__char';
+            char.textContent = letter;
+            wordEl.append(char);
+            chars.push(char);
+          }
+          el.append(wordEl);
+          if (wordIndex < words.length - 1) el.append(' ');
+        });
+        return chars;
+      }
+
+      announce() {
+        if (!this.liveEl) return;
+        const title = this.slides[this.current].dataset.title;
+        this.liveEl.textContent = `Slide ${this.current + 1} of ${this.total}${title ? `: ${title}` : ''}`;
+      }
+
+      schedule() {
+        clearTimeout(this.autoTimer);
+        const running = this.opts.autoplay && !this.paused && !this.held && this.inView
+          && !document.hidden && !this.reduced && !this.busy;
+        if (running) this.autoTimer = setTimeout(() => this.next(), this.opts.interval);
+        if (this.pauseBtn) {
+          this.pauseBtn.hidden = !this.opts.autoplay || this.reduced;
+          this.pauseBtn.dataset.paused = String(this.paused);
+          this.pauseBtn.setAttribute('aria-label', this.paused ? 'Play slideshow' : 'Pause slideshow');
+        }
+      }
+
+      // Circle that trails the mouse; its arrow flips to show which way a click goes.
+      setupCursor() {
+        if (!this.cursorEl || this.dataset.cursor !== 'true' || this.total < 2) return;
+        if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        this.classList.add('pss--cursor');
+
+        let x = 0;
+        let y = 0;
+        let targetX = 0;
+        let targetY = 0;
+        let frame = 0;
+        let visible = false;
+
+        const loop = () => {
+          const ease = this.reduced ? 1 : 0.12;
+          x += (targetX - x) * ease;
+          y += (targetY - y) * ease;
+          this.cursorEl.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+          frame = visible || Math.abs(targetX - x) + Math.abs(targetY - y) > 0.5 ? requestAnimationFrame(loop) : 0;
+        };
+        const show = (value) => {
+          if (value === visible) return;
+          visible = value;
+          this.cursorEl.classList.toggle('is-visible', value);
+          if (value && !frame) frame = requestAnimationFrame(loop);
+        };
+
+        this.on(this.frameEl, 'pointermove', (event) => {
+          if (event.pointerType !== 'mouse') return;
+          const rect = this.frameEl.getBoundingClientRect();
+          targetX = event.clientX - rect.left;
+          targetY = event.clientY - rect.top;
+          const overControl = event.target.closest('a, [data-pause], input, select, textarea');
+          if (!visible && !overControl) {
+            x = targetX;
+            y = targetY;
+          }
+          show(!overControl);
+          this.cursorEl.classList.toggle('is-left', targetX < rect.width / 2);
+        });
+        this.on(this.frameEl, 'pointerleave', () => show(false));
+        this.stopCursor = () => cancelAnimationFrame(frame);
+      }
+    }
+
+    customElements.define('strip-slider', StripSlider);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Parallax strip slider",
+  "tag": "section",
+  "class": "section-parallax-strip-slider",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 10,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Slider name for screen readers",
+      "default": "Featured collections"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full page width",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "Height on desktop",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "info": "Percent of the screen height",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Height on mobile",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "info": "Percent of the screen height",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Strip reveal"
+    },
+    {
+      "type": "range",
+      "id": "strip_count",
+      "label": "Number of strips",
+      "min": 4,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "reveal_duration",
+      "label": "Strip wipe speed",
+      "min": 300,
+      "max": 1500,
+      "step": 50,
+      "unit": "ms",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "strip_stagger",
+      "label": "Delay between strips",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "ms",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "zoom_from",
+      "label": "Starting zoom",
+      "min": 100,
+      "max": 140,
+      "step": 5,
+      "unit": "%",
+      "info": "100% turns the zoom off",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "zoom_duration",
+      "label": "Zoom settle time",
+      "min": 400,
+      "max": 2000,
+      "step": 100,
+      "unit": "ms",
+      "default": 900
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Change slides automatically",
+      "info": "Adds a pause button. Off for visitors who prefer reduced motion.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "Time per slide",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Display"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress",
+      "label": "Show progress bar",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_chapter",
+      "label": "Show collection label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_counter",
+      "label": "Show slide counter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cursor",
+      "label": "Show arrow cursor",
+      "info": "A circle with an arrow follows the mouse. Desktop only.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Title"
+    },
+    {
+      "type": "select",
+      "id": "title_font",
+      "label": "Title font",
+      "options": [
+        { "value": "instrument", "label": "Instrument Serif" },
+        { "value": "theme", "label": "Theme heading font" }
+      ],
+      "default": "instrument"
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "label": "Title size on desktop",
+      "min": 40,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Title size on mobile",
+      "min": 32,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_accent",
+      "label": "Text, progress bar and cursor",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "color_cursor_icon",
+      "label": "Cursor arrow",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "Background behind images",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "color_overlay",
+      "label": "Image shade",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Image shade strength",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "info": "Darkens the top and bottom edges so text stays readable",
+      "default": 35
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Landscape, at least 2400 px wide. Set a focal point in Files to control cropping."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Mobile image",
+          "info": "Optional portrait image for phones"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Fire"
+        },
+        {
+          "type": "text",
+          "id": "chapter",
+          "label": "Collection label",
+          "info": "Leave empty to show “Collection 01”, “Collection 02” and so on"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link text",
+          "default": "Shop now"
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Image description",
+          "info": "For screen readers. Leave empty to use the image's alt text from Files."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Parallax strip slider",
+      "blocks": [
+        { "type": "slide", "settings": { "title": "Fire", "chapter": "Collection 01" } },
+        { "type": "slide", "settings": { "title": "Allure", "chapter": "Collection 02" } },
+        { "type": "slide", "settings": { "title": "Ember", "chapter": "Collection 03" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
