@@ -1399,7 +1399,7 @@
         "hotspot_AWVeeT": {
           "type": "hotspot",
           "settings": {
-            "product": "",
+            "product": "quilted-puffer-jacket",
             "label": "",
             "x": 44,
             "y": 38,
@@ -1410,7 +1410,7 @@
         "hotspot_UDVDQW": {
           "type": "hotspot",
           "settings": {
-            "product": "",
+            "product": "wool-blend-overcoat",
             "label": "",
             "x": 62,
             "y": 58,
@@ -1425,6 +1425,7 @@
       ],
       "name": "Scroll expand lookbook",
       "settings": {
+        "image": "shopify://shop_images/chocolate-brown-corduroy-chore-jacket_b215c5c3-ffeb-4988-94ea-cad9fa42cef5.png",
         "image_focus": "center",
         "overlay_color": "#0e0d0b",
         "overlay_opacity": 55,
@@ -1462,7 +1463,7 @@
         "caption_align_mobile": "left",
         "caption_heading_size": 48,
         "button_label": "Explore the collection",
-        "button_link": "",
+        "button_link": "shopify://collections/jackets",
         "magnetic_button": true,
         "button_bg": "#f4efe7",
         "button_text_color": "#14120f",
