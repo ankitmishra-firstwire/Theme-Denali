@@ -9,181 +9,76 @@
  */
 {
   "sections": {
-    "scroll_morph_hero_3prAnb": {
-      "type": "scroll-morph-hero",
+    "parallex_strip_slider_L334YC": {
+      "type": "parallex-strip-slider",
       "blocks": {
-        "card_mcdDXa": {
-          "type": "card",
+        "slide_XiD7hG": {
+          "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/breakfast-from-above.jpg",
+            "title": "Fire",
+            "chapter": "Collection 01",
             "link": "",
-            "back_label": "View",
-            "back_title": "Details"
+            "link_label": "Shop now",
+            "alt": ""
           }
         },
-        "card_zx7bQG": {
-          "type": "card",
+        "slide_CEfzyA": {
+          "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/breakfast-from-above.jpg",
+            "title": "Allure",
+            "chapter": "Collection 02",
             "link": "",
-            "back_label": "View",
-            "back_title": "Details"
+            "link_label": "Shop now",
+            "alt": ""
           }
         },
-        "card_xWJkTE": {
-          "type": "card",
+        "slide_WyUK3D": {
+          "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/cutting-board-with-veg.jpg",
+            "title": "Ember",
+            "chapter": "Collection 03",
             "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_ac7fPU": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_tP9agM": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_kmKpwJ": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_DAfBaR": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_eRWcww": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_LbTzhk": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_B4zmHp": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_wWmncB": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_VQJ68U": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_MeXiXx": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_NXitXJ": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_byUFzE": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
-          }
-        },
-        "card_mBWKyt": {
-          "type": "card",
-          "settings": {
-            "link": "",
-            "back_label": "View",
-            "back_title": "Details"
+            "link_label": "Shop now",
+            "alt": ""
           }
         }
       },
       "block_order": [
-        "card_mcdDXa",
-        "card_zx7bQG",
-        "card_xWJkTE",
-        "card_ac7fPU",
-        "card_tP9agM",
-        "card_kmKpwJ",
-        "card_DAfBaR",
-        "card_eRWcww",
-        "card_LbTzhk",
-        "card_B4zmHp",
-        "card_wWmncB",
-        "card_VQJ68U",
-        "card_MeXiXx",
-        "card_NXitXJ",
-        "card_byUFzE",
-        "card_mBWKyt"
+        "slide_XiD7hG",
+        "slide_CEfzyA",
+        "slide_WyUK3D"
       ],
-      "name": "Scroll morph hero",
+      "name": "Parallax strip slider",
       "settings": {
-        "intro_heading": "Section build by Legend",
-        "intro_subtext": "SCROLL TO EXPLORE",
-        "arc_heading": "Explore Our Vision",
-        "arc_text": "<p>Discover a world where technology meets creativity. Scroll through our curated collection of innovations designed to shape the future.</p>",
-        "full_screen": false,
-        "height_desktop": 800,
-        "height_mobile": 640,
-        "card_width": 80,
-        "border_radius": 6,
-        "scroll_length": 3000,
-        "release_scroll": true,
-        "enable_parallax": true,
-        "color_bg": "#fafafa",
-        "color_intro_heading": "#1f2937",
-        "color_intro_sub": "#6b7280",
-        "color_arc_heading": "#111827",
-        "color_arc_text": "#4b5563",
-        "color_back_bg": "#111827",
-        "color_back_border": "#374151",
-        "color_back_label": "#60a5fa",
-        "color_back_title": "#ffffff",
+        "label": "Featured collections",
+        "full_width": true,
+        "height_desktop": 90,
+        "height_mobile": 80,
+        "corner_radius": 0,
         "padding_top": 0,
-        "padding_bottom": 0
+        "padding_bottom": 0,
+        "strip_count": 10,
+        "reveal_duration": 500,
+        "strip_stagger": 40,
+        "zoom_from": 120,
+        "zoom_duration": 900,
+        "autoplay": false,
+        "autoplay_interval": 5,
+        "show_progress": true,
+        "show_chapter": true,
+        "show_counter": true,
+        "show_cursor": true,
+        "title_font": "instrument",
+        "title_size_desktop": 96,
+        "title_size_mobile": 60,
+        "color_accent": "#ffffff",
+        "color_cursor_icon": "#000000",
+        "color_background": "#000000",
+        "color_overlay": "#000000",
+        "overlay_opacity": 35
       }
     },
     "clothing_rail_rule_npfJ73": {
@@ -451,6 +346,183 @@
         "max_width": 1400,
         "padding_top": 40,
         "padding_bottom": 40
+      }
+    },
+    "scroll_morph_hero_3prAnb": {
+      "type": "scroll-morph-hero",
+      "blocks": {
+        "card_mcdDXa": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_zx7bQG": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_xWJkTE": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_ac7fPU": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_tP9agM": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_kmKpwJ": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_DAfBaR": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_eRWcww": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_LbTzhk": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_B4zmHp": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_wWmncB": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_VQJ68U": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_MeXiXx": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_NXitXJ": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_byUFzE": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_mBWKyt": {
+          "type": "card",
+          "settings": {
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        }
+      },
+      "block_order": [
+        "card_mcdDXa",
+        "card_zx7bQG",
+        "card_xWJkTE",
+        "card_ac7fPU",
+        "card_tP9agM",
+        "card_kmKpwJ",
+        "card_DAfBaR",
+        "card_eRWcww",
+        "card_LbTzhk",
+        "card_B4zmHp",
+        "card_wWmncB",
+        "card_VQJ68U",
+        "card_MeXiXx",
+        "card_NXitXJ",
+        "card_byUFzE",
+        "card_mBWKyt"
+      ],
+      "name": "Scroll morph hero",
+      "settings": {
+        "intro_heading": "Section build by Legend",
+        "intro_subtext": "SCROLL TO EXPLORE",
+        "arc_heading": "Explore Our Vision",
+        "arc_text": "<p>Discover a world where technology meets creativity. Scroll through our curated collection of innovations designed to shape the future.</p>",
+        "full_screen": false,
+        "height_desktop": 800,
+        "height_mobile": 640,
+        "card_width": 80,
+        "border_radius": 6,
+        "scroll_length": 3000,
+        "release_scroll": true,
+        "enable_parallax": true,
+        "color_bg": "#fafafa",
+        "color_intro_heading": "#1f2937",
+        "color_intro_sub": "#6b7280",
+        "color_arc_heading": "#111827",
+        "color_arc_text": "#4b5563",
+        "color_back_bg": "#111827",
+        "color_back_border": "#374151",
+        "color_back_label": "#60a5fa",
+        "color_back_title": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 0
       }
     },
     "grid_features_card_gY4nYg": {
@@ -1128,9 +1200,10 @@
     }
   },
   "order": [
-    "scroll_morph_hero_3prAnb",
+    "parallex_strip_slider_L334YC",
     "clothing_rail_rule_npfJ73",
     "ferris_wheel_gallery_DfdeLM",
+    "scroll_morph_hero_3prAnb",
     "grid_features_card_gY4nYg",
     "testimonial_autoscroll_iJ4ch6",
     "slideshow",
