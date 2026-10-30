@@ -540,7 +540,7 @@
         "height_mobile": 640,
         "card_width": 80,
         "border_radius": 6,
-        "scroll_length": 3000,
+        "scroll_length": 1000,
         "release_scroll": true,
         "enable_parallax": true,
         "color_bg": "#fafafa",
