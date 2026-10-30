@@ -1313,25 +1313,19 @@
         "item_YKMgie": {
           "type": "item",
           "settings": {
-            "title": "Knitwear",
-            "tag": "Bestseller",
-            "link": ""
+            "title": "Jackets",
+            "tag": "Jackets",
+            "image": "shopify://shop_images/mens-deep-navy-full-zip-hoodie.png",
+            "link": "shopify://collections/jackets"
           }
         },
         "item_9E3kcK": {
           "type": "item",
           "settings": {
-            "title": "Tailoring",
-            "tag": "New",
-            "link": ""
-          }
-        },
-        "item_DqLCNL": {
-          "type": "item",
-          "settings": {
-            "title": "Accessories",
-            "tag": "Gifts",
-            "link": ""
+            "title": "Hoodie",
+            "tag": "Hoodie",
+            "image": "shopify://shop_images/washed-charcoal-pullover-hoodie.png",
+            "link": "shopify://collections/hoodies-sweatshirts"
           }
         }
       },
@@ -1339,8 +1333,7 @@
         "item_taLjM8",
         "item_thbDGn",
         "item_YKMgie",
-        "item_9E3kcK",
-        "item_DqLCNL"
+        "item_9E3kcK"
       ],
       "name": "Fashion hover reveal",
       "settings": {
