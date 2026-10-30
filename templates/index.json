@@ -1304,9 +1304,10 @@
         "item_thbDGn": {
           "type": "item",
           "settings": {
-            "title": "Outerwear",
-            "tag": "24 pieces",
-            "link": ""
+            "title": "T-Shirts",
+            "tag": "T-Shirts",
+            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt.png",
+            "link": "shopify://collections/t-shirts"
           }
         },
         "item_YKMgie": {
