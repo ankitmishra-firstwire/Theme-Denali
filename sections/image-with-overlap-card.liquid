@@ -1,0 +1,940 @@
+{%- comment -%}
+  Image with Overlapping Card — single-file Shopify OS 2.0 section
+  Markup, scoped CSS and vanilla JS are all in this file.
+  Large image on one side (left or right) with a content card that overlaps its edge.
+{%- endcomment -%}
+
+{%- liquid
+  assign s = section.settings
+  assign sid = 'IFC-' | append: section.id
+  assign text_width = 100 | minus: s.image_width
+  assign line_height = s.body_line_height | divided_by: 10.0
+  assign overlay = s.overlay_opacity | divided_by: 100.0
+
+  assign img = s.image
+  assign focal = 'center'
+  if s.image_focus == 'default'
+    if img.presentation.focal_point != blank
+      assign focal = img.presentation.focal_point
+    endif
+  else
+    assign focal = s.image_focus
+  endif
+
+  capture img_sizes
+    echo '(min-width: 750px) '
+    echo s.image_width
+    echo 'vw, 100vw'
+  endcapture
+
+  assign img_loading = 'lazy'
+  if section.index != nil and section.index <= 2
+    assign img_loading = 'eager'
+  endif
+
+  case s.text_alignment
+    when 'center'
+      assign accent_margin = '0 auto'
+    when 'right'
+      assign accent_margin = '0 0 0 auto'
+    else
+      assign accent_margin = '0'
+  endcase
+-%}
+
+{%- if s.use_custom_font -%}
+  {%- style -%}
+    {{ s.heading_font | font_face: font_display: 'swap' }}
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  #{{ sid }} {
+    --ifc-img-w: {{ s.image_width }}%;
+    --ifc-text-w: {{ text_width }}%;
+    --ifc-h: {{ s.image_height_desktop }}px;
+    --ifc-h-mobile: {{ s.image_height_mobile }}px;
+    --ifc-overlap: {{ s.card_overlap }}px;
+    --ifc-edge: {{ s.edge_space }}px;
+    --ifc-card-w: {{ s.card_width }}px;
+    --ifc-card-pad: {{ s.card_padding }}px;
+    --ifc-card-pad-mobile: {{ s.card_padding_mobile }}px;
+    --ifc-card-radius: {{ s.card_radius }}px;
+    --ifc-card-space: {{ s.card_vertical_space }}px;
+    --ifc-img-radius: {{ s.image_radius }}px;
+    --ifc-mobile-overlap: {{ s.mobile_overlap }}px;
+    --ifc-mobile-side: {{ s.mobile_side_space }}px;
+
+    display: block;
+    position: relative;
+    background: {{ s.background }};
+    padding-top: {{ s.padding_top }}px;
+    padding-bottom: {{ s.padding_bottom }}px;
+    overflow: hidden;
+  }
+
+  #{{ sid }} *,
+  #{{ sid }} *::before,
+  #{{ sid }} *::after { box-sizing: border-box; }
+
+  #{{ sid }} .ifc__wrap {
+    width: 100%;
+    {%- unless s.full_width %}
+    max-width: var(--page-width, 1200px);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+    {%- endunless %}
+  }
+
+  /* ---------- Layout ---------- */
+  #{{ sid }} .ifc__layout {
+    display: grid;
+    align-items: stretch;
+    {%- if s.image_position == 'left' %}
+    grid-template-columns: minmax(0, var(--ifc-img-w)) minmax(0, 1fr);
+    grid-template-areas: "media text";
+    {%- else %}
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--ifc-img-w));
+    grid-template-areas: "text media";
+    {%- endif %}
+  }
+
+  /* ---------- Image ---------- */
+  #{{ sid }} .ifc__media {
+    grid-area: media;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--ifc-img-radius);
+    background: rgba(127, 127, 127, 0.12);
+    {%- if s.image_height == 'adapt' and img != blank %}
+    aspect-ratio: {{ img.aspect_ratio }};
+    {%- else %}
+    min-height: var(--ifc-h);
+    {%- endif %}
+  }
+
+  #{{ sid }} .ifc__img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ focal }};
+  }
+
+  #{{ sid }} .ifc__placeholder {
+    fill: rgba(127, 127, 127, 0.45);
+  }
+
+  #{{ sid }} .ifc__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: {{ s.overlay_color }};
+    opacity: {{ overlay }};
+  }
+
+  /* ---------- Card column ---------- */
+  #{{ sid }} .ifc__text {
+    grid-area: text;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: {{ s.card_vertical }};
+    padding-block: var(--ifc-card-space);
+    {%- if s.image_position == 'left' %}
+    justify-content: flex-start;
+    padding-inline-end: var(--ifc-edge);
+    {%- else %}
+    justify-content: flex-end;
+    padding-inline-start: var(--ifc-edge);
+    {%- endif %}
+  }
+
+  #{{ sid }} .ifc__card {
+    flex: none;
+    width: min(var(--ifc-card-w), calc(100% + var(--ifc-overlap)));
+    padding: var(--ifc-card-pad);
+    background: {{ s.card_bg }};
+    border-radius: var(--ifc-card-radius);
+    text-align: {{ s.text_alignment }};
+    color: {{ s.body_color }};
+    {%- if s.image_position == 'left' %}
+    margin-inline-start: calc(var(--ifc-overlap) * -1);
+    {%- else %}
+    margin-inline-end: calc(var(--ifc-overlap) * -1);
+    {%- endif %}
+    {%- if s.card_border %}
+    border: 1px solid {{ s.card_border_color }};
+    {%- endif %}
+    {%- if s.card_shadow %}
+    box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.28), 0 6px 16px -10px rgba(0, 0, 0, 0.12);
+    {%- endif %}
+  }
+
+  /* ---------- Text ---------- */
+  #{{ sid }} .ifc__eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: {{ s.eyebrow_color }};
+  }
+
+  #{{ sid }} .ifc__heading {
+    margin: 0;
+    font-size: {{ s.heading_size }}px;
+    font-weight: {{ s.heading_weight }};
+    line-height: 1.25;
+    color: {{ s.heading_color }};
+    {%- if s.use_custom_font %}
+    font-family: {{ s.heading_font.family }}, {{ s.heading_font.fallback_families }};
+    font-style: {{ s.heading_font.style }};
+    {%- endif %}
+  }
+
+  #{{ sid }} .ifc__accent {
+    display: block;
+    width: {{ s.accent_width }}px;
+    height: {{ s.accent_thickness }}px;
+    margin: {{ accent_margin }};
+    margin-top: {{ s.accent_spacing }}px;
+    background: {{ s.accent_color }};
+    border-radius: 2px;
+  }
+
+  #{{ sid }} .ifc__body {
+    margin-top: {{ s.accent_spacing }}px;
+    font-size: {{ s.body_size }}px;
+    line-height: {{ line_height }};
+    color: {{ s.body_color }};
+  }
+
+  #{{ sid }} .ifc__body > *:first-child { margin-top: 0; }
+  #{{ sid }} .ifc__body > *:last-child { margin-bottom: 0; }
+  #{{ sid }} .ifc__body p { margin: 0 0 0.9em; }
+  #{{ sid }} .ifc__body a { color: inherit; text-underline-offset: 3px; }
+
+  /* ---------- Button ---------- */
+  #{{ sid }} .ifc__actions { margin-top: 1.75rem; }
+
+  #{{ sid }} .ifc__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    border-radius: {{ s.button_radius }}px;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+    {%- case s.button_style -%}
+      {%- when 'outline' %}
+    padding: 0.95em 1.8em;
+    color: {{ s.button_bg }};
+    background: transparent;
+    border: 1.5px solid {{ s.button_bg }};
+      {%- when 'text' %}
+    padding: 0.4em 0;
+    color: {{ s.button_bg }};
+    background: transparent;
+    border-bottom: 1.5px solid currentColor;
+    border-radius: 0;
+      {%- else %}
+    padding: 0.95em 1.8em;
+    color: {{ s.button_text_color }};
+    background: {{ s.button_bg }};
+    border: 1.5px solid {{ s.button_bg }};
+    {%- endcase %}
+  }
+
+  #{{ sid }} .ifc__btn:hover { transform: translateY(-1px); }
+  {%- if s.button_style == 'outline' %}
+  #{{ sid }} .ifc__btn:hover { background: {{ s.button_bg }}; color: {{ s.button_text_color }}; }
+  {%- endif %}
+
+  #{{ sid }} .ifc__btn:focus-visible {
+    outline: 2px solid {{ s.heading_color }};
+    outline-offset: 3px;
+  }
+
+  /* ---------- Reveal animation ---------- */
+  {%- if s.animate %}
+  #{{ sid }}.ifc--animate .ifc__card {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s, transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s;
+  }
+  #{{ sid }}.ifc--animate .ifc__img {
+    transform: scale(1.06);
+    transition: transform 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  #{{ sid }}.ifc--animate.is-visible .ifc__card { opacity: 1; transform: none; }
+  #{{ sid }}.ifc--animate.is-visible .ifc__img { transform: none; }
+  {%- endif %}
+
+  /* ---------- Tablet ---------- */
+  @media screen and (max-width: 989px) {
+    #{{ sid }} {
+      --ifc-card-pad: max(var(--ifc-card-pad-mobile), calc(var(--ifc-card-pad) * 0.7));
+      --ifc-h: calc({{ s.image_height_desktop }}px * 0.85);
+    }
+    #{{ sid }} .ifc__heading { font-size: {{ s.heading_size | times: 0.9 | round }}px; }
+  }
+
+  /* ---------- Mobile: image first, card overlaps from below ---------- */
+  @media screen and (max-width: 749px) {
+    #{{ sid }} .ifc__wrap { padding-inline: 0; }
+
+    /* Image always first, text always below it */
+    #{{ sid }} .ifc__layout {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        "media"
+        "text";
+    }
+
+    #{{ sid }} .ifc__media {
+      order: 1;
+      aspect-ratio: auto;
+      min-height: var(--ifc-h-mobile);
+      height: var(--ifc-h-mobile);
+    }
+
+    #{{ sid }} .ifc__text {
+      order: 2;
+      justify-content: center;
+      {%- if s.mobile_layout == 'overlap' %}
+      padding: 0 var(--ifc-mobile-side) var(--ifc-mobile-side);
+      margin-top: calc(var(--ifc-mobile-overlap) * -1);
+      {%- else %}
+      padding: var(--ifc-mobile-side);
+      margin-top: 0;
+      {%- endif %}
+    }
+
+    #{{ sid }} .ifc__card {
+      width: 100%;
+      margin: 0;
+      padding: var(--ifc-card-pad-mobile);
+    }
+
+    #{{ sid }} .ifc__heading { font-size: {{ s.heading_size | times: 0.85 | round }}px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #{{ sid }} .ifc__card,
+    #{{ sid }} .ifc__img,
+    #{{ sid }} .ifc__btn {
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+{%- endstyle -%}
+
+<image-feature-card
+  id="{{ sid }}"
+  class="ifc{% if s.animate %} ifc--animate{% endif %}"
+>
+  <div class="ifc__wrap">
+    <div class="ifc__layout">
+      <div class="ifc__media">
+        {%- if img != blank -%}
+          {%- assign img_alt = img.alt | default: s.heading | escape -%}
+          {{
+            img
+            | image_url: width: 2400
+            | image_tag:
+              widths: '480, 750, 1000, 1300, 1600, 2000, 2400',
+              sizes: img_sizes,
+              loading: img_loading,
+              alt: img_alt,
+              class: 'ifc__img'
+          }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'ifc__img ifc__placeholder' }}
+        {%- endif -%}
+        {%- if s.overlay_opacity > 0 -%}
+          <span class="ifc__overlay" aria-hidden="true"></span>
+        {%- endif -%}
+      </div>
+
+      <div class="ifc__text">
+        <div class="ifc__card">
+          {%- if s.eyebrow != blank -%}
+            <p class="ifc__eyebrow">{{ s.eyebrow | escape }}</p>
+          {%- endif -%}
+
+          {%- if s.heading != blank -%}
+            <{{ s.heading_tag }} class="ifc__heading">{{ s.heading | escape }}</{{ s.heading_tag }}>
+          {%- endif -%}
+
+          {%- if s.show_accent -%}
+            <span class="ifc__accent" aria-hidden="true"></span>
+          {%- endif -%}
+
+          {%- if s.body != blank -%}
+            <div class="ifc__body">{{ s.body }}</div>
+          {%- endif -%}
+
+          {%- if s.button_label != blank -%}
+            <div class="ifc__actions">
+              <a
+                class="ifc__btn"
+                {% if s.button_link != blank %}href="{{ s.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}
+              >
+                {{- s.button_label | escape -}}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</image-feature-card>
+
+<script>
+  (function () {
+    if (window.customElements.get('image-feature-card')) return;
+
+    class ImageFeatureCard extends HTMLElement {
+      connectedCallback() {
+        if (!this.classList.contains('ifc--animate')) return;
+
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const inEditor = window.Shopify && window.Shopify.designMode;
+        if (reduce || inEditor || !('IntersectionObserver' in window)) {
+          this.classList.add('is-visible');
+          return;
+        }
+
+        this.observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                this.classList.add('is-visible');
+                this.observer.disconnect();
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+        this.observer.observe(this);
+      }
+
+      disconnectedCallback() {
+        if (this.observer) this.observer.disconnect();
+      }
+    }
+
+    window.customElements.define('image-feature-card', ImageFeatureCard);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Image with overlap card",
+  "tag": "section",
+  "class": "section-image-overlap-card",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    { "type": "header", "content": "Image" },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        { "value": "right", "label": "Right" },
+        { "value": "left", "label": "Left" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Image width",
+      "min": 40,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "default": 64
+    },
+    {
+      "type": "select",
+      "id": "image_height",
+      "label": "Image height",
+      "options": [
+        { "value": "custom", "label": "Custom height" },
+        { "value": "adapt", "label": "Adapt to image" }
+      ],
+      "default": "custom"
+    },
+    {
+      "type": "range",
+      "id": "image_height_desktop",
+      "label": "Custom height (desktop)",
+      "min": 300,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "default": 580
+    },
+    {
+      "type": "range",
+      "id": "image_height_mobile",
+      "label": "Image height (mobile)",
+      "min": 200,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 320
+    },
+    {
+      "type": "select",
+      "id": "image_focus",
+      "label": "Image focus",
+      "info": "\"Image focal point\" uses the point set when editing the image in Shopify Files.",
+      "options": [
+        { "value": "default", "label": "Image focal point" },
+        { "value": "center", "label": "Center" },
+        { "value": "top", "label": "Top" },
+        { "value": "bottom", "label": "Bottom" },
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Image overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Image overlay opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 0
+    },
+
+    { "type": "header", "content": "Content" },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small text above heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Forged in Cali"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "info": "For SEO. Use h1 only if this is the page's main heading.",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Text",
+      "default": "<p>Born in a small, Southern California, blue-collar beach town, graced with world class point breaks and seaside racetracks, where ghosts of a once towering oil industry still linger.</p>"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+
+    { "type": "header", "content": "Accent line" },
+    {
+      "type": "checkbox",
+      "id": "show_accent",
+      "label": "Show accent line under heading",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#e0a23b"
+    },
+    {
+      "type": "range",
+      "id": "accent_width",
+      "label": "Line width",
+      "min": 10,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "accent_thickness",
+      "label": "Line thickness",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "accent_spacing",
+      "label": "Spacing around line",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+
+    { "type": "header", "content": "Card" },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "label": "Card width",
+      "min": 300,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 510
+    },
+    {
+      "type": "range",
+      "id": "card_overlap",
+      "label": "Overlap onto image",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "edge_space",
+      "label": "Space from outer edge",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 26
+    },
+    {
+      "type": "select",
+      "id": "card_vertical",
+      "label": "Card vertical position",
+      "options": [
+        { "value": "flex-start", "label": "Top" },
+        { "value": "center", "label": "Middle" },
+        { "value": "flex-end", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "card_vertical_space",
+      "label": "Space above/below card",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card padding (desktop)",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "card_padding_mobile",
+      "label": "Card padding (mobile)",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "checkbox",
+      "id": "card_shadow",
+      "label": "Card shadow",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "card_border",
+      "label": "Card border",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border color",
+      "default": "#e5e5e5"
+    },
+
+    { "type": "header", "content": "Typography" },
+    {
+      "type": "checkbox",
+      "id": "use_custom_font",
+      "label": "Use custom heading font",
+      "info": "Off uses your theme's heading font. Pick Poppins to match the reference design.",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 14,
+      "max": 56,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "Heading weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "label": "Text size",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "body_line_height",
+      "label": "Text line height",
+      "info": "Divided by 10 (19 = 1.9).",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 19
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Section background",
+      "default": "#f2f2f2"
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Small text color",
+      "default": "#e0a23b"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "body_color",
+      "label": "Text color",
+      "default": "#3a3a3a"
+    },
+
+    { "type": "header", "content": "Button" },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "info": "Leave empty to hide the button."
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "text", "label": "Text link" }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+
+    { "type": "header", "content": "Section" },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "animate",
+      "label": "Reveal animation on scroll",
+      "default": true
+    },
+
+    { "type": "header", "content": "Mobile" },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "stack", "label": "Image on top, text below" },
+        { "value": "overlap", "label": "Image on top, card overlaps image" }
+      ],
+      "default": "stack"
+    },
+    {
+      "type": "range",
+      "id": "mobile_overlap",
+      "label": "Card overlap onto image",
+      "info": "Only used with the \"card overlaps image\" layout.",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "mobile_side_space",
+      "label": "Card side spacing",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image with overlap card"
+    }
+  ]
+}
+{% endschema %}
