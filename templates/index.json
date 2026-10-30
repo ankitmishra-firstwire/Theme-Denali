@@ -1295,9 +1295,10 @@
         "item_taLjM8": {
           "type": "item",
           "settings": {
-            "title": "New Arrivals",
-            "tag": "SS26",
-            "link": ""
+            "title": "Dresses",
+            "tag": "dresses",
+            "image": "shopify://shop_images/womens-stone-beige-wrap-dress.png",
+            "link": "shopify://collections/dresses"
           }
         },
         "item_thbDGn": {
