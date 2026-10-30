@@ -3,6 +3,8 @@
   Full-bleed image slider. Each new slide is revealed through vertical strips
   that wipe in one after another while the image settles from a slight zoom.
   Click the left half to go back, the right half to go forward.
+  Text (label, title, description, buttons) can be placed in 9 positions,
+  separately for desktop and mobile, with a per-slide override.
   No external libraries: the animation uses the browser's Web Animations API.
 {%- endcomment -%}
 
@@ -13,7 +15,16 @@
   if total > 0
     assign progress_start = 1.0 | divided_by: total
   endif
-  assign first_block = section.blocks.first
+  assign title_tag = section.settings.title_tag | default: 'h2'
+  assign chapter_corner = false
+  assign chapter_above = false
+  if section.settings.show_chapter
+    if section.settings.chapter_position == 'corner'
+      assign chapter_corner = true
+    else
+      assign chapter_above = true
+    endif
+  endif
 -%}
 
 {%- if section.settings.title_font == 'instrument' -%}
@@ -27,8 +38,14 @@
     --pss-accent: {{ section.settings.color_accent }};
     --pss-bg: {{ section.settings.color_background }};
     --pss-cursor-icon: {{ section.settings.color_cursor_icon }};
+    --pss-btn-bg: {{ section.settings.color_button_bg }};
+    --pss-btn-text: {{ section.settings.color_button_text }};
+    --pss-btn-radius: {{ section.settings.button_radius }}px;
     --pss-title-d: {{ section.settings.title_size_desktop }}px;
     --pss-title-m: {{ section.settings.title_size_mobile }}px;
+    --pss-desc: {{ section.settings.description_size }}px;
+    --pss-content-w-d: {{ section.settings.content_width_desktop }}%;
+    --pss-content-w-m: {{ section.settings.content_width_mobile }}%;
     --pss-radius: {{ section.settings.corner_radius }}px;
     {%- if section.settings.title_font == 'instrument' %}
       --pss-title-font: "Instrument Serif", Georgia, "Times New Roman", serif;
@@ -43,9 +60,13 @@
     height: {{ section.settings.height_desktop }}svh;
   }
   #StripSlider-{{ section.id }} .pss__shade {
-    background:
-      linear-gradient(to top, color-mix(in srgb, {{ section.settings.color_overlay }} {{ section.settings.overlay_opacity }}%, transparent) 0%, transparent 50%),
-      linear-gradient(to bottom, color-mix(in srgb, {{ section.settings.color_overlay }} {{ section.settings.overlay_opacity | times: 0.6 | round }}%, transparent) 0%, transparent 28%);
+    {%- if section.settings.overlay_style == 'full' %}
+      background: color-mix(in srgb, {{ section.settings.color_overlay }} {{ section.settings.overlay_opacity }}%, transparent);
+    {%- else %}
+      background:
+        linear-gradient(to top, color-mix(in srgb, {{ section.settings.color_overlay }} {{ section.settings.overlay_opacity }}%, transparent) 0%, transparent 55%),
+        linear-gradient(to bottom, color-mix(in srgb, {{ section.settings.color_overlay }} {{ section.settings.overlay_opacity | times: 0.7 | round }}%, transparent) 0%, transparent 35%);
+    {%- endif %}
   }
   @media (max-width: 749px) {
     #StripSlider-{{ section.id }} {
@@ -60,13 +81,19 @@
 {%- endstyle -%}
 
 <style>
-  strip-slider.pss { display: block; color: var(--pss-accent); }
+  strip-slider.pss {
+    --pss-pad: 24px;
+    --pss-safe-top: 80px;
+    display: block; color: var(--pss-accent);
+  }
+  @media (min-width: 750px) { strip-slider.pss { --pss-pad: 40px; --pss-safe-top: 96px; } }
   .pss *, .pss *::before, .pss *::after { box-sizing: border-box; }
   .pss__container--boxed { max-width: 1400px; margin-inline: auto; padding-inline: 20px; }
   @media (min-width: 750px) { .pss__container--boxed { padding-inline: 40px; } }
 
   .pss__frame {
     position: relative; min-height: 420px; overflow: hidden; isolation: isolate;
+    container-type: inline-size;
     background: var(--pss-bg); border-radius: var(--pss-radius);
     touch-action: pan-y; user-select: none; -webkit-user-select: none;
   }
@@ -107,38 +134,24 @@
   /* Overlay UI */
   .pss__ui { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
   .pss__progress {
-    position: absolute; left: 24px; right: 24px; top: 24px; height: 1px;
+    position: absolute; left: var(--pss-pad); right: var(--pss-pad); top: 24px; height: 1px;
     background: color-mix(in srgb, var(--pss-accent) 20%, transparent);
   }
+  @media (min-width: 750px) { .pss__progress { top: 32px; } }
   .pss__progress-fill {
     width: 100%; height: 100%; background: var(--pss-accent); transform-origin: 0 50%;
     transform: scaleX(var(--pss-progress, 0));
     transition: transform 900ms cubic-bezier(0.645, 0.045, 0.355, 1);
   }
-  .pss__top { position: absolute; left: 0; right: 0; top: 0; padding: 48px 24px 0; }
-  .pss__chapter { display: block; font-size: 12px; font-weight: 500; letter-spacing: .03em; line-height: 1.4; }
 
-  .pss__bottom {
-    position: absolute; left: 0; right: 0; bottom: 0;
-    display: flex; align-items: flex-end; gap: 24px; padding: 0 24px 40px;
+  /* Top row: corner label on the left, counter + pause on the right */
+  .pss__toprow {
+    position: absolute; left: var(--pss-pad); right: var(--pss-pad); top: 40px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 32px;
   }
-  .pss__title-col { min-width: 0; flex: 0 1 66%; }
-  .pss__title {
-    margin: 0; font-family: var(--pss-title-font); font-weight: 400; line-height: 1;
-    font-size: clamp(var(--pss-title-m), 9vw, var(--pss-title-d));
-    letter-spacing: 0; color: var(--pss-accent); overflow-wrap: break-word; text-wrap: balance;
-  }
-  .pss__word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; margin-bottom: -.08em; }
-  .pss__char { display: inline-block; will-change: transform; }
-  .pss__link {
-    display: inline-block; margin-top: 16px; pointer-events: auto;
-    font-size: 13px; letter-spacing: .02em; color: var(--pss-accent);
-    text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px;
-  }
-  .pss__link[hidden] { display: none; }
-  .pss__link:focus-visible { outline: 2px solid var(--pss-accent); outline-offset: 4px; }
-
-  .pss__meta { margin-left: auto; display: flex; align-items: center; gap: 14px; padding-block: 20px; flex-shrink: 0; }
+  @media (min-width: 750px) { .pss__toprow { top: 52px; } }
+  .pss__chapter { min-width: 0; font-size: 12px; font-weight: 500; letter-spacing: .03em; line-height: 1.4; }
+  .pss__meta { margin-left: auto; display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
   .pss__counter {
     display: flex; align-items: center; font-size: 12px; font-variant-numeric: tabular-nums;
     color: color-mix(in srgb, var(--pss-accent) 70%, transparent);
@@ -158,16 +171,91 @@
   .pss__pause[data-paused="true"] .pss__icon-pause,
   .pss__pause[data-paused="false"] .pss__icon-play { display: none; }
 
-  @media (min-width: 750px) {
-    .pss__progress { left: 40px; right: 40px; top: 32px; }
-    .pss__top { padding: 64px 40px 0; }
-    .pss__bottom { padding: 0 40px 40px; }
+  /* Content area: 9 positions, mobile values first, desktop overrides */
+  .pss__area {
+    --pss-ay: flex-end; --pss-ax: flex-start; --pss-ta: left;
+    position: absolute; left: var(--pss-pad); right: var(--pss-pad);
+    top: var(--pss-safe-top); bottom: var(--pss-pad);
+    display: flex; flex-direction: column; justify-content: var(--pss-ay); align-items: var(--pss-ax);
+    pointer-events: none;
   }
-  /* Touch devices and phones: counter above a full-width title. */
-  @media (max-width: 749px), (pointer: coarse) {
-    .pss__bottom { flex-direction: column; align-items: stretch; gap: 16px; }
-    .pss__title-col { flex-basis: auto; }
-    .pss__meta { order: -1; margin-left: 0; justify-content: flex-end; padding-block: 0; }
+  .pss__area[data-y-m="top"] { --pss-ay: flex-start; }
+  .pss__area[data-y-m="middle"] { --pss-ay: center; }
+  .pss__area[data-y-m="bottom"] { --pss-ay: flex-end; }
+  .pss__area[data-x-m="left"] { --pss-ax: flex-start; --pss-ta: left; }
+  .pss__area[data-x-m="center"] { --pss-ax: center; --pss-ta: center; }
+  .pss__area[data-x-m="right"] { --pss-ax: flex-end; --pss-ta: right; }
+  @media (min-width: 750px) {
+    .pss__area { bottom: 48px; }
+    .pss__area[data-y-d="top"] { --pss-ay: flex-start; }
+    .pss__area[data-y-d="middle"] { --pss-ay: center; }
+    .pss__area[data-y-d="bottom"] { --pss-ay: flex-end; }
+    .pss__area[data-x-d="left"] { --pss-ax: flex-start; --pss-ta: left; }
+    .pss__area[data-x-d="center"] { --pss-ax: center; --pss-ta: center; }
+    .pss__area[data-x-d="right"] { --pss-ax: flex-end; --pss-ta: right; }
+  }
+
+  .pss__content {
+    width: 100%; max-width: var(--pss-content-w-m); min-width: 0; max-height: 100%;
+    text-align: var(--pss-ta); overflow-wrap: break-word;
+  }
+  @media (min-width: 750px) { .pss__content { max-width: var(--pss-content-w-d); } }
+  .pss--shadow .pss__content { text-shadow: 0 1px 18px rgba(0, 0, 0, .35); }
+
+  .pss__eyebrow {
+    margin: 0 0 14px; font-size: 12px; font-weight: 500; letter-spacing: .03em; line-height: 1.4;
+  }
+  .pss__title {
+    margin: 0; font-family: var(--pss-title-font); font-weight: 400; line-height: 1;
+    letter-spacing: 0; color: var(--pss-accent); text-wrap: balance;
+    overflow-wrap: anywhere; hyphens: auto;
+    /* Shrinks with the slider width so long titles never overflow. */
+    font-size: min(var(--pss-title-m), 13cqi);
+  }
+  @media (min-width: 750px) {
+    .pss__title { font-size: clamp(min(var(--pss-title-m), 13cqi), 8cqi, var(--pss-title-d)); }
+  }
+  .pss__word { display: inline-block; max-width: 100%; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; margin-bottom: -.08em; }
+  .pss__char { display: inline-block; will-change: transform; }
+
+  .pss__desc {
+    margin-top: 16px; font-size: calc(var(--pss-desc) * .92); line-height: 1.55;
+    color: color-mix(in srgb, var(--pss-accent) 88%, transparent); text-wrap: pretty;
+  }
+  @media (min-width: 750px) { .pss__desc { margin-top: 20px; font-size: var(--pss-desc); } }
+  .pss__desc > * { margin: 0; }
+  .pss__desc > * + * { margin-top: .7em; }
+  .pss__desc a { color: inherit; pointer-events: auto; }
+  @media (max-width: 749px) { .pss--hide-desc-m .pss__desc { display: none; } }
+
+  .pss__buttons {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 24px;
+    justify-content: var(--pss-ax);
+  }
+  @media (min-width: 750px) { .pss__buttons { margin-top: 28px; } }
+  .pss__btn {
+    pointer-events: auto; position: relative;
+    display: inline-flex; align-items: center; justify-content: center; text-align: center;
+    min-height: 46px; padding: 12px 26px; max-width: 100%;
+    border: 1px solid transparent; border-radius: var(--pss-btn-radius);
+    font-family: inherit; font-size: 14px; font-weight: 500; line-height: 1.2; letter-spacing: .02em;
+    text-decoration: none; text-shadow: none; cursor: pointer;
+    transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+  }
+  .pss__btn:focus-visible { outline: 2px solid var(--pss-accent); outline-offset: 3px; }
+  .pss__btn--solid { background: var(--pss-btn-bg); color: var(--pss-btn-text); border-color: var(--pss-btn-bg); }
+  .pss__btn--solid:hover { opacity: .88; }
+  .pss__btn--outline { background: transparent; color: var(--pss-accent); border-color: color-mix(in srgb, var(--pss-accent) 70%, transparent); }
+  .pss__btn--outline:hover { background: var(--pss-accent); color: var(--pss-bg); border-color: var(--pss-accent); }
+  .pss__btn--link {
+    min-height: 0; padding: 4px 0; border: 0; border-radius: 0; background: transparent; color: var(--pss-accent);
+    text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px;
+  }
+  .pss__btn--link:hover { text-decoration-thickness: 2px; }
+  @media (max-width: 749px) {
+    .pss--btn-full-m .pss__buttons { flex-direction: column; align-items: stretch; }
+    .pss--btn-full-m .pss__btn:not(.pss__btn--link) { width: 100%; }
+    .pss--btn-full-m .pss__btn--link { align-self: var(--pss-ax); }
   }
 
   /* Follow cursor (mouse only) */
@@ -194,13 +282,13 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pss__progress-fill, .pss__cursor-dot, .pss__cursor svg { transition: none; }
+    .pss__progress-fill, .pss__cursor-dot, .pss__cursor svg, .pss__btn { transition: none; }
   }
 </style>
 
 <strip-slider
   id="StripSlider-{{ section.id }}"
-  class="pss"
+  class="pss{% if section.settings.text_shadow %} pss--shadow{% endif %}{% if section.settings.hide_description_mobile %} pss--hide-desc-m{% endif %}{% if section.settings.full_width_buttons_mobile %} pss--btn-full-m{% endif %}"
   data-opt-strips="{{ section.settings.strip_count }}"
   data-opt-reveal="{{ section.settings.reveal_duration }}"
   data-opt-stagger="{{ section.settings.strip_stagger }}"
@@ -236,16 +324,64 @@
               assign loading = 'eager'
             endif
             assign placeholder = forloop.index0 | modulo: 2 | plus: 1 | prepend: 'lifestyle-'
-            assign link_label = block.settings.link_label | default: 'Shop now'
+
+            assign pos_d = block.settings.position_desktop
+            if pos_d == blank or pos_d == 'default'
+              assign pos_d = section.settings.position_desktop
+            endif
+            assign pos_m = block.settings.position_mobile
+            if pos_m == blank or pos_m == 'default'
+              assign pos_m = section.settings.position_mobile
+            endif
+            assign pos_d_parts = pos_d | split: '-'
+            assign pos_m_parts = pos_m | split: '-'
           -%}
+
+          {%- capture slide_content -%}
+            {%- if chapter_above -%}
+              <p class="pss__eyebrow" data-pss-fade>{{ chapter | escape }}</p>
+            {%- endif -%}
+            {%- if block.settings.title != blank -%}
+              <{{ title_tag }} class="pss__title" data-pss-title>{{ block.settings.title | escape }}</{{ title_tag }}>
+            {%- endif -%}
+            {%- if block.settings.description != blank -%}
+              <div class="pss__desc" data-pss-fade>{{ block.settings.description }}</div>
+            {%- endif -%}
+            {%- assign has_btn_1 = false -%}
+            {%- assign has_btn_2 = false -%}
+            {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}{%- assign has_btn_1 = true -%}{%- endif -%}
+            {%- if block.settings.button_label_2 != blank and block.settings.button_link_2 != blank -%}{%- assign has_btn_2 = true -%}{%- endif -%}
+            {%- if has_btn_1 or has_btn_2 -%}
+              <div class="pss__buttons" data-pss-fade>
+                {%- if has_btn_1 -%}
+                  <a class="pss__btn pss__btn--{{ section.settings.button_style_primary }}" href="{{ block.settings.button_link }}">{{ block.settings.button_label | escape }}</a>
+                {%- endif -%}
+                {%- if has_btn_2 -%}
+                  <a class="pss__btn pss__btn--{{ section.settings.button_style_secondary }}" href="{{ block.settings.button_link_2 }}">{{ block.settings.button_label_2 | escape }}</a>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endcapture -%}
+
+          {%- if forloop.first -%}
+            {%- assign first_content = slide_content -%}
+            {%- assign first_chapter = chapter -%}
+            {%- assign first_y_d = pos_d_parts[0] -%}
+            {%- assign first_x_d = pos_d_parts[1] -%}
+            {%- assign first_y_m = pos_m_parts[0] -%}
+            {%- assign first_x_m = pos_m_parts[1] -%}
+          {%- endif -%}
+
           <div
             class="pss__slide"
             data-pss-slide
             data-index="{{ forloop.index0 }}"
             data-slide-title="{{ block.settings.title | escape }}"
             data-slide-chapter="{{ chapter | escape }}"
-            data-slide-link="{{ block.settings.link }}"
-            data-slide-link-label="{{ link_label | escape }}"
+            data-y-d="{{ pos_d_parts[0] }}"
+            data-x-d="{{ pos_d_parts[1] }}"
+            data-y-m="{{ pos_m_parts[0] }}"
+            data-x-m="{{ pos_m_parts[1] }}"
             aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
             {% if forloop.first %}data-active{% endif %}
             {{ block.shopify_attributes }}
@@ -271,6 +407,7 @@
                 {{ placeholder | placeholder_svg_tag: 'pss__placeholder' }}
               {%- endif -%}
             </div>
+            <template data-pss-tpl>{{ slide_content }}</template>
           </div>
         {%- endfor -%}
 
@@ -284,12 +421,6 @@
           </div>
         {%- endif -%}
 
-        {%- liquid
-          assign first_chapter = first_block.settings.chapter
-          if first_chapter == blank
-            assign first_chapter = 'Collection 01'
-          endif
-        -%}
         <div class="pss__ui">
           {%- if section.settings.show_progress -%}
             <div class="pss__progress" aria-hidden="true">
@@ -297,22 +428,10 @@
             </div>
           {%- endif -%}
 
-          {%- if section.settings.show_chapter -%}
-            <div class="pss__top" data-pss-top>
+          <div class="pss__toprow">
+            {%- if chapter_corner -%}
               <span class="pss__chapter" data-pss-chapter>{{ first_chapter | escape }}</span>
-            </div>
-          {%- endif -%}
-
-          <div class="pss__bottom">
-            <div class="pss__title-col" data-pss-title-col>
-              <h2 class="pss__title" data-pss-title>{{ first_block.settings.title | escape }}</h2>
-              <a
-                class="pss__link"
-                data-pss-link
-                href="{{ first_block.settings.link | default: '#' }}"
-                {% if first_block.settings.link == blank %}hidden{% endif %}
-              >{{ first_block.settings.link_label | default: 'Shop now' | escape }}</a>
-            </div>
+            {%- endif -%}
             <div class="pss__meta">
               {%- if section.settings.show_counter -%}
                 <span class="pss__counter" data-pss-counter aria-hidden="true">
@@ -327,6 +446,17 @@
                 </button>
               {%- endif -%}
             </div>
+          </div>
+
+          <div
+            class="pss__area"
+            data-pss-area
+            data-y-d="{{ first_y_d }}"
+            data-x-d="{{ first_x_d }}"
+            data-y-m="{{ first_y_m }}"
+            data-x-m="{{ first_x_m }}"
+          >
+            <div class="pss__content" data-pss-content>{{ first_content }}</div>
           </div>
         </div>
 
@@ -357,6 +487,7 @@
       return Number.isFinite(n) ? n : fallback;
     };
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const POSITION_KEYS = ['yD', 'xD', 'yM', 'xM'];
 
     class StripSlider extends HTMLElement {
       connectedCallback() {
@@ -369,11 +500,9 @@
         this.frameEl = this.querySelector('[data-pss-frame]');
         this.stripLayer = this.querySelector('[data-pss-strips]');
         this.progressEl = this.querySelector('[data-pss-progress]');
-        this.topEl = this.querySelector('[data-pss-top]');
         this.chapterEl = this.querySelector('[data-pss-chapter]');
-        this.titleCol = this.querySelector('[data-pss-title-col]');
-        this.titleEl = this.querySelector('[data-pss-title]');
-        this.linkEl = this.querySelector('[data-pss-link]');
+        this.areaEl = this.querySelector('[data-pss-area]');
+        this.contentEl = this.querySelector('[data-pss-content]');
         this.counterEl = this.querySelector('[data-pss-counter]');
         this.numEl = this.querySelector('[data-pss-num]');
         this.liveEl = this.querySelector('[data-pss-live]');
@@ -515,7 +644,7 @@
       }
 
       async mediaReady(index) {
-        const img = this.slides[index].querySelector('img');
+        const img = this.slides[index].querySelector('[data-pss-media] img');
         if (!img) return;
         if (img.loading === 'lazy') img.loading = 'eager';
         if (img.complete && img.naturalWidth > 0) return;
@@ -672,28 +801,21 @@
         if (this.progressEl) this.progressEl.style.setProperty('--pss-progress', String((index + 1) / this.total));
       }
 
+      // Swap in the slide's text block (label, title, description, buttons)
+      // and its position.
       setCaption(index) {
-        const data = this.slides[index].dataset;
+        const slide = this.slides[index];
+        const data = slide.dataset;
         this.captionToken += 1;
         if (this.chapterEl) this.chapterEl.textContent = data.slideChapter || '';
-        if (this.titleEl) {
-          this.titleEl.removeAttribute('aria-label');
-          this.titleEl.textContent = data.slideTitle || '';
-        }
-        if (this.linkEl) {
-          if (data.slideLink) {
-            this.linkEl.href = data.slideLink;
-            this.linkEl.textContent = data.slideLinkLabel || 'Shop now';
-            this.linkEl.hidden = false;
-          } else {
-            this.linkEl.hidden = true;
-          }
-        }
+        if (this.areaEl) POSITION_KEYS.forEach((key) => { if (data[key]) this.areaEl.dataset[key] = data[key]; });
+        const template = slide.querySelector('template[data-pss-tpl]');
+        if (this.contentEl && template) this.contentEl.replaceChildren(template.content.cloneNode(true));
         if (this.numEl) this.numEl.textContent = pad(index + 1);
       }
 
       captionOut() {
-        const targets = [this.topEl, this.titleCol, this.counterEl].filter(Boolean);
+        const targets = [this.chapterEl, this.contentEl, this.counterEl].filter(Boolean);
         this.outAnimations = targets.map((el) => el.animate(
           [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-2px)' }],
           { duration: 350, delay: 150, easing: EASE_IN_2, fill: 'forwards' }
@@ -706,27 +828,40 @@
         this.setCaption(index);
         const captionToken = this.captionToken;
 
-        if (this.titleEl) {
-          const text = this.titleEl.textContent;
-          const chars = this.splitChars(this.titleEl, text);
+        const titleEl = this.contentEl && this.contentEl.querySelector('[data-pss-title]');
+        let titleTime = 0;
+        if (titleEl) {
+          const text = titleEl.textContent;
+          const chars = this.splitChars(titleEl, text);
+          titleTime = Math.min(chars.length, 12) * 40;
           const charAnimations = chars.map((char, i) => char.animate(
             [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }],
-            { duration: 600, delay: i * 40, easing: EASE_OUT_2, fill: 'backwards' }
+            { duration: 600, delay: Math.min(i * 40, 800), easing: EASE_OUT_2, fill: 'backwards' }
           ));
           // Put the plain title text back once the letters have landed.
           Promise.all(charAnimations.map((a) => a.finished)).then(() => {
-            if (this.ready && captionToken === this.captionToken) {
-              this.titleEl.removeAttribute('aria-label');
-              this.titleEl.textContent = text;
+            if (this.ready && captionToken === this.captionToken && titleEl.isConnected) {
+              titleEl.removeAttribute('aria-label');
+              titleEl.textContent = text;
             }
           }).catch(() => {});
         }
 
+        // Label, description and buttons rise in just after the title starts.
+        if (this.contentEl) {
+          this.contentEl.querySelectorAll('[data-pss-fade]').forEach((el, i) => {
+            const isEyebrow = el.classList.contains('pss__eyebrow');
+            el.animate(
+              [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'translateY(0)' }],
+              { duration: 600, delay: isEyebrow ? 0 : 200 + titleTime / 2 + i * 90, easing: EASE_OUT_3, fill: 'backwards' }
+            );
+          });
+        }
+
         const fade = (el, duration) => {
-          if (el && !el.hidden) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: EASE_OUT_2, fill: 'backwards' });
+          if (el) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: EASE_OUT_2, fill: 'backwards' });
         };
-        fade(this.topEl, 500);
-        fade(this.linkEl, 500);
+        fade(this.chapterEl, 500);
         fade(this.counterEl, 450);
         if (this.numEl) {
           this.numEl.animate(
@@ -740,7 +875,7 @@
         el.textContent = '';
         el.setAttribute('aria-label', text);
         const chars = [];
-        const words = text.split(' ');
+        const words = text.split(' ').filter((word, i, all) => word !== '' || i === all.length - 1);
         words.forEach((word, wordIndex) => {
           const wordEl = document.createElement('span');
           wordEl.className = 'pss__word';
@@ -905,6 +1040,200 @@
     },
     {
       "type": "header",
+      "content": "Text position"
+    },
+    {
+      "type": "select",
+      "id": "position_desktop",
+      "label": "Position on desktop",
+      "options": [
+        { "value": "top-left", "label": "Top left" },
+        { "value": "top-center", "label": "Top center" },
+        { "value": "top-right", "label": "Top right" },
+        { "value": "middle-left", "label": "Middle left" },
+        { "value": "middle-center", "label": "Center" },
+        { "value": "middle-right", "label": "Middle right" },
+        { "value": "bottom-left", "label": "Bottom left" },
+        { "value": "bottom-center", "label": "Bottom center" },
+        { "value": "bottom-right", "label": "Bottom right" }
+      ],
+      "default": "bottom-left"
+    },
+    {
+      "type": "select",
+      "id": "position_mobile",
+      "label": "Position on mobile",
+      "options": [
+        { "value": "top-left", "label": "Top left" },
+        { "value": "top-center", "label": "Top center" },
+        { "value": "top-right", "label": "Top right" },
+        { "value": "middle-left", "label": "Middle left" },
+        { "value": "middle-center", "label": "Center" },
+        { "value": "middle-right", "label": "Middle right" },
+        { "value": "bottom-left", "label": "Bottom left" },
+        { "value": "bottom-center", "label": "Bottom center" },
+        { "value": "bottom-right", "label": "Bottom right" }
+      ],
+      "default": "bottom-left"
+    },
+    {
+      "type": "range",
+      "id": "content_width_desktop",
+      "label": "Text width on desktop",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "info": "Longer text wraps inside this width",
+      "default": 55
+    },
+    {
+      "type": "range",
+      "id": "content_width_mobile",
+      "label": "Text width on mobile",
+      "min": 60,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "checkbox",
+      "id": "text_shadow",
+      "label": "Soft shadow behind text",
+      "info": "Helps text stand out on busy images",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Title"
+    },
+    {
+      "type": "select",
+      "id": "title_font",
+      "label": "Title font",
+      "options": [
+        { "value": "instrument", "label": "Instrument Serif" },
+        { "value": "theme", "label": "Theme heading font" }
+      ],
+      "default": "instrument"
+    },
+    {
+      "type": "select",
+      "id": "title_tag",
+      "label": "Title heading level",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" }
+      ],
+      "default": "h2",
+      "info": "Use H1 only when this slider is the first section on the page"
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "label": "Title size on desktop",
+      "min": 40,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Title size on mobile",
+      "min": 32,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "info": "Long titles shrink automatically to fit",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Collection label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_chapter",
+      "label": "Show collection label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "chapter_position",
+      "label": "Label position",
+      "options": [
+        { "value": "corner", "label": "Top left corner" },
+        { "value": "above", "label": "Above the title" }
+      ],
+      "default": "corner"
+    },
+    {
+      "type": "header",
+      "content": "Description"
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_description_mobile",
+      "label": "Hide description on mobile",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "select",
+      "id": "button_style_primary",
+      "label": "First button style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "link", "label": "Underlined link" }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "select",
+      "id": "button_style_secondary",
+      "label": "Second button style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "link", "label": "Underlined link" }
+      ],
+      "default": "link"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width_buttons_mobile",
+      "label": "Full-width buttons on mobile",
+      "default": false
+    },
+    {
+      "type": "header",
       "content": "Strip reveal"
     },
     {
@@ -980,18 +1309,12 @@
     },
     {
       "type": "header",
-      "content": "Display"
+      "content": "Slider controls"
     },
     {
       "type": "checkbox",
       "id": "show_progress",
       "label": "Show progress bar",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_chapter",
-      "label": "Show collection label",
       "default": true
     },
     {
@@ -1006,40 +1329,6 @@
       "label": "Show arrow cursor",
       "info": "A circle with an arrow follows the mouse. Desktop only.",
       "default": true
-    },
-    {
-      "type": "header",
-      "content": "Title"
-    },
-    {
-      "type": "select",
-      "id": "title_font",
-      "label": "Title font",
-      "options": [
-        { "value": "instrument", "label": "Instrument Serif" },
-        { "value": "theme", "label": "Theme heading font" }
-      ],
-      "default": "instrument"
-    },
-    {
-      "type": "range",
-      "id": "title_size_desktop",
-      "label": "Title size on desktop",
-      "min": 40,
-      "max": 160,
-      "step": 4,
-      "unit": "px",
-      "default": 96
-    },
-    {
-      "type": "range",
-      "id": "title_size_mobile",
-      "label": "Title size on mobile",
-      "min": 32,
-      "max": 96,
-      "step": 4,
-      "unit": "px",
-      "default": 60
     },
     {
       "type": "header",
@@ -1059,6 +1348,18 @@
     },
     {
       "type": "color",
+      "id": "color_button_bg",
+      "label": "Solid button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "color_button_text",
+      "label": "Solid button text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
       "id": "color_background",
       "label": "Background behind images",
       "default": "#000000"
@@ -1070,14 +1371,24 @@
       "default": "#000000"
     },
     {
+      "type": "select",
+      "id": "overlay_style",
+      "label": "Shade style",
+      "options": [
+        { "value": "edges", "label": "Top and bottom edges" },
+        { "value": "full", "label": "Whole image" }
+      ],
+      "default": "edges",
+      "info": "Use Whole image when text sits in the middle"
+    },
+    {
       "type": "range",
       "id": "overlay_opacity",
-      "label": "Image shade strength",
+      "label": "Shade strength",
       "min": 0,
       "max": 80,
       "step": 5,
       "unit": "%",
-      "info": "Darkens the top and bottom edges so text stays readable",
       "default": 35
     }
   ],
@@ -1100,9 +1411,13 @@
         },
         {
           "type": "text",
-          "id": "title",
-          "label": "Title",
-          "default": "Fire"
+          "id": "alt",
+          "label": "Image description",
+          "info": "For screen readers. Leave empty to use the image's alt text from Files."
+        },
+        {
+          "type": "header",
+          "content": "Text"
         },
         {
           "type": "text",
@@ -1111,21 +1426,80 @@
           "info": "Leave empty to show “Collection 01”, “Collection 02” and so on"
         },
         {
-          "type": "url",
-          "id": "link",
-          "label": "Link"
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Fire"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
         },
         {
           "type": "text",
-          "id": "link_label",
-          "label": "Link text",
+          "id": "button_label",
+          "label": "First button label",
           "default": "Shop now"
         },
         {
+          "type": "url",
+          "id": "button_link",
+          "label": "First button link"
+        },
+        {
           "type": "text",
-          "id": "alt",
-          "label": "Image description",
-          "info": "For screen readers. Leave empty to use the image's alt text from Files."
+          "id": "button_label_2",
+          "label": "Second button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "Second button link"
+        },
+        {
+          "type": "header",
+          "content": "Text position for this slide"
+        },
+        {
+          "type": "select",
+          "id": "position_desktop",
+          "label": "Position on desktop",
+          "options": [
+            { "value": "default", "label": "Use section setting" },
+            { "value": "top-left", "label": "Top left" },
+            { "value": "top-center", "label": "Top center" },
+            { "value": "top-right", "label": "Top right" },
+            { "value": "middle-left", "label": "Middle left" },
+            { "value": "middle-center", "label": "Center" },
+            { "value": "middle-right", "label": "Middle right" },
+            { "value": "bottom-left", "label": "Bottom left" },
+            { "value": "bottom-center", "label": "Bottom center" },
+            { "value": "bottom-right", "label": "Bottom right" }
+          ],
+          "default": "default"
+        },
+        {
+          "type": "select",
+          "id": "position_mobile",
+          "label": "Position on mobile",
+          "options": [
+            { "value": "default", "label": "Use section setting" },
+            { "value": "top-left", "label": "Top left" },
+            { "value": "top-center", "label": "Top center" },
+            { "value": "top-right", "label": "Top right" },
+            { "value": "middle-left", "label": "Middle left" },
+            { "value": "middle-center", "label": "Center" },
+            { "value": "middle-right", "label": "Middle right" },
+            { "value": "bottom-left", "label": "Bottom left" },
+            { "value": "bottom-center", "label": "Bottom center" },
+            { "value": "bottom-right", "label": "Bottom right" }
+          ],
+          "default": "default"
         }
       ]
     }
@@ -1134,9 +1508,9 @@
     {
       "name": "Parallax strip slider",
       "blocks": [
-        { "type": "slide", "settings": { "title": "Fire", "chapter": "Collection 01" } },
-        { "type": "slide", "settings": { "title": "Allure", "chapter": "Collection 02" } },
-        { "type": "slide", "settings": { "title": "Ember", "chapter": "Collection 03" } }
+        { "type": "slide", "settings": { "title": "Fire", "chapter": "Collection 01", "description": "<p>Warm tones and bold silhouettes for the season ahead.</p>" } },
+        { "type": "slide", "settings": { "title": "Allure", "chapter": "Collection 02", "description": "<p>Quiet pieces with a confident edge.</p>" } },
+        { "type": "slide", "settings": { "title": "Ember", "chapter": "Collection 03", "description": "<p>Layered textures that glow after dark.</p>" } }
       ]
     }
   ]
