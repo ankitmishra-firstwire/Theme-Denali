@@ -1,0 +1,998 @@
+{%- comment -%}
+  Ferris wheel gallery
+  A rotating wheel of image "gondolas" that stay upright while the wheel turns,
+  with a large detail panel for the selected image.
+  Add up to 12 images as blocks in the theme editor.
+{%- endcomment -%}
+
+{%- liquid
+  assign total = section.blocks.size
+  assign sign = 1
+  if section.settings.direction == 'ccw'
+    assign sign = -1
+  endif
+  assign neg_sign = sign | times: -1
+  assign slot = 0
+  if total > 0
+    assign slot = 360.0 | divided_by: total
+  endif
+  assign total_padded = total | prepend: '0' | slice: -2, 2
+  assign gallery_label = section.settings.heading | default: 'Image gallery'
+-%}
+
+{%- style -%}
+  #FerrisWheel-{{ section.id }} {
+    --fw-bg: {{ section.settings.color_background }};
+    --fw-text: {{ section.settings.color_text }};
+    --fw-accent: {{ section.settings.color_accent }};
+    --fw-card: {{ section.settings.color_card }};
+    --fw-muted-bg: {{ section.settings.color_muted_bg }};
+    --fw-button-bg: {{ section.settings.color_button_bg }};
+    --fw-button-text: {{ section.settings.color_button_text }};
+    --fw-max: {{ section.settings.max_width }}px;
+    --fw-pt: {{ section.settings.padding_top }}px;
+    --fw-pb: {{ section.settings.padding_bottom }}px;
+  }
+  @media (max-width: 749px) {
+    #FerrisWheel-{{ section.id }} {
+      --fw-pt: {{ section.settings.padding_top | times: 0.75 | round }}px;
+      --fw-pb: {{ section.settings.padding_bottom | times: 0.75 | round }}px;
+    }
+  }
+{%- endstyle -%}
+
+<style>
+  ferris-wheel-gallery.fw {
+    --fw-muted: color-mix(in srgb, var(--fw-text) 60%, transparent);
+    --fw-border: color-mix(in srgb, var(--fw-text) 14%, transparent);
+    --fw-line: color-mix(in srgb, var(--fw-text) 10%, transparent);
+    --fw-line-strong: color-mix(in srgb, var(--fw-text) 16%, transparent);
+    --fw-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    display: block;
+    background: var(--fw-bg);
+    color: var(--fw-text);
+    padding-top: var(--fw-pt);
+    padding-bottom: var(--fw-pb);
+  }
+  .fw *, .fw *::before, .fw *::after { box-sizing: border-box; }
+  .fw__inner {
+    container: fw / inline-size;
+    max-width: var(--fw-max);
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+  .fw :focus-visible { outline: 2px solid var(--fw-text); outline-offset: 3px; }
+  .fw__sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* Header */
+  .fw__header {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+    margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--fw-border);
+  }
+  .fw__eyebrow {
+    margin: 0 0 6px; font-size: 10px; font-weight: 500; letter-spacing: .24em;
+    text-transform: uppercase; color: var(--fw-muted);
+  }
+  .fw__heading {
+    margin: 0; font-size: 24px; font-weight: 500; line-height: 1.15;
+    letter-spacing: -0.01em; color: inherit;
+  }
+  .fw__badge {
+    flex-shrink: 0; margin-bottom: 2px; padding: 4px 10px; border: 1px solid var(--fw-border);
+    border-radius: 999px; font-size: 10px; letter-spacing: .03em; color: var(--fw-muted);
+  }
+
+  /* Layout */
+  .fw__grid { display: grid; align-items: center; gap: 16px; }
+  @container fw (min-width: 600px) { .fw__grid { grid-template-columns: 1.6fr 1fr; } }
+  @container fw (min-width: 900px) { .fw__grid { gap: 56px; } }
+
+  /* Wheel stage */
+  .fw__stage {
+    position: relative; width: 100%; max-width: 380px; margin-inline: auto;
+    padding-bottom: 16px; overflow: hidden; border-radius: 24px;
+    user-select: none; -webkit-user-select: none; touch-action: pan-y; cursor: grab;
+  }
+  .fw__stage:active { cursor: grabbing; }
+  @container fw (min-width: 600px) { .fw__stage { max-width: none; } }
+  .fw__square { position: relative; aspect-ratio: 1 / 1; }
+  .fw__top-label {
+    position: absolute; inset: 0 0 auto; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; pointer-events: none; color: var(--fw-muted);
+    font-size: 10px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+  }
+  .fw__stand {
+    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+    color: color-mix(in srgb, var(--fw-text) 20%, transparent);
+  }
+  .fw__wheel {
+    --fw-wheel: 0;
+    position: absolute; left: 17%; top: 13%; width: 66%; height: 66%;
+    border: 2px solid var(--fw-line-strong); border-radius: 50%;
+    transform: rotate(calc(var(--fw-wheel) * 1deg));
+  }
+  .fw__rim-inner { position: absolute; inset: 6%; border: 1px solid var(--fw-line); border-radius: 50%; }
+  .fw__light {
+    position: absolute; inset: 0; pointer-events: none;
+    transform: rotate(calc(var(--fw-i) * 15deg));
+  }
+  .fw__light::before {
+    content: ""; position: absolute; left: 50%; top: 0; width: 4px; height: 4px; border-radius: 50%;
+    background: color-mix(in srgb, var(--fw-accent) 60%, transparent);
+    transform: translate(-50%, -50%);
+  }
+  .fw__arm {
+    position: absolute; inset: 0; z-index: 10; pointer-events: none;
+    transform: rotate(calc(var(--fw-theta) * 1deg));
+  }
+  .fw__arm[data-active] { z-index: 20; }
+  .fw__arm::before {
+    content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 50%; background: var(--fw-line);
+  }
+  .fw__anchor { position: absolute; left: 50%; top: 0; width: 34%; height: 0; }
+  .fw__counter {
+    position: absolute; left: 0; top: 0; width: 100%; transform-origin: 0 0;
+    transform: rotate(calc((var(--fw-theta) + var(--fw-wheel)) * -1deg));
+  }
+  .fw__car { position: absolute; left: 0; top: 0; width: 100%; transform: translateX(-50%); }
+  .fw__pendulum { position: relative; transform-origin: 50% 0; }
+  .fw__hanger {
+    display: block; width: 2px; height: 10px; margin-inline: auto; border-radius: 2px;
+    background: color-mix(in srgb, var(--fw-text) 25%, transparent);
+  }
+  .fw__gondola {
+    appearance: none; -webkit-appearance: none; pointer-events: auto;
+    position: relative; display: block; width: 100%; min-width: 0; min-height: 0; margin: 0; padding: 4px;
+    border: 1px solid var(--fw-border); border-radius: 6px; background: var(--fw-card); color: inherit;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--fw-text) 10%, transparent);
+    font: inherit; letter-spacing: normal; text-transform: none; cursor: pointer;
+    transform: scale(1); transition: transform 320ms ease, border-color 200ms ease;
+  }
+  .fw__gondola:hover { border-color: var(--fw-muted); }
+  .fw__gondola[aria-current="true"] {
+    transform: scale(1.12); border-color: var(--fw-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fw-accent) 15%, transparent),
+                0 1px 2px color-mix(in srgb, var(--fw-text) 10%, transparent);
+  }
+  .fw__thumb {
+    position: relative; display: block; aspect-ratio: 1.45; overflow: hidden;
+    border-radius: 3px; background: var(--fw-muted-bg);
+  }
+  .fw__img, .fw__thumb img, .fw__thumb svg {
+    position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover;
+  }
+  .fw__placeholder { background: var(--fw-muted-bg); fill: var(--fw-muted); }
+  .fw__num {
+    display: block; margin-top: 4px; text-align: center; font-family: var(--fw-mono);
+    font-size: 10px; line-height: 1; color: var(--fw-muted);
+  }
+  .fw__gondola[aria-current="true"] .fw__num { color: var(--fw-text); }
+  .fw__hub {
+    position: absolute; left: 50%; top: 46%; width: 18%; height: 18%; z-index: 30;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transform: translate(-50%, -50%); pointer-events: none; border-radius: 50%;
+    border: 2px solid var(--fw-line-strong); background: var(--fw-card);
+    box-shadow: 0 4px 6px color-mix(in srgb, var(--fw-text) 10%, transparent);
+  }
+  .fw__hub-count { font-family: var(--fw-mono); font-size: 18px; font-weight: 300; line-height: 1; letter-spacing: -0.02em; }
+  .fw__hub-label {
+    margin-top: 4px; font-size: 9px; font-weight: 500; line-height: 1;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--fw-muted);
+  }
+  .fw__help { margin: 4px 0 0; text-align: center; font-size: 10px; letter-spacing: .03em; color: var(--fw-muted); }
+
+  /* Detail panel */
+  .fw__detail { display: grid; grid-template-columns: 1.35fr 1fr; align-items: center; gap: 20px; }
+  @container fw (min-width: 600px) { .fw__detail { grid-template-columns: 1fr; } }
+  .fw__media {
+    position: relative; min-width: 0; aspect-ratio: 1.8; overflow: hidden;
+    border-radius: 12px; background: var(--fw-muted-bg);
+  }
+  @container fw (min-width: 600px) { .fw__media { aspect-ratio: 1.15; } }
+  .fw__media::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fw-text) 10%, transparent);
+  }
+  .fw__photo { position: absolute; inset: 0; opacity: 0; transition: opacity 360ms ease-out; }
+  .fw__photo[data-active] { opacity: 1; }
+  .fw__photo .fw__img, .fw__photo svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .fw__info { min-width: 0; }
+  .fw__captions { display: grid; }
+  .fw__caption {
+    grid-area: 1 / 1; min-width: 0; opacity: 0; visibility: hidden;
+    transition: opacity 360ms ease-out, visibility 0s linear 360ms;
+  }
+  .fw__caption[data-active] { opacity: 1; visibility: visible; transition: opacity 360ms ease-out, visibility 0s; }
+  .fw__study {
+    margin: 0 0 8px; padding-left: 8px; border-left: 2px solid var(--fw-accent);
+    font-family: var(--fw-mono); font-size: 10px; letter-spacing: .08em; color: var(--fw-muted);
+  }
+  .fw__title {
+    margin: 0; font-size: 20px; font-weight: 500; line-height: 1.15; letter-spacing: -0.01em;
+    color: inherit; overflow-wrap: anywhere;
+  }
+  @container fw (min-width: 600px) { .fw__title { font-size: 24px; } .fw__controls { margin-top: 24px; } }
+  @container fw (min-width: 900px) { .fw__title { font-size: 30px; } }
+  .fw__meta { margin: 8px 0 0; font-size: 11px; line-height: 1.6; color: var(--fw-muted); }
+  .fw__link {
+    display: inline-block; margin-top: 10px; font-size: 12px; color: inherit;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .fw__controls { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+  .fw__btn {
+    appearance: none; -webkit-appearance: none;
+    display: flex; flex-shrink: 0; align-items: center; justify-content: center;
+    width: 36px; height: 36px; min-width: 0; min-height: 0; margin: 0; padding: 0;
+    border: 1px solid var(--fw-border); border-radius: 50%;
+    background: var(--fw-bg); color: var(--fw-text); cursor: pointer;
+    transition: background-color 150ms ease, opacity 150ms ease;
+  }
+  .fw__btn:hover { background: var(--fw-muted-bg); }
+  .fw__btn:disabled { opacity: .4; cursor: default; }
+  .fw__btn--primary { border-color: var(--fw-button-bg); background: var(--fw-button-bg); color: var(--fw-button-text); }
+  .fw__btn--primary:hover { background: var(--fw-button-bg); opacity: .9; }
+  .fw__btn--small { width: 32px; height: 32px; }
+  .fw__btn svg { width: 14px; height: 14px; }
+  .fw__btn--small svg { width: 12px; height: 12px; }
+  .fw__btn[hidden] { display: none; }
+  .fw__btn[data-paused="true"] .fw__icon-pause,
+  .fw__btn[data-paused="false"] .fw__icon-play { display: none; }
+  .fw__count {
+    margin-left: auto; font-family: var(--fw-mono); font-size: 10px;
+    font-variant-numeric: tabular-nums; color: var(--fw-muted);
+  }
+  .fw__count-sep { padding-inline: 4px; color: var(--fw-border); }
+
+  /* Footer + empty state */
+  .fw__footer { margin-top: 8px; font-size: 10px; color: var(--fw-muted); }
+  .fw__empty {
+    display: flex; align-items: center; justify-content: center; min-height: 288px; padding: 24px;
+    border: 1px dashed var(--fw-border); border-radius: 16px; text-align: center;
+    font-size: 14px; color: var(--fw-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fw__photo, .fw__caption, .fw__gondola { transition: none; }
+  }
+</style>
+
+<ferris-wheel-gallery
+  id="FerrisWheel-{{ section.id }}"
+  class="fw"
+  data-direction="{{ section.settings.direction }}"
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-interval="{{ section.settings.interval | times: 1000 }}"
+  data-scroll="{{ section.settings.enable_scroll }}"
+  data-phase="idle"
+  role="region"
+  aria-roledescription="carousel"
+  aria-label="{{ gallery_label | escape }}"
+>
+  <div class="fw__inner">
+    {%- if section.settings.show_header -%}
+      <header class="fw__header">
+        <div>
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="fw__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2 class="fw__heading">{{ section.settings.heading | escape }}</h2>
+          {%- endif -%}
+        </div>
+        {%- if section.settings.badge != blank -%}
+          <span class="fw__badge">{{ section.settings.badge | escape }}</span>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if total == 0 -%}
+      <div class="fw__empty" role="status">Add images in the theme editor to fill the wheel.</div>
+    {%- else -%}
+      <div class="fw__grid">
+        <div>
+          <div
+            class="fw__stage"
+            data-stage
+            tabindex="0"
+            aria-label="Browse the collection"
+            aria-describedby="FerrisHelp-{{ section.id }}"
+          >
+            <div class="fw__square">
+              <div class="fw__top-label" aria-hidden="true">
+                <span>{{ section.settings.top_label | escape }}</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+
+              <svg class="fw__stand" aria-hidden="true" viewBox="0 0 400 400" fill="none">
+                <path d="M200 184 146 362M200 184 254 362M124 362H276" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+
+              <div class="fw__wheel" data-wheel>
+                <div class="fw__rim-inner" aria-hidden="true"></div>
+                {%- for i in (0..23) -%}
+                  <span class="fw__light" aria-hidden="true" style="--fw-i: {{ i }};"></span>
+                {%- endfor -%}
+
+                {%- for block in section.blocks -%}
+                  {%- liquid
+                    assign theta = forloop.index0 | times: slot | times: neg_sign
+                    assign number = forloop.index | prepend: '0' | slice: -2, 2
+                    assign title = block.settings.title | default: 'Untitled'
+                    assign placeholder = forloop.index0 | modulo: 6 | plus: 1 | prepend: 'collection-'
+                  -%}
+                  <div class="fw__arm" data-arm style="--fw-theta: {{ theta }};"{% if forloop.first %} data-active{% endif %}>
+                    <div class="fw__anchor">
+                      <div class="fw__counter">
+                        <div class="fw__car">
+                          <div class="fw__pendulum" data-pendulum>
+                            <span class="fw__hanger" aria-hidden="true"></span>
+                            <button
+                              type="button"
+                              class="fw__gondola"
+                              data-gondola
+                              data-index="{{ forloop.index0 }}"
+                              data-title="{{ title | escape }}"
+                              aria-label="View {{ title | escape }}, {{ forloop.index }} of {{ total }}"
+                              aria-controls="FerrisDetail-{{ section.id }}"
+                              {% if forloop.first %}aria-current="true"{% endif %}
+                              {{ block.shopify_attributes }}
+                            >
+                              <span class="fw__thumb">
+                                {%- if block.settings.image != blank -%}
+                                  {{- block.settings.image | image_url: width: 360 | image_tag: loading: 'lazy', alt: '', class: 'fw__img', widths: '180, 360', sizes: '120px', draggable: 'false' -}}
+                                {%- else -%}
+                                  {{- placeholder | placeholder_svg_tag: 'fw__img fw__placeholder' -}}
+                                {%- endif -%}
+                              </span>
+                              <span class="fw__num" aria-hidden="true">{{ number }}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {%- endfor -%}
+              </div>
+
+              <div class="fw__hub" aria-hidden="true">
+                <span class="fw__hub-count">{{ total_padded }}</span>
+                <span class="fw__hub-label">{{ section.settings.hub_label | escape }}</span>
+              </div>
+            </div>
+          </div>
+          <p class="fw__help" id="FerrisHelp-{{ section.id }}">{{ section.settings.help_text | escape }}</p>
+        </div>
+
+        <div class="fw__detail" id="FerrisDetail-{{ section.id }}">
+          <div class="fw__media">
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign alt = block.settings.alt | default: block.settings.image.alt | default: block.settings.title
+                assign placeholder = forloop.index0 | modulo: 6 | plus: 1 | prepend: 'collection-'
+              -%}
+              <div class="fw__photo" data-photo aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"{% if forloop.first %} data-active{% endif %}>
+                {%- if block.settings.image != blank -%}
+                  {{- block.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', alt: alt, class: 'fw__img', widths: '400, 600, 800, 1000, 1200, 1400', sizes: '(min-width: 750px) 40vw, 60vw', draggable: 'false' -}}
+                {%- else -%}
+                  {{- placeholder | placeholder_svg_tag: 'fw__img fw__placeholder' -}}
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+
+          <div class="fw__info">
+            <div class="fw__captions">
+              {%- for block in section.blocks -%}
+                {%- liquid
+                  assign number = forloop.index | prepend: '0' | slice: -2, 2
+                  assign meta = ''
+                  if block.settings.discipline != blank and block.settings.year != blank
+                    assign meta = block.settings.discipline | append: ' · ' | append: block.settings.year
+                  elsif block.settings.discipline != blank
+                    assign meta = block.settings.discipline
+                  elsif block.settings.year != blank
+                    assign meta = block.settings.year
+                  endif
+                -%}
+                <div class="fw__caption" data-caption{% if forloop.first %} data-active{% endif %}>
+                  <p class="fw__study">{{ section.settings.caption_prefix | escape }} {{ number }}</p>
+                  <h3 class="fw__title">{{ block.settings.title | default: 'Untitled' | escape }}</h3>
+                  {%- if meta != blank -%}
+                    <p class="fw__meta">{{ meta | escape }}</p>
+                  {%- endif -%}
+                  {%- if block.settings.link != blank -%}
+                    <a class="fw__link" href="{{ block.settings.link }}">{{ block.settings.link_label | default: 'View details' | escape }}</a>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            </div>
+
+            <div class="fw__controls">
+              <button type="button" class="fw__btn" data-prev aria-label="Previous image"{% if total < 2 %} disabled{% endif %}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+              </button>
+              <button type="button" class="fw__btn fw__btn--primary" data-next aria-label="Next image"{% if total < 2 %} disabled{% endif %}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+              <span class="fw__count" aria-hidden="true"><span data-count>01</span><span class="fw__count-sep">/</span>{{ total_padded }}</span>
+              {%- if section.settings.autoplay and total > 1 -%}
+                <button type="button" class="fw__btn fw__btn--small" data-autoplay-control data-paused="false" aria-label="Pause automatic rotation">
+                  <svg class="fw__icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+                  <svg class="fw__icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                </button>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.show_footer and section.settings.footer_text != blank -%}
+      <p class="fw__footer">{{ section.settings.footer_text | escape }}</p>
+    {%- endif -%}
+  </div>
+
+  <span class="fw__sr" role="status" aria-live="polite" aria-atomic="true" data-live></span>
+</ferris-wheel-gallery>
+
+<script>
+  (() => {
+    if (customElements.get('ferris-wheel-gallery')) return;
+
+    const TURN_MS = 650;
+    const SWAY_MS = 340;
+    // Two complete oscillations with a decaying amplitude, then exact zero.
+    const SWING = [0, -2.6, 0, 1.7, 0, -0.9, 0, 0.35, 0];
+    const wrap = (index, total) =>
+      total > 0 ? ((Math.trunc(Number.isFinite(index) ? index : 0) % total) + total) % total : 0;
+    const pad = (n) => String(n).padStart(2, '0');
+
+    class FerrisWheelGallery extends HTMLElement {
+      connectedCallback() {
+        if (this.initialized) return;
+        this.gondolas = Array.from(this.querySelectorAll('[data-gondola]'));
+        this.total = this.gondolas.length;
+        if (this.total === 0) return;
+        this.initialized = true;
+
+        this.wheel = this.querySelector('[data-wheel]');
+        this.stage = this.querySelector('[data-stage]');
+        this.arms = Array.from(this.querySelectorAll('[data-arm]'));
+        this.pendulums = Array.from(this.querySelectorAll('[data-pendulum]'));
+        this.photos = Array.from(this.querySelectorAll('[data-photo]'));
+        this.captions = Array.from(this.querySelectorAll('[data-caption]'));
+        this.countEl = this.querySelector('[data-count]');
+        this.live = this.querySelector('[data-live]');
+        this.playButton = this.querySelector('[data-autoplay-control]');
+
+        this.sign = this.dataset.direction === 'ccw' ? -1 : 1;
+        this.slot = 360 / this.total;
+        this.selected = 0;
+        this.shown = 0;
+        this.angle = 0;
+        this.frame = 0;
+        this.sways = [];
+        this.settleTimer = 0;
+        this.timer = 0;
+        this.paused = false;
+        this.inView = true;
+        this.drag = null;
+        this.suppressUntil = 0;
+        this.autoplay = this.dataset.autoplay === 'true' && this.total > 1;
+        const ms = Number(this.dataset.interval);
+        this.delay = Math.max(TURN_MS + SWAY_MS, Number.isFinite(ms) && ms > 0 ? ms : 2600);
+        this.motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        this.reduced = this.motion.matches;
+
+        this.controller = new AbortController();
+        const on = (target, type, handler, options = {}) => {
+          if (target) target.addEventListener(type, handler, { ...options, signal: this.controller.signal });
+        };
+
+        // Keyboard: arrows anywhere inside the gallery.
+        on(this, 'keydown', (event) => {
+          if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+          if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+          if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+          event.preventDefault();
+          this.request(this.selected + (event.key === 'ArrowRight' ? 1 : -1));
+        });
+
+        // Any focus inside (except the autoplay toggle) pauses rotation.
+        on(this, 'focusin', (event) => {
+          if (!event.target.closest('[data-autoplay-control]')) this.setPaused(true);
+        });
+
+        this.gondolas.forEach((button, index) => {
+          on(button, 'click', () => {
+            if (performance.now() >= this.suppressUntil) this.request(index);
+          });
+        });
+        on(this.querySelector('[data-prev]'), 'click', () => this.request(this.selected - 1));
+        on(this.querySelector('[data-next]'), 'click', () => this.request(this.selected + 1));
+        on(this.playButton, 'click', () => this.setPaused(!this.paused, true));
+
+        // Drag / swipe on the wheel.
+        on(this.stage, 'pointerdown', (event) => {
+          if (!event.isPrimary || event.button !== 0) return;
+          this.setPaused(true);
+          this.drag = { id: event.pointerId, x: event.clientX, y: event.clientY, captured: false };
+        });
+        on(this.stage, 'pointermove', (event) => {
+          const start = this.drag;
+          if (!start || start.id !== event.pointerId) return;
+          if (!start.captured && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) {
+            try { this.stage.setPointerCapture(event.pointerId); } catch (e) {}
+            start.captured = true;
+          }
+        });
+        on(this.stage, 'pointerup', (event) => {
+          const start = this.drag;
+          this.drag = null;
+          if (!start || start.id !== event.pointerId) return;
+          if (this.stage.hasPointerCapture(event.pointerId)) this.stage.releasePointerCapture(event.pointerId);
+          const x = event.clientX - start.x;
+          const y = event.clientY - start.y;
+          const delta = Math.abs(x) >= Math.abs(y) ? x : y;
+          if (start.captured) this.suppressUntil = performance.now() + 300;
+          if (Math.abs(delta) >= 30) this.request(this.selected - Math.sign(delta));
+        });
+        on(this.stage, 'pointercancel', () => { this.drag = null; });
+
+        // Mouse wheel / trackpad turns the wheel one slot at a time.
+        if (this.dataset.scroll === 'true' && this.total > 1) {
+          let lastWheel = -Infinity;
+          let amount = 0;
+          on(this.stage, 'wheel', (event) => {
+            if (event.ctrlKey) return;
+            event.preventDefault();
+            const now = performance.now();
+            if (now - lastWheel < TURN_MS + 80) return;
+            const raw = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+            amount += raw * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? this.stage.clientHeight : 1);
+            if (Math.abs(amount) < 14) return;
+            this.request(this.selected + Math.sign(amount));
+            amount = 0;
+            lastWheel = now;
+          }, { passive: false });
+        }
+
+        on(this.motion, 'change', () => {
+          this.reduced = this.motion.matches;
+          if (this.reduced) this.snap();
+          this.schedule();
+        });
+
+        // Theme editor: selecting a block turns the wheel to that image.
+        on(this, 'shopify:block:select', (event) => {
+          const target = event.target.closest && event.target.closest('[data-index]');
+          if (target) this.request(Number(target.dataset.index));
+        });
+
+        on(document, 'visibilitychange', () => this.schedule());
+        if ('IntersectionObserver' in window) {
+          this.observer = new IntersectionObserver(([entry]) => {
+            this.inView = entry.isIntersecting;
+            this.schedule();
+          }, { threshold: 0.25 });
+          this.observer.observe(this);
+        }
+
+        this.paint(0);
+        this.render(0);
+        this.schedule();
+      }
+
+      disconnectedCallback() {
+        if (!this.initialized) return;
+        this.initialized = false;
+        this.controller.abort();
+        cancelAnimationFrame(this.frame);
+        this.frame = 0;
+        this.stopSway();
+        clearInterval(this.timer);
+        if (this.observer) this.observer.disconnect();
+      }
+
+      // One value drives both the wheel and every gondola's counter-rotation,
+      // so the gondolas can never drift out of upright.
+      paint(value) {
+        this.angle = value;
+        this.wheel.style.setProperty('--fw-wheel', value.toFixed(3));
+      }
+
+      render(index) {
+        this.arms.forEach((el, i) => el.toggleAttribute('data-active', i === index));
+        this.gondolas.forEach((el, i) => {
+          if (i === index) el.setAttribute('aria-current', 'true');
+          else el.removeAttribute('aria-current');
+        });
+        this.photos.forEach((el, i) => {
+          el.toggleAttribute('data-active', i === index);
+          el.setAttribute('aria-hidden', i === index ? 'false' : 'true');
+        });
+        this.captions.forEach((el, i) => el.toggleAttribute('data-active', i === index));
+        if (this.countEl) this.countEl.textContent = pad(index + 1);
+        this.dataset.visible = index;
+      }
+
+      announce() {
+        const button = this.gondolas[this.shown];
+        if (this.live && button) {
+          this.live.textContent = `${this.shown + 1} of ${this.total}: ${button.dataset.title}`;
+        }
+      }
+
+      request(index, user = true) {
+        if (user) this.setPaused(true);
+        if (this.total < 2) return;
+        const next = wrap(index, this.total);
+        if (next === this.selected) return;
+        this.selected = next;
+        if (this.reduced) this.snap();
+        else if (!this.frame) this.begin();
+      }
+
+      snap() {
+        cancelAnimationFrame(this.frame);
+        this.frame = 0;
+        this.stopSway();
+        this.shown = this.selected;
+        this.paint(this.shown * this.slot * this.sign);
+        this.render(this.shown);
+        this.dataset.phase = 'idle';
+        this.announce();
+      }
+
+      // A new destination is reached through complete, single-slot turns.
+      begin() {
+        if (this.shown === this.selected || this.total < 2) return;
+        this.stopSway();
+        let distance = wrap(this.selected - this.shown, this.total);
+        if (distance > this.total / 2) distance -= this.total;
+        const step = Math.sign(distance);
+        const next = wrap(this.shown + step, this.total);
+        const from = this.angle;
+        const to = from + step * this.slot * this.sign;
+        const started = performance.now();
+        this.render(next);
+        this.dataset.phase = 'turning';
+
+        const tick = (now) => {
+          const progress = Math.min(1, (now - started) / TURN_MS);
+          const tail = progress - 1;
+          const spring = 1 + 2.2 * tail ** 3 + 1.2 * tail ** 2;
+          this.paint(from + (to - from) * spring);
+          if (progress < 1) {
+            this.frame = requestAnimationFrame(tick);
+            return;
+          }
+          this.frame = 0;
+          this.paint(to);
+          this.shown = next;
+          if (this.shown !== this.selected) this.begin();
+          else {
+            this.announce();
+            this.sway(step * this.sign);
+          }
+        };
+        this.frame = requestAnimationFrame(tick);
+      }
+
+      sway(turn) {
+        this.sways = this.pendulums
+          .filter((node) => typeof node.animate === 'function')
+          .map((node) => node.animate(
+            SWING.map((value) => ({ transform: `rotate(${value * turn}deg)` })),
+            { duration: SWAY_MS, easing: 'ease-in-out' }
+          ));
+        this.dataset.phase = 'settling';
+        this.settleTimer = setTimeout(() => { this.dataset.phase = 'idle'; }, SWAY_MS);
+      }
+
+      stopSway() {
+        clearTimeout(this.settleTimer);
+        this.sways.forEach((animation) => animation.cancel());
+        this.sways = [];
+      }
+
+      setPaused(value, force = false) {
+        if (this.paused === value && !force) return;
+        this.paused = value;
+        this.schedule();
+      }
+
+      schedule() {
+        clearInterval(this.timer);
+        this.timer = 0;
+        const running = this.autoplay && !this.paused && !this.reduced && this.inView && !document.hidden;
+        if (running) {
+          this.timer = setInterval(() => this.request(this.selected + 1, false), this.delay);
+        }
+        if (this.playButton) {
+          this.playButton.hidden = !this.autoplay || this.reduced;
+          this.playButton.dataset.paused = String(this.paused);
+          this.playButton.setAttribute('aria-label', this.paused ? 'Resume automatic rotation' : 'Pause automatic rotation');
+        }
+      }
+    }
+
+    customElements.define('ferris-wheel-gallery', FerrisWheelGallery);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Ferris wheel gallery",
+  "tag": "section",
+  "class": "section-ferris-wheel",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "Show heading row",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small text above heading",
+      "default": "A collection in motion"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Round & round."
+    },
+    {
+      "type": "text",
+      "id": "badge",
+      "label": "Badge",
+      "default": "Sample collection"
+    },
+    {
+      "type": "header",
+      "content": "Wheel"
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Turning direction",
+      "options": [
+        { "value": "cw", "label": "Clockwise" },
+        { "value": "ccw", "label": "Counter-clockwise" }
+      ],
+      "default": "cw"
+    },
+    {
+      "type": "text",
+      "id": "top_label",
+      "label": "Label above the wheel",
+      "default": "On view"
+    },
+    {
+      "type": "text",
+      "id": "hub_label",
+      "label": "Label in the hub",
+      "info": "Shown under the image count",
+      "default": "Studies"
+    },
+    {
+      "type": "text",
+      "id": "help_text",
+      "label": "Help text under the wheel",
+      "default": "Drag to explore / Scroll or use ← →"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_scroll",
+      "label": "Turn wheel with mouse scroll",
+      "info": "When on, scrolling over the wheel turns it instead of scrolling the page",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Rotate automatically",
+      "info": "Stops when a visitor interacts. Off for visitors who prefer reduced motion.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "interval",
+      "label": "Time per image",
+      "min": 2,
+      "max": 10,
+      "step": 0.5,
+      "unit": "s",
+      "default": 2.5
+    },
+    {
+      "type": "header",
+      "content": "Image details"
+    },
+    {
+      "type": "text",
+      "id": "caption_prefix",
+      "label": "Label before the image number",
+      "default": "STUDY"
+    },
+    {
+      "type": "header",
+      "content": "Footer"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_footer",
+      "label": "Show footer text",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "footer_text",
+      "label": "Footer text",
+      "default": "Eight studies. A different point of view."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text and lines",
+      "default": "#18181b"
+    },
+    {
+      "type": "color",
+      "id": "color_accent",
+      "label": "Accent",
+      "info": "Active image outline, rim lights and caption marker",
+      "default": "#0d9488"
+    },
+    {
+      "type": "color",
+      "id": "color_card",
+      "label": "Gondola and hub",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "color_muted_bg",
+      "label": "Image placeholder background",
+      "default": "#f4f4f5"
+    },
+    {
+      "type": "color",
+      "id": "color_button_bg",
+      "label": "Next button background",
+      "default": "#18181b"
+    },
+    {
+      "type": "color",
+      "id": "color_button_text",
+      "label": "Next button icon",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum width",
+      "min": 480,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "default": 720
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Untitled study"
+        },
+        {
+          "type": "text",
+          "id": "discipline",
+          "label": "Category",
+          "default": "Photography"
+        },
+        {
+          "type": "text",
+          "id": "year",
+          "label": "Year",
+          "default": "2026"
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Image description",
+          "info": "For screen readers. Leave empty to use the image's alt text from Files."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link text",
+          "default": "View details"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ferris wheel gallery",
+      "blocks": [
+        { "type": "slide", "settings": { "title": "Soft Geometry", "discipline": "Architecture", "year": "2026" } },
+        { "type": "slide", "settings": { "title": "Tidal Studies", "discipline": "Aerial photography", "year": "2026" } },
+        { "type": "slide", "settings": { "title": "After the Dunes", "discipline": "Landscape", "year": "2025" } },
+        { "type": "slide", "settings": { "title": "Open Arches", "discipline": "Architecture", "year": "2026" } },
+        { "type": "slide", "settings": { "title": "Contour Fields", "discipline": "Landscape", "year": "2025" } },
+        { "type": "slide", "settings": { "title": "Still Water", "discipline": "Landscape", "year": "2026" } },
+        { "type": "slide", "settings": { "title": "Brief Bloom", "discipline": "Botanical study", "year": "2025" } },
+        { "type": "slide", "settings": { "title": "Cloud Atlas", "discipline": "Aerial photography", "year": "2026" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
