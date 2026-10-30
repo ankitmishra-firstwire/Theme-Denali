@@ -1397,6 +1397,102 @@
         "padding_top": 96,
         "padding_bottom": 0
       }
+    },
+    "scroll_expand_lookbook_hCCxWy": {
+      "type": "scroll-expand-lookbook",
+      "blocks": {
+        "hotspot_AWVeeT": {
+          "type": "hotspot",
+          "settings": {
+            "product": "",
+            "label": "",
+            "x": 44,
+            "y": 38,
+            "x_mobile": 40,
+            "y_mobile": 34
+          }
+        },
+        "hotspot_UDVDQW": {
+          "type": "hotspot",
+          "settings": {
+            "product": "",
+            "label": "",
+            "x": 62,
+            "y": 58,
+            "x_mobile": 62,
+            "y_mobile": 52
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_AWVeeT",
+        "hotspot_UDVDQW"
+      ],
+      "name": "Scroll expand lookbook",
+      "settings": {
+        "image_focus": "center",
+        "overlay_color": "#0e0d0b",
+        "overlay_opacity": 55,
+        "start_shape": "rounded",
+        "start_radius": 8,
+        "start_width": 26,
+        "start_height": 58,
+        "start_width_mobile": 58,
+        "start_height_mobile": 40,
+        "end_inset": 0,
+        "end_radius": 0,
+        "enable_scroll_animation": true,
+        "scroll_length": 160,
+        "scroll_length_mobile": 120,
+        "static_height": 90,
+        "sticky_offset": 0,
+        "eyebrow": "Autumn / Winter 2026",
+        "word_left": "Quiet",
+        "word_right": "Luxury",
+        "italic_second_word": true,
+        "headline_uppercase": false,
+        "headline_size": 148,
+        "headline_size_mobile": 56,
+        "headline_weight": "400",
+        "split_distance": 40,
+        "headline_blend": false,
+        "show_hint": true,
+        "hint_text": "Scroll",
+        "use_custom_font": false,
+        "headline_font": "assistant_n4",
+        "caption_eyebrow": "The new collection",
+        "caption_heading": "Crafted to be <em>worn for years</em>",
+        "caption_text": "Cashmere, wool and silk in a softened palette. Pieces made slowly, in small runs.",
+        "caption_position": "bottom-left",
+        "caption_align_mobile": "left",
+        "caption_heading_size": 48,
+        "button_label": "Explore the collection",
+        "button_link": "",
+        "magnetic_button": true,
+        "button_bg": "#f4efe7",
+        "button_text_color": "#14120f",
+        "button_radius": 50,
+        "show_badge": true,
+        "badge_text": "New season • Shop the edit •",
+        "badge_link": "",
+        "badge_position": "top-right",
+        "badge_size": 132,
+        "badge_speed": 16,
+        "badge_color": "#f4efe7",
+        "hotspot_size": 24,
+        "hotspot_pulse": true,
+        "hotspot_color": "#f4efe7",
+        "hotspot_icon_color": "#14120f",
+        "popover_width": 260,
+        "popover_bg": "#ffffff",
+        "popover_text": "#14120f",
+        "popover_link_text": "View product",
+        "background": "#f4efe7",
+        "headline_color": "#14120f",
+        "muted_color": "#7d7468",
+        "caption_color": "#f4efe7",
+        "accent_color": "#c9a27a"
+      }
     }
   },
   "order": [
@@ -1416,6 +1512,7 @@
     "collection_carousel_fVVH8k",
     "collection_product_scroll_iXcUpD",
     "image_with_overlap_card_i4MYrd",
-    "fashion_hover_reveal_KT6XNt"
+    "fashion_hover_reveal_KT6XNt",
+    "scroll_expand_lookbook_hCCxWy"
   ]
 }
