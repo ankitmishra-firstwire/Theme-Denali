@@ -127,7 +127,7 @@
             "description": "240 gsm organic cotton with a tonal DHxWHY embroidery on the chest.",
             "details": "240 gsm, Regular fit, Tonal embroidery",
             "link": "",
-            "image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_438fcd30-b143-4d43-8376-509767e9ae67.png",
+            "image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt.png",
             "side_image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_438fcd30-b143-4d43-8376-509767e9ae67.png"
           }
         },
@@ -251,7 +251,7 @@
         "label_close": "Close",
         "label_view": "View product",
         "label_show": "Show",
-        "color_bg": "#fafaf9",
+        "color_bg": "#FFFFFF",
         "color_text": "#0a0a0a",
         "color_muted": "#737373",
         "color_rail": "#8a8a8a",
