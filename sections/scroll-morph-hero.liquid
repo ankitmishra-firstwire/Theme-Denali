@@ -1,0 +1,1230 @@
+{%- comment -%}
+  Scroll Morph Hero \E2\80\94 Shopify section
+  Port of the React / Framer Motion "scroll-morph-hero" component.
+  No external dependencies: the spring physics, virtual scroll, parallax
+  and card flip are re-implemented in vanilla JS + CSS.
+
+  v2:
+  - The page can no longer scroll past the hero before the animation has
+    finished (scroll speed is capped, the section snaps into view, and the
+    page is only released once the final state is actually on screen).
+  - The arc heading sits in the center and reveals word by word.
+
+  Install: save as sections/scroll-morph-hero.liquid,
+  then Online Store \E2\86\92 Customize \E2\86\92 Add section \E2\86\92 "Scroll morph hero".
+{%- endcomment -%}
+
+{%- liquid
+  assign default_images = 'https://cdn.21st.dev/assets/mirror/4d/4d1bff4ea8b9f400dff7ae405f92e15bd39ec76e9285c7d96017e64ba1de3ae1.jpg,https://cdn.21st.dev/assets/mirror/ee/ee36e332fe99d7611c43b90511db08a4f84e4545caa78e7b52e9ccffe273864b.jpg,https://cdn.21st.dev/assets/mirror/dd/dddeaa4e6132c65bf7ff99d197f792a30937b5cbfe97a2b1ee54a793684df52e.jpg,https://cdn.21st.dev/assets/mirror/48/487977107b5011b5e1c25289f6e4393ef555e1a92daee554788e9363b233ca14.jpg,https://cdn.21st.dev/assets/mirror/a1/a12509688be6c9d3b2cb26d2ea1cfce48b8a8dbf2653e17be8a3fc31bd69f162.jpg,https://cdn.21st.dev/assets/mirror/05/051f9e565b5b0b221384d9c27a0760febc3fb48d190c046adfda579f3614c958.jpg,https://cdn.21st.dev/assets/mirror/87/87d4f60a4465d19d14b8acefa46275df4ccd767ccea6d7f234ea5bad99cfec56.jpg,https://cdn.21st.dev/assets/mirror/06/0610989e0675a12c02d35aa5464e2644bf77913214b748b73a894808d2d79877.jpg,https://cdn.21st.dev/assets/mirror/fe/fe90b90751e671a9526134c4743e2fcbf6c1a24991aba273ad7418c88fc9c701.jpg,https://cdn.21st.dev/assets/mirror/2e/2e0452c1994fcc2130a1b8ef68e34b5ea52d1b35b80dde09b99349ad1de54598.jpg,https://cdn.21st.dev/assets/mirror/84/847dc523558808119dc4bbb5218ff862ae5f5b455f33e9a0304f2f5a4b2f0f2c.jpg,https://cdn.21st.dev/assets/mirror/2f/2f128763d177d6bdda3de9f0a766693406034977082bdb542138b7b74af9697b.jpg,https://cdn.21st.dev/assets/mirror/30/30f8223f1d1ecc24fc8b7a9995b8ee98449b1e9fc300c14fbccec01b6a83a0ae.jpg,https://cdn.21st.dev/assets/mirror/b4/b4df0e3e425ffce3b4f62fd7bc717e4dc90b94455f4d65d64fc07fe9721b0519.jpg,https://cdn.21st.dev/assets/mirror/90/90c625659f072e4a701c2e37fa4ca46f25c7ca8689d723e7802fe84cf17874e9.jpg,https://cdn.21st.dev/assets/mirror/6a/6aa0befc69cc3db8f3f3558d4b5e1216a5b64ceae1b86f51acf1c3f1432a8cf7.jpg,https://cdn.21st.dev/assets/mirror/dc/dc126cfd753dc217945d0ea2f915e539dfe4ffb5fdea02245d0f576b25a9c4dd.jpg,https://cdn.21st.dev/assets/mirror/ab/ab5f167fcb763aee7c3247fb8af97875998a7f519a6119da7dadd9cf73ae1a2c.jpg,https://cdn.21st.dev/assets/mirror/57/57d6e450f7068e5f3be04907dcc0815343e67df1dc82f2da0ff1c859afc1f700.jpg,https://cdn.21st.dev/assets/mirror/e4/e491359016d1494074e287dfbb55be068cffc0110017ae2257a5d4cdec193a47.jpg' | split: ','
+
+  assign card_w = section.settings.card_width
+  assign card_h = card_w | times: 85.0 | divided_by: 60 | round
+
+  assign card_count = section.blocks.size
+  assign use_defaults = false
+  if card_count == 0
+    assign card_count = default_images.size
+    assign use_defaults = true
+  endif
+
+  assign img_loading = 'eager'
+  if section.index > 2
+    assign img_loading = 'lazy'
+  endif
+
+  assign arc_words = section.settings.arc_heading | strip | split: ' '
+-%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} .smh-wrap {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+  #smh-{{ section.id }} {
+    --smh-bg: {{ section.settings.color_bg }};
+    --smh-intro-heading: {{ section.settings.color_intro_heading }};
+    --smh-intro-sub: {{ section.settings.color_intro_sub }};
+    --smh-arc-heading: {{ section.settings.color_arc_heading }};
+    --smh-arc-text: {{ section.settings.color_arc_text }};
+    --smh-arc-accent: {{ section.settings.color_arc_accent }};
+    --smh-back-bg: {{ section.settings.color_back_bg }};
+    --smh-back-border: {{ section.settings.color_back_border }};
+    --smh-back-label: {{ section.settings.color_back_label }};
+    --smh-back-title: {{ section.settings.color_back_title }};
+    --smh-card-w: {{ card_w }}px;
+    --smh-card-h: {{ card_h }}px;
+    --smh-h-mobile: {{ section.settings.height_mobile }}px;
+    --smh-h-desktop: {{ section.settings.height_desktop }}px;
+    --smh-radius: {{ section.settings.border_radius }}px;
+  }
+{%- endstyle -%}
+
+<style>
+  scroll-morph-hero { display: block; }
+
+  .smh {
+    position: relative;
+    width: 100%;
+    height: var(--smh-h-mobile);
+    background: var(--smh-bg);
+    border-radius: var(--smh-radius);
+    overflow: hidden;
+    isolation: isolate;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: contain;
+  }
+  @media (min-width: 750px) {
+    .smh { height: var(--smh-h-desktop); }
+  }
+  .smh.smh--full { height: 100vh; height: 100svh; }
+
+  .smh .smh__sr {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  /* Intro text (fades out as the circle morphs) */
+  .smh .smh__intro {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .smh .smh__intro-heading {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    color: var(--smh-intro-heading);
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(10px);
+    transition: opacity 1s ease, transform 1s ease, filter 1s ease;
+  }
+  .smh .smh__intro-sub {
+    margin: 16px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--smh-intro-sub);
+    opacity: 0;
+    transition: opacity 1s ease 0.2s;
+  }
+  @media (min-width: 768px) {
+    .smh .smh__intro-heading { font-size: 36px; }
+  }
+
+  /* Cards stage */
+  .smh .smh__stage {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .smh .smh__card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    display: block;
+    width: var(--smh-card-w);
+    height: var(--smh-card-h);
+    margin-left: calc(var(--smh-card-w) / -2);
+    margin-top: calc(var(--smh-card-h) / -2);
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    opacity: 0;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    will-change: transform, opacity;
+  }
+  .smh .smh__card:focus-visible { outline: 2px solid var(--smh-back-label); outline-offset: 3px; border-radius: 12px; }
+  .smh .smh__card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.34, 1.45, 0.64, 1);
+  }
+  @media (hover: hover) {
+    .smh .smh__card:hover .smh__card-inner { transform: rotateY(180deg); }
+  }
+  .smh .smh__card:focus-visible .smh__card-inner,
+  .smh .smh__card.is-flipped .smh__card-inner { transform: rotateY(180deg); }
+
+  .smh .smh__face {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .smh .smh__face--front { background: #e5e7eb; }
+  .smh .smh__face--front img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+  .smh .smh__face--front::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  .smh .smh__card:hover .smh__face--front::after { background: transparent; }
+  .smh .smh__face--back {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    text-align: center;
+    background: var(--smh-back-bg);
+    border: 1px solid var(--smh-back-border);
+    transform: rotateY(180deg);
+  }
+  .smh .smh__back-label {
+    margin: 0 0 4px;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--smh-back-label);
+  }
+  .smh .smh__back-title {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--smh-back-title);
+  }
+
+  /* Arc content: centered, revealed word by word */
+  .smh .smh__arc {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .smh .smh__arc-heading {
+    margin: 0 0 18px;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--smh-arc-heading);
+    perspective: 800px;
+  }
+  .smh .smh__word {
+    display: inline-block;
+    opacity: 0;
+    transform-origin: 50% 100%;
+    transform: translateY(0.5em) rotateX(-75deg);
+    filter: blur(10px);
+    transition: opacity 0.3s ease, transform 0.35s ease, filter 0.3s ease;
+    will-change: transform, opacity, filter;
+  }
+  .smh .smh__arc.is-revealed .smh__word {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+    transition: opacity 0.7s ease, transform 1s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+    transition-delay: calc(var(--i) * 90ms);
+  }
+  .smh .smh__arc-line {
+    display: block;
+    width: 0;
+    height: 2px;
+    margin: 0 auto 18px;
+    border-radius: 2px;
+    background: var(--smh-arc-accent);
+    transition: width 0.3s ease;
+  }
+  .smh .smh__arc.is-revealed .smh__arc-line {
+    width: 56px;
+    transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--smh-words, 1) * 90ms + 150ms);
+  }
+  .smh .smh__arc-text {
+    max-width: 32rem;
+    font-size: 14px;
+    line-height: 1.625;
+    color: var(--smh-arc-text);
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+  }
+  .smh .smh__arc.is-revealed .smh__arc-text {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+    transition: opacity 0.8s ease, transform 1s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+    transition-delay: calc(var(--smh-words, 1) * 90ms + 300ms);
+  }
+  .smh .smh__arc-text p { margin: 0; }
+  .smh .smh__arc-text p + p { margin-top: 8px; }
+  @media (min-width: 768px) {
+    .smh .smh__arc-heading { font-size: 48px; }
+    .smh .smh__arc-text { font-size: 16px; }
+  }
+
+  /* Text width guard: stops theme styles from collapsing the text
+     into a narrow column (one letter per line) */
+  scroll-morph-hero.smh .smh__arc,
+  scroll-morph-hero.smh .smh__intro {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+  scroll-morph-hero.smh .smh__arc-heading,
+  scroll-morph-hero.smh .smh__arc-text,
+  scroll-morph-hero.smh .smh__arc-text p,
+  scroll-morph-hero.smh .smh__intro-heading,
+  scroll-morph-hero.smh .smh__intro-sub {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    word-wrap: normal !important;
+    hyphens: manual !important;
+    writing-mode: horizontal-tb !important;
+  }
+  scroll-morph-hero.smh .smh__arc-heading,
+  scroll-morph-hero.smh .smh__intro-heading { max-width: 900px !important; }
+  scroll-morph-hero.smh .smh__arc-text { max-width: 560px !important; }
+  scroll-morph-hero.smh .smh__arc-text p { max-width: none !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .smh .smh__card-inner,
+    .smh .smh__intro-heading,
+    .smh .smh__intro-sub,
+    .smh .smh__word,
+    .smh .smh__arc-line,
+    .smh .smh__arc-text,
+    .smh .smh__arc.is-revealed .smh__word,
+    .smh .smh__arc.is-revealed .smh__arc-line,
+    .smh .smh__arc.is-revealed .smh__arc-text {
+      transition-duration: 0.01s !important;
+      transition-delay: 0s !important;
+    }
+  }
+</style>
+
+<div class="smh-wrap">
+  <scroll-morph-hero
+    id="smh-{{ section.id }}"
+    class="smh{% if section.settings.full_screen %} smh--full{% endif %}"
+    data-scroll-length="{{ section.settings.scroll_length }}"
+    data-release="{{ section.settings.release_scroll }}"
+    data-parallax="{{ section.settings.enable_parallax }}"
+    data-snap="{{ section.settings.snap_into_view }}"
+    data-reveal="{{ section.settings.arc_reveal }}"
+    data-card-width="{{ card_w }}"
+    role="region"
+    aria-label="{{ section.settings.arc_heading | default: section.settings.intro_heading | escape }}"
+  >
+    <div class="smh__intro">
+      {%- if section.settings.intro_heading != blank -%}
+        <h2 class="smh__intro-heading" data-smh-intro-heading>{{ section.settings.intro_heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.intro_subtext != blank -%}
+        <p class="smh__intro-sub" data-smh-intro-sub>{{ section.settings.intro_subtext | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="smh__stage">
+      {%- for i in (1..card_count) -%}
+        {%- liquid
+          assign idx = i | minus: 1
+          assign fallback_idx = idx | modulo: default_images.size
+          assign fallback_src = default_images[fallback_idx]
+          assign card = nil
+          unless use_defaults
+            assign card = section.blocks[idx]
+          endunless
+
+          assign back_label = card.settings.back_label | default: 'View'
+          assign back_title = card.settings.back_title | default: 'Details'
+          assign card_tag = 'div'
+          if card.settings.link != blank
+            assign card_tag = 'a'
+          endif
+
+          assign img_alt = card.settings.image.alt | default: 'Gallery image ' | append: i
+        -%}
+        <{{ card_tag }}
+          class="smh__card"
+          data-smh-card
+          {% if card %}data-block-id="{{ card.id }}" {{ card.shopify_attributes }}{% endif %}
+          {% if card_tag == 'a' %}
+            href="{{ card.settings.link }}"
+            aria-label="{{ back_label | append: ' ' | append: back_title | append: ': ' | append: img_alt | escape }}"
+          {% endif %}
+        >
+          <div class="smh__card-inner">
+            <div class="smh__face smh__face--front">
+              {%- if card.settings.image != blank -%}
+                {{
+                  card.settings.image
+                  | image_url: width: 400
+                  | image_tag:
+                    loading: img_loading,
+                    widths: '150, 250, 400',
+                    sizes: '120px',
+                    alt: img_alt,
+                    draggable: 'false'
+                }}
+              {%- else -%}
+                <img
+                  src="{{ fallback_src }}"
+                  alt="{{ img_alt | escape }}"
+                  width="400"
+                  height="566"
+                  loading="{{ img_loading }}"
+                  draggable="false"
+                >
+              {%- endif -%}
+            </div>
+            <div class="smh__face smh__face--back" aria-hidden="true">
+              <p class="smh__back-label">{{ back_label | escape }}</p>
+              <p class="smh__back-title">{{ back_title | escape }}</p>
+            </div>
+          </div>
+        </{{ card_tag }}>
+      {%- endfor -%}
+    </div>
+
+    <div class="smh__arc" data-smh-arc style="--smh-words: {{ arc_words.size | default: 1 }};">
+      {%- if section.settings.arc_heading != blank -%}
+        <h2 class="smh__arc-heading">
+          <span class="smh__sr">{{ section.settings.arc_heading | escape }}</span>
+          {%- for word in arc_words -%}
+            <span class="smh__word" style="--i: {{ forloop.index0 }};" aria-hidden="true">{{ word | escape }}</span>{% unless forloop.last %} {% endunless %}
+          {%- endfor -%}
+        </h2>
+        <span class="smh__arc-line" aria-hidden="true"></span>
+      {%- endif -%}
+      {%- if section.settings.arc_text != blank -%}
+        <div class="smh__arc-text">{{ section.settings.arc_text }}</div>
+      {%- endif -%}
+    </div>
+  </scroll-morph-hero>
+</div>
+
+<script>
+  (function () {
+    if (!window.customElements || window.customElements.get('scroll-morph-hero')) return;
+
+    var MORPH_DISTANCE = 600; // virtual scroll px for circle \E2\86\92 arc
+    var MAX_STEP = 120;       // max virtual px a single wheel/touch event can add
+    var MAX_LEAD = 400;       // how far the scroll target may run ahead of what is on screen
+    var HOLD_MS = 450;        // pause on the finished state before the page scroll is released
+
+    function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+    function lerp(a, b, t) { return a * (1 - t) + b * t; }
+
+    /* Damped spring (mass = 1), same model Framer Motion uses */
+    class Spring {
+      constructor(value, stiffness, damping, precision) {
+        this.value = value;
+        this.target = value;
+        this.velocity = 0;
+        this.k = stiffness;
+        this.c = damping;
+        this.precision = precision;
+      }
+      step(dt) {
+        var force = -this.k * (this.value - this.target) - this.c * this.velocity;
+        this.velocity += force * dt;
+        this.value += this.velocity * dt;
+      }
+      snap() { this.value = this.target; this.velocity = 0; }
+      isResting() {
+        return Math.abs(this.target - this.value) < this.precision && Math.abs(this.velocity) < this.precision;
+      }
+    }
+
+    class ScrollMorphHero extends HTMLElement {
+      connectedCallback() {
+        if (this._ready) return;
+
+        this.cards = Array.prototype.slice.call(this.querySelectorAll('[data-smh-card]'));
+        this.total = this.cards.length;
+        if (!this.total) return;
+        this._ready = true;
+
+        this.introHeading = this.querySelector('[data-smh-intro-heading]');
+        this.introSub = this.querySelector('[data-smh-intro-sub]');
+        this.arc = this.querySelector('[data-smh-arc]');
+
+        this.maxScroll = Math.max(parseFloat(this.dataset.scrollLength) || 3000, MORPH_DISTANCE + 100);
+        this.releaseAtEdges = this.dataset.release === 'true';
+        this.parallaxEnabled = this.dataset.parallax === 'true';
+        this.snapIntoView = this.dataset.snap === 'true';
+        this.revealMode = this.dataset.reveal || 'shuffle';
+        this.cardWidth = parseFloat(this.dataset.cardWidth) || 60;
+        this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        this.designMode = !!(window.Shopify && window.Shopify.designMode);
+
+        this.phase = 'scatter';
+        this.scroll = 0;
+        this.size = { width: this.clientWidth, height: this.clientHeight };
+        this.visible = false;
+        this.started = false;
+        this.timers = [];
+        this.alignTimer = null;
+        this.aligning = false;
+        this.raf = null;
+        this.lastTime = null;
+        this.snapNextFrame = false;
+        this.textCache = {};
+        this.revealed = false;
+        this.touchY = 0;
+        this.touchMode = null;
+
+        // When each end state was reached on screen (0 = not reached)
+        this.startReachedAt = performance.now() - HOLD_MS;
+        this.endReachedAt = 0;
+
+        // Global springs (useSpring equivalents)
+        this.morph = new Spring(0, 40, 20, 0.0005);
+        this.rotate = new Spring(0, 40, 20, 0.05);
+        this.mouse = new Spring(0, 30, 20, 0.05);
+
+        // Random scatter start positions
+        this.scatter = this.cards.map(function () {
+          return {
+            x: (Math.random() - 0.5) * 1500,
+            y: (Math.random() - 0.5) * 1000,
+            rotation: (Math.random() - 0.5) * 180,
+            scale: 0.6,
+            opacity: 0
+          };
+        });
+
+        // Per-card springs (stiffness 40, damping 15 as in the original)
+        var self = this;
+        this.cardState = this.cards.map(function (el, i) {
+          var s = self.scatter[i];
+          return {
+            el: el,
+            last: '',
+            x: new Spring(s.x, 40, 15, 0.05),
+            y: new Spring(s.y, 40, 15, 0.05),
+            rotation: new Spring(s.rotation, 40, 15, 0.05),
+            scale: new Spring(s.scale, 40, 15, 0.001),
+            opacity: new Spring(s.opacity, 40, 15, 0.001)
+          };
+        });
+
+        this.tick = this.tick.bind(this);
+        this.onWheel = this.onWheel.bind(this);
+        this.onTouchStart = this.onTouchStart.bind(this);
+        this.onTouchMove = this.onTouchMove.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onClick = this.onClick.bind(this);
+        this.onBlockSelect = this.onBlockSelect.bind(this);
+        this.onBlockDeselect = this.onBlockDeselect.bind(this);
+        this.onWindowScroll = this.onWindowScroll.bind(this);
+
+        this.addEventListener('wheel', this.onWheel, { passive: false });
+        this.addEventListener('touchstart', this.onTouchStart, { passive: true });
+        this.addEventListener('touchmove', this.onTouchMove, { passive: false });
+        this.addEventListener('mousemove', this.onMouseMove);
+        this.addEventListener('click', this.onClick);
+        this.addEventListener('shopify:block:select', this.onBlockSelect);
+        this.addEventListener('shopify:block:deselect', this.onBlockDeselect);
+
+        this.lastWinY = window.pageYOffset;
+        this.prevOff = this.alignOffset(this.getBoundingClientRect(), window.innerHeight);
+        window.addEventListener('scroll', this.onWindowScroll, { passive: true });
+
+        this.resizeObserver = new ResizeObserver(function (entries) {
+          var r = entries[0].contentRect;
+          self.size = { width: r.width, height: r.height };
+          self.wake();
+        });
+        this.resizeObserver.observe(this);
+
+        this.intersectionObserver = new IntersectionObserver(function (entries) {
+          self.visible = entries[0].isIntersecting;
+          if (self.visible) {
+            if (!self.started) self.startIntro();
+            self.wake();
+          } else {
+            self.sleep();
+          }
+        });
+        this.intersectionObserver.observe(this);
+      }
+
+      disconnectedCallback() {
+        if (!this._ready) return;
+        this._ready = false;
+        this.sleep();
+        this.timers.forEach(clearTimeout);
+        this.timers = [];
+        clearTimeout(this.alignTimer);
+        this.removeEventListener('wheel', this.onWheel);
+        this.removeEventListener('touchstart', this.onTouchStart);
+        this.removeEventListener('touchmove', this.onTouchMove);
+        this.removeEventListener('mousemove', this.onMouseMove);
+        this.removeEventListener('click', this.onClick);
+        this.removeEventListener('shopify:block:select', this.onBlockSelect);
+        this.removeEventListener('shopify:block:deselect', this.onBlockDeselect);
+        window.removeEventListener('scroll', this.onWindowScroll);
+        if (this.resizeObserver) this.resizeObserver.disconnect();
+        if (this.intersectionObserver) this.intersectionObserver.disconnect();
+      }
+
+      /* --- Intro sequence: scatter \E2\86\92 line \E2\86\92 circle --- */
+      startIntro() {
+        var self = this;
+        this.started = true;
+        if (this.reducedMotion) {
+          this.phase = 'circle';
+          this.snapNextFrame = true;
+          this.wake();
+          return;
+        }
+        this.timers.push(setTimeout(function () { self.phase = 'line'; self.wake(); }, 500));
+        this.timers.push(setTimeout(function () { self.phase = 'circle'; self.wake(); }, 2500));
+      }
+
+      // The visitor started scrolling during the intro: go straight to the circle
+      skipIntro() {
+        this.timers.forEach(clearTimeout);
+        this.timers = [];
+        this.started = true;
+        this.phase = 'circle';
+        this.wake();
+      }
+
+      /* --- Geometry helpers --- */
+      visibleRatio() {
+        var r = this.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        var visible = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+        return visible / Math.min(r.height, vh);
+      }
+
+      // Distance (px) the page must scroll to put the hero in its "pinned" spot:
+      // top-aligned if it is taller than the screen, centered otherwise.
+      alignOffset(r, vh) {
+        return r.height >= vh ? r.top : r.top - (vh - r.height) / 2;
+      }
+
+      // Smoothly bring the hero into its pinned spot (once per gesture)
+      engage() {
+        if (this.phase !== 'circle') this.skipIntro();
+        if (!this.snapIntoView || this.aligning) return;
+        var r = this.getBoundingClientRect();
+        var vh = window.innerHeight;
+        if (r.top >= 0 && r.bottom <= vh) return; // already fully visible
+        var off = this.alignOffset(r, vh);
+        if (Math.abs(off) < 2) return;
+        var self = this;
+        this.aligning = true;
+        window.scrollTo({ top: window.pageYOffset + off, behavior: this.reducedMotion ? 'auto' : 'smooth' });
+        clearTimeout(this.alignTimer);
+        this.alignTimer = setTimeout(function () { self.aligning = false; }, 500);
+      }
+
+      /* --- Has the animation really finished at this end? --- */
+      isSettled(dir) {
+        var t = dir > 0 ? this.endReachedAt : this.startReachedAt;
+        return !!t && performance.now() - t >= HOLD_MS;
+      }
+
+      /* --- Virtual scroll --- */
+      shouldCapture(delta) {
+        if (!delta || !this.visible) return false;
+        if (this.visibleRatio() < 0.5) return false;
+        if (this.releaseAtEdges && this.isSettled(delta)) return false;
+        return true;
+      }
+
+      // Scroll position that matches what is currently drawn on screen
+      shownScroll() {
+        var m = clamp(this.morph.value, 0, 1);
+        if (m < 0.98) return m * MORPH_DISTANCE;
+        return MORPH_DISTANCE + clamp(this.rotate.value / 360, 0, 1) * (this.maxScroll - MORPH_DISTANCE);
+      }
+
+      setScroll(value) {
+        // Fast flicks can't race ahead of the animation
+        var shown = this.shownScroll();
+        value = clamp(value, shown - MAX_LEAD, shown + MAX_LEAD);
+        this.scroll = clamp(value, 0, this.maxScroll);
+        this.morph.target = clamp(this.scroll / MORPH_DISTANCE, 0, 1);
+        this.rotate.target = clamp((this.scroll - MORPH_DISTANCE) / (this.maxScroll - MORPH_DISTANCE), 0, 1) * 360;
+        this.wake();
+      }
+
+      onWheel(e) {
+        if (e.ctrlKey) return; // pinch-zoom
+        var d = e.deltaY;
+        if (e.deltaMode === 1) d *= 16;
+        else if (e.deltaMode === 2) d *= this.size.height;
+        if (!this.shouldCapture(d)) return;
+        e.preventDefault();
+        this.engage();
+        this.setScroll(this.scroll + clamp(d, -MAX_STEP, MAX_STEP));
+      }
+
+      onTouchStart(e) {
+        this.touchY = e.touches[0].clientY;
+        this.touchMode = null;
+      }
+
+      onTouchMove(e) {
+        var y = e.touches[0].clientY;
+        var d = this.touchY - y;
+        this.touchY = y;
+        if (this.touchMode === 'native') return;
+        if (this.touchMode === null) {
+          if (!d) return;
+          this.touchMode = this.shouldCapture(d) && e.cancelable ? 'capture' : 'native';
+          if (this.touchMode === 'native') return;
+          this.engage();
+        }
+        if (e.cancelable) e.preventDefault();
+        this.setScroll(this.scroll + clamp(d, -MAX_STEP, MAX_STEP));
+      }
+
+      /* --- Safety net: a fast scroll (scrollbar, keyboard, touch momentum)
+             that jumps past the hero before it's finished gets pulled back --- */
+      onWindowScroll() {
+        var y = window.pageYOffset;
+        var dir = y - this.lastWinY;
+        this.lastWinY = y;
+        var r = this.getBoundingClientRect();
+        var vh = window.innerHeight;
+        var off = this.alignOffset(r, vh);
+        var prev = this.prevOff;
+        this.prevOff = off;
+
+        if (dir <= 0 || this.aligning || this.designMode || !this.snapIntoView) return;
+        if (this.isSettled(1)) return;
+        if (prev > 0 && off < 0) {
+          window.scrollTo(0, y + off);
+          this.lastWinY = y + off;
+          this.prevOff = 0;
+        }
+      }
+
+      /* --- Mouse parallax --- */
+      onMouseMove(e) {
+        if (!this.parallaxEnabled) return;
+        var r = this.getBoundingClientRect();
+        if (!r.width) return;
+        var normalized = ((e.clientX - r.left) / r.width) * 2 - 1;
+        this.mouse.target = normalized * 100;
+        this.wake();
+      }
+
+      /* --- Tap to flip on touch devices (second tap follows the link) --- */
+      onClick(e) {
+        var card = e.target.closest('[data-smh-card]');
+        if (!card || !window.matchMedia('(hover: none)').matches) return;
+        if (!card.classList.contains('is-flipped')) {
+          e.preventDefault();
+          this.cards.forEach(function (c) { c.classList.remove('is-flipped'); });
+          card.classList.add('is-flipped');
+        }
+      }
+
+      /* --- Theme editor: flip the selected block's card --- */
+      onBlockSelect(e) {
+        var card = this.querySelector('[data-block-id="' + e.detail.blockId + '"]');
+        if (card) card.classList.add('is-flipped');
+      }
+      onBlockDeselect(e) {
+        var card = this.querySelector('[data-block-id="' + e.detail.blockId + '"]');
+        if (card) card.classList.remove('is-flipped');
+      }
+
+      /* --- Animation loop --- */
+      wake() {
+        if (this.raf || !this.visible || !this._ready) return;
+        this.lastTime = null;
+        this.raf = requestAnimationFrame(this.tick);
+      }
+
+      sleep() {
+        if (this.raf) cancelAnimationFrame(this.raf);
+        this.raf = null;
+      }
+
+      getTarget(i, morph, rotateValue, parallax) {
+        var N = this.total;
+
+        if (this.phase === 'scatter') return this.scatter[i];
+
+        if (this.phase === 'line') {
+          var spacing = this.cardWidth + 10;
+          return { x: (i - (N - 1) / 2) * spacing, y: 0, rotation: 0, scale: 1, opacity: 1 };
+        }
+
+        var w = this.size.width;
+        var h = this.size.height;
+        var isMobile = w < 768;
+        var minDimension = Math.min(w, h);
+
+        // A. Circle position
+        var circleRadius = Math.min(minDimension * 0.35, 350);
+        var circleAngle = (i / N) * 360;
+        var circleRad = (circleAngle * Math.PI) / 180;
+        var cx = Math.cos(circleRad) * circleRadius;
+        var cy = Math.sin(circleRad) * circleRadius;
+        var cRot = circleAngle + 90;
+
+        // B. Bottom "rainbow" arc position
+        var baseRadius = Math.min(w, h * 1.5);
+        var arcRadius = baseRadius * (isMobile ? 1.4 : 1.1);
+        var arcApexY = h * (isMobile ? 0.35 : 0.25);
+        var arcCenterY = arcApexY + arcRadius;
+        var spreadAngle = isMobile ? 100 : 130;
+        var startAngle = N > 1 ? -90 - spreadAngle / 2 : -90;
+        var step = N > 1 ? spreadAngle / (N - 1) : 0;
+
+        // Bounded shuffle rotation driven by scroll
+        var scrollProgress = clamp(rotateValue / 360, 0, 1);
+        var boundedRotation = -scrollProgress * spreadAngle * 0.8;
+
+        var arcAngle = startAngle + i * step + boundedRotation;
+        var arcRad = (arcAngle * Math.PI) / 180;
+        var ax = Math.cos(arcRad) * arcRadius + parallax;
+        var ay = Math.sin(arcRad) * arcRadius + arcCenterY;
+        var aRot = arcAngle + 90;
+        var aScale = isMobile ? 1.4 : 1.8;
+
+        // C. Morph between the two
+        return {
+          x: lerp(cx, ax, morph),
+          y: lerp(cy, ay, morph),
+          rotation: lerp(cRot, aRot, morph),
+          scale: lerp(1, aScale, morph),
+          opacity: 1
+        };
+      }
+
+      tick(now) {
+        this.raf = null;
+        var dt = this.lastTime == null ? 1 / 60 : (now - this.lastTime) / 1000;
+        this.lastTime = now;
+        dt = Math.min(dt, 1 / 30);
+
+        // Fixed sub-steps keep the springs stable at any frame rate
+        var sub = Math.max(1, Math.ceil(dt * 240));
+        var h = dt / sub;
+        var s, j;
+
+        var globals = [this.morph, this.rotate, this.mouse];
+        for (s = 0; s < sub; s++) for (j = 0; j < 3; j++) globals[j].step(h);
+        if (this.snapNextFrame) globals.forEach(function (g) { g.snap(); });
+
+        var morph = this.morph.value;
+        var rotateValue = this.rotate.value;
+        var parallax = this.parallaxEnabled ? this.mouse.value : 0;
+        var resting = globals.every(function (g) { return g.isResting(); });
+
+        // Track when each end of the animation is actually on screen
+        var atEnd = this.phase === 'circle' && this.scroll >= this.maxScroll && morph > 0.995 && rotateValue > 359;
+        var atStart = this.scroll <= 0 && morph < 0.005 && rotateValue < 1;
+        if (atEnd) { if (!this.endReachedAt) this.endReachedAt = now; } else { this.endReachedAt = 0; }
+        if (atStart) { if (!this.startReachedAt) this.startReachedAt = now; } else { this.startReachedAt = 0; }
+
+        for (var i = 0; i < this.total; i++) {
+          var st = this.cardState[i];
+          var t = this.getTarget(i, morph, rotateValue, parallax);
+          st.x.target = t.x;
+          st.y.target = t.y;
+          st.rotation.target = t.rotation;
+          st.scale.target = t.scale;
+          st.opacity.target = t.opacity;
+
+          var springs = [st.x, st.y, st.rotation, st.scale, st.opacity];
+          for (s = 0; s < sub; s++) for (j = 0; j < 5; j++) springs[j].step(h);
+          if (this.snapNextFrame) springs.forEach(function (sp) { sp.snap(); });
+          if (resting && !springs.every(function (sp) { return sp.isResting(); })) resting = false;
+
+          var opacity = clamp(st.opacity.value, 0, 1);
+          var transform =
+            'translate3d(' + st.x.value.toFixed(2) + 'px,' + st.y.value.toFixed(2) + 'px,0) ' +
+            'scale(' + st.scale.value.toFixed(4) + ') rotate(' + st.rotation.value.toFixed(2) + 'deg)';
+          var key = transform + '|' + opacity.toFixed(3);
+          if (key !== st.last) {
+            st.el.style.transform = transform;
+            st.el.style.opacity = opacity.toFixed(3);
+            st.el.style.pointerEvents = opacity < 0.1 ? 'none' : '';
+            st.last = key;
+          }
+        }
+
+        this.snapNextFrame = false;
+        this.updateText(morph, rotateValue);
+
+        if (!(resting && this.phase === 'circle') && this.visible) {
+          this.raf = requestAnimationFrame(this.tick);
+        }
+      }
+
+      updateText(morph, rotateValue) {
+        var show = this.phase === 'circle' && morph < 0.5;
+        var key;
+
+        if (this.introHeading) {
+          var headingOpacity = show ? clamp(1 - morph * 2, 0, 1) : 0;
+          key = (show ? 's' : 'h') + headingOpacity.toFixed(3);
+          if (key !== this.textCache.heading) {
+            this.textCache.heading = key;
+            this.introHeading.style.opacity = headingOpacity;
+            if (show) {
+              this.introHeading.style.transform = 'translateY(0)';
+              this.introHeading.style.filter = 'blur(0px)';
+            } else {
+              this.introHeading.style.filter = 'blur(10px)';
+            }
+          }
+        }
+
+        if (this.introSub) {
+          var subOpacity = show ? clamp(0.5 - morph, 0, 1) : 0;
+          key = subOpacity.toFixed(3);
+          if (key !== this.textCache.sub) {
+            this.textCache.sub = key;
+            this.introSub.style.opacity = subOpacity;
+          }
+        }
+
+        // Centered heading: plays its reveal once the cards reach the chosen point.
+        // Separate show/hide thresholds stop it flickering around the trigger.
+        if (this.arc) {
+          var progress = clamp(rotateValue / 360, 0, 1);
+          var on;
+          if (this.revealMode === 'arc') {
+            on = this.revealed ? morph > 0.75 : morph > 0.92;
+          } else {
+            on = this.revealed ? (morph > 0.75 && progress > 0.22) : (morph > 0.92 && progress > 0.32);
+          }
+          if (this.phase !== 'circle') on = false;
+          if (on !== this.revealed) {
+            this.revealed = on;
+            this.arc.classList.toggle('is-revealed', on);
+          }
+        }
+      }
+    }
+
+    window.customElements.define('scroll-morph-hero', ScrollMorphHero);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Scroll morph hero",
+  "tag": "section",
+  "class": "section-scroll-morph-hero",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Intro text"
+    },
+    {
+      "type": "text",
+      "id": "intro_heading",
+      "label": "Heading",
+      "default": "Section build by Legend."
+    },
+    {
+      "type": "text",
+      "id": "intro_subtext",
+      "label": "Subtext",
+      "default": "SCROLL TO EXPLORE"
+    },
+    {
+      "type": "header",
+      "content": "Arc content",
+      "info": "Shown in the center of the section with a word-by-word reveal."
+    },
+    {
+      "type": "text",
+      "id": "arc_heading",
+      "label": "Heading",
+      "default": "Explore Our Vision"
+    },
+    {
+      "type": "richtext",
+      "id": "arc_text",
+      "label": "Text",
+      "default": "<p>Discover a world where technology meets creativity. Scroll through our curated collection of innovations designed to shape the future.</p>"
+    },
+    {
+      "type": "select",
+      "id": "arc_reveal",
+      "label": "Show heading",
+      "options": [
+        { "value": "arc", "label": "As soon as the arc forms" },
+        { "value": "shuffle", "label": "When the cards slide to the left" }
+      ],
+      "default": "shuffle"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_screen",
+      "label": "Full screen height",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "min": 400,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "label": "Desktop height",
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "min": 400,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "label": "Mobile height",
+      "default": 640
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Card width",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Section corner radius",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Interaction"
+    },
+    {
+      "type": "range",
+      "id": "scroll_length",
+      "min": 1000,
+      "max": 6000,
+      "step": 250,
+      "label": "Scroll distance",
+      "info": "How much scrolling the animation takes. Higher is slower.",
+      "default": 3000
+    },
+    {
+      "type": "checkbox",
+      "id": "snap_into_view",
+      "label": "Hold the page until the animation finishes",
+      "info": "Snaps the section into view and stops fast scrolling from skipping past it.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "release_scroll",
+      "label": "Continue page scroll at the start and end",
+      "info": "When off, the hero keeps capturing the scroll wheel while the pointer is over it.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_parallax",
+      "label": "Mouse parallax",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_bg",
+      "label": "Background",
+      "default": "#FAFAFA"
+    },
+    {
+      "type": "color",
+      "id": "color_intro_heading",
+      "label": "Intro heading",
+      "default": "#1F2937"
+    },
+    {
+      "type": "color",
+      "id": "color_intro_sub",
+      "label": "Intro subtext",
+      "default": "#6B7280"
+    },
+    {
+      "type": "color",
+      "id": "color_arc_heading",
+      "label": "Arc heading",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "color_arc_text",
+      "label": "Arc text",
+      "default": "#4B5563"
+    },
+    {
+      "type": "color",
+      "id": "color_arc_accent",
+      "label": "Arc heading underline",
+      "default": "#60A5FA"
+    },
+    {
+      "type": "color",
+      "id": "color_back_bg",
+      "label": "Card back background",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "color_back_border",
+      "label": "Card back border",
+      "default": "#374151"
+    },
+    {
+      "type": "color",
+      "id": "color_back_label",
+      "label": "Card back label",
+      "default": "#60A5FA"
+    },
+    {
+      "type": "color",
+      "id": "color_back_title",
+      "label": "Card back title",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Portrait images work best (about 60 \C3\97 85 ratio). A stock image is shown until you pick one."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "back_label",
+          "label": "Back label",
+          "default": "View"
+        },
+        {
+          "type": "text",
+          "id": "back_title",
+          "label": "Back title",
+          "default": "Details"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Scroll morph hero",
+      "blocks": [
+        { "type": "card" }, { "type": "card" }, { "type": "card" }, { "type": "card" },
+        { "type": "card" }, { "type": "card" }, { "type": "card" }, { "type": "card" },
+        { "type": "card" }, { "type": "card" }, { "type": "card" }, { "type": "card" },
+        { "type": "card" }, { "type": "card" }, { "type": "card" }, { "type": "card" },
+        { "type": "card" }, { "type": "card" }, { "type": "card" }, { "type": "card" }
+      ]
+    }
+  ]
+}
+{% endschema %}
