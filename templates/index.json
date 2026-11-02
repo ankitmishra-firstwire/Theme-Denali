@@ -901,7 +901,7 @@
         "card_4": {
           "type": "collection_card",
           "settings": {
-            "collection": "",
+            "collection": "t-shirts",
             "title": "Gifts",
             "link": "",
             "card_size": "wide",
