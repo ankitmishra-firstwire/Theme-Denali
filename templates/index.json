@@ -997,7 +997,7 @@
         "collection_FF9rJe": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "jackets",
             "title": "",
             "description": "",
             "button_label": ""
@@ -1006,7 +1006,7 @@
         "collection_MFgjAg": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "shirts",
             "title": "",
             "description": "",
             "button_label": ""
@@ -1015,7 +1015,7 @@
         "collection_xUGPWW": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "t-shirts",
             "title": "",
             "description": "",
             "button_label": ""
@@ -1136,7 +1136,7 @@
         "collection_zWNyde": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "t-shirts",
             "title": "",
             "description": "",
             "button_label": ""
