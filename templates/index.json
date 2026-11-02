@@ -812,6 +812,7 @@
         "slide_1": {
           "type": "slide",
           "settings": {
+            "desktop_image": "shopify://shop_images/Modern_Neutral-Tone_Fashion_Campaign.png",
             "subheading": "New season",
             "heading": "Bring the outdoors in",
             "description": "<p>Plants, planters and care essentials chosen for real homes.</p>",
