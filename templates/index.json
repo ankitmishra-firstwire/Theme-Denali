@@ -209,12 +209,14 @@
         "garment_QtMW3f": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "essential-heavyweight-oversized-tee",
             "title": "Breton long sleeve",
             "tag": "$58",
             "description": "Classic ink-and-bone Breton stripe with a boat neck.",
             "details": "220 gsm, Boat neck, Long sleeve",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_8feacab9-623c-4985-921c-0c094035cde6.png",
+            "side_image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_48e83125-c2c4-43cc-a7d7-58750596b84f.png"
           }
         },
         "garment_wwk9zJ": {
