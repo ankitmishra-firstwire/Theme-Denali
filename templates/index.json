@@ -825,6 +825,7 @@
         "slide_2": {
           "type": "slide",
           "settings": {
+            "desktop_image": "shopify://shop_images/Contemporary_Archway_Fashion_Duo.png",
             "subheading": "Care made simple",
             "heading": "Grow with confidence",
             "description": "<p>Every plant ships with a care card and lifetime advice from our growers.</p>",
