@@ -199,45 +199,27 @@
         "garment_zPirrd": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "ribbed-knit-bodycon-midi-dress",
             "title": "Crewneck sweatshirt · Lilac",
             "tag": "$78",
             "description": "Muted lilac fleece crewneck with a raised DHxWHY puff print.",
             "details": "400 gsm fleece, Ribbed trims, Puff print",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_fd6bf210-764a-4cb7-99e5-dbcf8731fdd9.png",
+            "side_image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_95ade49c-f9bc-494f-a146-4e6a6d6117fc.png"
           }
         },
         "garment_RXefE9": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "poplin-shirt-dress",
             "title": "Piqué polo · Forest",
             "tag": "$62",
             "description": "Forest piqué polo with a bone CCgather embroidery on the chest.",
             "details": "Piqué knit, Two-button placket, Embroidered",
-            "link": ""
-          }
-        },
-        "garment_3dCX8c": {
-          "type": "garment",
-          "settings": {
-            "product": "",
-            "title": "Henley · Brick",
-            "tag": "$56",
-            "description": "Dusty brick henley with a three-button placket, worn in from day one.",
-            "details": "Slub cotton, Three buttons, Long sleeve",
-            "link": ""
-          }
-        },
-        "garment_wwk9zJ": {
-          "type": "garment",
-          "settings": {
-            "product": "",
-            "title": "Oversized tee · CCgather",
-            "tag": "$52",
-            "description": "Boxy ochre tee with a small chest mark and a large CCgather back print.",
-            "details": "Oversized, Dropped shoulder, Back print",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
+            "side_image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_582ed9b6-ad7c-425d-8c9b-cad9590d45c4.png"
           }
         }
       },
@@ -249,9 +231,7 @@
         "garment_tdArkj",
         "garment_7AmaF7",
         "garment_zPirrd",
-        "garment_RXefE9",
-        "garment_3dCX8c",
-        "garment_wwk9zJ"
+        "garment_RXefE9"
       ],
       "name": "Clothing rail hero",
       "settings": {
