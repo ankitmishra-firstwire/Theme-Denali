@@ -932,7 +932,7 @@
     "featured_product": {
       "type": "featured-product",
       "settings": {
-        "product": "",
+        "product": "linen-wrap-maxi-dress",
         "subheading": "Featured product",
         "show_vendor": false,
         "show_description": true,
