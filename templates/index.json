@@ -535,12 +535,14 @@
         "intro_subtext": "SCROLL TO EXPLORE",
         "arc_heading": "Explore Our Vision",
         "arc_text": "<p>Discover a world where technology meets creativity. Scroll through our curated collection of innovations designed to shape the future.</p>",
+        "arc_reveal": "shuffle",
         "full_screen": false,
         "height_desktop": 800,
         "height_mobile": 640,
         "card_width": 80,
         "border_radius": 6,
         "scroll_length": 1000,
+        "snap_into_view": true,
         "release_scroll": true,
         "enable_parallax": true,
         "color_bg": "#fafafa",
@@ -548,6 +550,7 @@
         "color_intro_sub": "#6b7280",
         "color_arc_heading": "#111827",
         "color_arc_text": "#4b5563",
+        "color_arc_accent": "#60a5fa",
         "color_back_bg": "#111827",
         "color_back_border": "#374151",
         "color_back_label": "#60a5fa",
@@ -1115,7 +1118,7 @@
         "collection_MtWD4R": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "dresses",
             "title": "",
             "description": "",
             "button_label": ""
