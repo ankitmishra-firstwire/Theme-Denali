@@ -871,7 +871,7 @@
         "card_1": {
           "type": "collection_card",
           "settings": {
-            "collection": "",
+            "collection": "jackets",
             "title": "Indoor plants",
             "link": "",
             "card_size": "large",
@@ -881,7 +881,7 @@
         "card_2": {
           "type": "collection_card",
           "settings": {
-            "collection": "",
+            "collection": "dresses",
             "title": "Planters",
             "link": "",
             "card_size": "normal",
@@ -891,8 +891,8 @@
         "card_3": {
           "type": "collection_card",
           "settings": {
-            "collection": "",
-            "title": "Care",
+            "collection": "shirts",
+            "title": "Shirts",
             "link": "",
             "card_size": "normal",
             "text_position": "bottom-left"
