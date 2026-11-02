@@ -1024,7 +1024,7 @@
         "collection_X9GbRr": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "dresses",
             "title": "",
             "description": "",
             "button_label": ""
@@ -1033,7 +1033,7 @@
         "collection_dpG6WP": {
           "type": "collection",
           "settings": {
-            "collection": "",
+            "collection": "hoodies-sweatshirts",
             "title": "",
             "description": "",
             "button_label": ""
