@@ -871,8 +871,8 @@
         "card_1": {
           "type": "collection_card",
           "settings": {
-            "collection": "jackets",
-            "title": "Indoor plants",
+            "collection": "t-shirts",
+            "title": "T Shirts",
             "link": "",
             "card_size": "large",
             "text_position": "bottom-left"
@@ -882,7 +882,7 @@
           "type": "collection_card",
           "settings": {
             "collection": "dresses",
-            "title": "Planters",
+            "title": "Dresses",
             "link": "",
             "card_size": "normal",
             "text_position": "bottom-left"
@@ -901,7 +901,7 @@
         "card_4": {
           "type": "collection_card",
           "settings": {
-            "collection": "t-shirts",
+            "collection": "jackets",
             "title": "Gifts",
             "link": "",
             "card_size": "wide",
