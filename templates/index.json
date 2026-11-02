@@ -29,23 +29,6 @@
             "position_mobile": "default"
           }
         },
-        "slide_CEfzyA": {
-          "type": "slide",
-          "settings": {
-            "image": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
-            "image_mobile": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
-            "alt": "",
-            "chapter": "Collection 02",
-            "title": "Style Your Story",
-            "description": "<p>Express your individuality with beautiful pieces that bring confidence to every look.</p>",
-            "button_label": "Explore now",
-            "button_link": "#",
-            "button_label_2": "",
-            "button_link_2": "",
-            "position_desktop": "middle-left",
-            "position_mobile": "default"
-          }
-        },
         "slide_WyUK3D": {
           "type": "slide",
           "settings": {
@@ -62,12 +45,29 @@
             "position_desktop": "default",
             "position_mobile": "default"
           }
+        },
+        "slide_CEfzyA": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
+            "image_mobile": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
+            "alt": "",
+            "chapter": "Collection 02",
+            "title": "Style Your Story",
+            "description": "<p>Express your individuality with beautiful pieces that bring confidence to every look.</p>",
+            "button_label": "Explore now",
+            "button_link": "#",
+            "button_label_2": "",
+            "button_link_2": "",
+            "position_desktop": "middle-left",
+            "position_mobile": "default"
+          }
         }
       },
       "block_order": [
         "slide_XiD7hG",
-        "slide_CEfzyA",
-        "slide_WyUK3D"
+        "slide_WyUK3D",
+        "slide_CEfzyA"
       ],
       "name": "Parallax strip slider",
       "settings": {
