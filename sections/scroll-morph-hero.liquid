@@ -71,7 +71,6 @@
     overflow: hidden;
     isolation: isolate;
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: contain;
   }
   @media (min-width: 750px) {
     .smh { height: var(--smh-h-desktop); }
@@ -351,9 +350,8 @@
     id="smh-{{ section.id }}"
     class="smh{% if section.settings.full_screen %} smh--full{% endif %}"
     data-scroll-length="{{ section.settings.scroll_length }}"
-    data-release="{{ section.settings.release_scroll }}"
     data-parallax="{{ section.settings.enable_parallax }}"
-    data-snap="{{ section.settings.snap_into_view }}"
+    data-lock="{{ section.settings.lock_page }}"
     data-reveal="{{ section.settings.arc_reveal }}"
     data-card-width="{{ card_w }}"
     role="region"
@@ -454,7 +452,8 @@
     var MORPH_DISTANCE = 600; // virtual scroll px for circle \E2\86\92 arc
     var MAX_STEP = 120;       // max virtual px a single wheel/touch event can add
     var MAX_LEAD = 400;       // how far the scroll target may run ahead of what is on screen
-    var HOLD_MS = 450;        // pause on the finished state before the page scroll is released
+    var SETTLE_MS = 250;      // short pause on the finished state before releasing the page
+    var FAILSAFE_MS = 1500;   // release no matter what this long after reaching the end
 
     function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
     function lerp(a, b, t) { return a * (1 - t) + b * t; }
@@ -494,13 +493,11 @@
         this.arc = this.querySelector('[data-smh-arc]');
 
         this.maxScroll = Math.max(parseFloat(this.dataset.scrollLength) || 3000, MORPH_DISTANCE + 100);
-        this.releaseAtEdges = this.dataset.release === 'true';
+        this.lockPage = this.dataset.lock !== 'false';
         this.parallaxEnabled = this.dataset.parallax === 'true';
-        this.snapIntoView = this.dataset.snap === 'true';
         this.revealMode = this.dataset.reveal || 'shuffle';
         this.cardWidth = parseFloat(this.dataset.cardWidth) || 60;
         this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        this.designMode = !!(window.Shopify && window.Shopify.designMode);
 
         this.phase = 'scatter';
         this.scroll = 0;
@@ -518,9 +515,9 @@
         this.touchY = 0;
         this.touchMode = null;
 
-        // When each end state was reached on screen (0 = not reached)
-        this.startReachedAt = performance.now() - HOLD_MS;
-        this.endReachedAt = 0;
+        // Once true, the hero never captures scroll (until it is reset)
+        this.completed = false;
+        this.maxReachedAt = 0;
 
         // Global springs (useSpring equivalents)
         this.morph = new Spring(0, 40, 20, 0.0005);
@@ -570,9 +567,6 @@
         this.addEventListener('click', this.onClick);
         this.addEventListener('shopify:block:select', this.onBlockSelect);
         this.addEventListener('shopify:block:deselect', this.onBlockDeselect);
-
-        this.lastWinY = window.pageYOffset;
-        this.prevOff = this.alignOffset(this.getBoundingClientRect(), window.innerHeight);
         window.addEventListener('scroll', this.onWindowScroll, { passive: true });
 
         this.resizeObserver = new ResizeObserver(function (entries) {
@@ -644,40 +638,54 @@
         return visible / Math.min(r.height, vh);
       }
 
-      // Distance (px) the page must scroll to put the hero in its "pinned" spot:
-      // top-aligned if it is taller than the screen, centered otherwise.
-      alignOffset(r, vh) {
-        return r.height >= vh ? r.top : r.top - (vh - r.height) / 2;
-      }
-
-      // Smoothly bring the hero into its pinned spot (once per gesture)
+      // Gently bring the hero fully into view when the lock starts
       engage() {
         if (this.phase !== 'circle') this.skipIntro();
-        if (!this.snapIntoView || this.aligning) return;
+        if (!this.lockPage || this.aligning) return;
         var r = this.getBoundingClientRect();
         var vh = window.innerHeight;
         if (r.top >= 0 && r.bottom <= vh) return; // already fully visible
-        var off = this.alignOffset(r, vh);
+        var off = r.height >= vh ? r.top : r.top - (vh - r.height) / 2;
         if (Math.abs(off) < 2) return;
         var self = this;
         this.aligning = true;
         window.scrollTo({ top: window.pageYOffset + off, behavior: this.reducedMotion ? 'auto' : 'smooth' });
         clearTimeout(this.alignTimer);
-        this.alignTimer = setTimeout(function () { self.aligning = false; }, 500);
+        this.alignTimer = setTimeout(function () { self.aligning = false; }, 600);
       }
 
-      /* --- Has the animation really finished at this end? --- */
-      isSettled(dir) {
-        var t = dir > 0 ? this.endReachedAt : this.startReachedAt;
-        return !!t && performance.now() - t >= HOLD_MS;
+      /* --- Completion: once finished, the page scrolls freely both ways --- */
+      checkComplete(now) {
+        if (this.completed) return true;
+        if (this.scroll < this.maxScroll) { this.maxReachedAt = 0; return false; }
+        if (!this.maxReachedAt) this.maxReachedAt = now;
+        var waited = now - this.maxReachedAt;
+        var visualDone = this.morph.value > 0.99 && this.rotate.value > 358;
+        if (!this.lockPage || (visualDone && waited >= SETTLE_MS) || waited >= FAILSAFE_MS) {
+          this.completed = true;
+        }
+        return this.completed;
+      }
+
+      // Visitor went back above the hero: let the animation play again next time
+      onWindowScroll() {
+        if (!this.completed && this.scroll === 0) return;
+        var r = this.getBoundingClientRect();
+        if (r.top < window.innerHeight) return;
+        this.completed = false;
+        this.maxReachedAt = 0;
+        this.scroll = 0;
+        this.morph.target = 0;
+        this.rotate.target = 0;
+        this.snapNextFrame = true;
       }
 
       /* --- Virtual scroll --- */
       shouldCapture(delta) {
         if (!delta || !this.visible) return false;
-        if (this.visibleRatio() < 0.5) return false;
-        if (this.releaseAtEdges && this.isSettled(delta)) return false;
-        return true;
+        if (this.checkComplete(performance.now())) return false;   // finished \E2\86\92 never hold
+        if (delta < 0 && this.scroll <= 0) return false;            // at the start, scrolling up \E2\86\92 let go
+        return this.visibleRatio() >= (this.lockPage ? 0.5 : 0.8);
       }
 
       // Scroll position that matches what is currently drawn on screen
@@ -688,9 +696,11 @@
       }
 
       setScroll(value) {
-        // Fast flicks can't race ahead of the animation
-        var shown = this.shownScroll();
-        value = clamp(value, shown - MAX_LEAD, shown + MAX_LEAD);
+        if (this.lockPage) {
+          // Fast flicks can't race ahead of the animation
+          var shown = this.shownScroll();
+          value = clamp(value, shown - MAX_LEAD, shown + MAX_LEAD);
+        }
         this.scroll = clamp(value, 0, this.maxScroll);
         this.morph.target = clamp(this.scroll / MORPH_DISTANCE, 0, 1);
         this.rotate.target = clamp((this.scroll - MORPH_DISTANCE) / (this.maxScroll - MORPH_DISTANCE), 0, 1) * 360;
@@ -724,29 +734,9 @@
           if (this.touchMode === 'native') return;
           this.engage();
         }
+        if (this.checkComplete(performance.now())) return; // finished mid-swipe: stop blocking
         if (e.cancelable) e.preventDefault();
         this.setScroll(this.scroll + clamp(d, -MAX_STEP, MAX_STEP));
-      }
-
-      /* --- Safety net: a fast scroll (scrollbar, keyboard, touch momentum)
-             that jumps past the hero before it's finished gets pulled back --- */
-      onWindowScroll() {
-        var y = window.pageYOffset;
-        var dir = y - this.lastWinY;
-        this.lastWinY = y;
-        var r = this.getBoundingClientRect();
-        var vh = window.innerHeight;
-        var off = this.alignOffset(r, vh);
-        var prev = this.prevOff;
-        this.prevOff = off;
-
-        if (dir <= 0 || this.aligning || this.designMode || !this.snapIntoView) return;
-        if (this.isSettled(1)) return;
-        if (prev > 0 && off < 0) {
-          window.scrollTo(0, y + off);
-          this.lastWinY = y + off;
-          this.prevOff = 0;
-        }
       }
 
       /* --- Mouse parallax --- */
@@ -865,11 +855,7 @@
         var parallax = this.parallaxEnabled ? this.mouse.value : 0;
         var resting = globals.every(function (g) { return g.isResting(); });
 
-        // Track when each end of the animation is actually on screen
-        var atEnd = this.phase === 'circle' && this.scroll >= this.maxScroll && morph > 0.995 && rotateValue > 359;
-        var atStart = this.scroll <= 0 && morph < 0.005 && rotateValue < 1;
-        if (atEnd) { if (!this.endReachedAt) this.endReachedAt = now; } else { this.endReachedAt = 0; }
-        if (atStart) { if (!this.startReachedAt) this.startReachedAt = now; } else { this.startReachedAt = 0; }
+        this.checkComplete(now);
 
         for (var i = 0; i < this.total; i++) {
           var st = this.cardState[i];
@@ -901,7 +887,8 @@
         this.snapNextFrame = false;
         this.updateText(morph, rotateValue);
 
-        if (!(resting && this.phase === 'circle') && this.visible) {
+        var waitingToComplete = !this.completed && this.maxReachedAt;
+        if ((!(resting && this.phase === 'circle') || waitingToComplete) && this.visible) {
           this.raf = requestAnimationFrame(this.tick);
         }
       }
@@ -1075,16 +1062,9 @@
     },
     {
       "type": "checkbox",
-      "id": "snap_into_view",
+      "id": "lock_page",
       "label": "Hold the page until the animation finishes",
-      "info": "Snaps the section into view and stops fast scrolling from skipping past it.",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "release_scroll",
-      "label": "Continue page scroll at the start and end",
-      "info": "When off, the hero keeps capturing the scroll wheel while the pointer is over it.",
+      "info": "Scrolling plays the animation first, then the page continues. Fast scrolling can't skip it.",
       "default": true
     },
     {
