@@ -121,23 +121,40 @@
         "garment_HtznF9": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "classic-crew-neck-cotton-tee",
             "title": "Heavyweight tee · Bone",
             "tag": "$1008",
             "description": "240 gsm organic cotton with a tonal DHxWHY embroidery on the chest.",
             "details": "240 gsm, Regular fit, Tonal embroidery",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_438fcd30-b143-4d43-8376-509767e9ae67.png",
+            "side_image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_438fcd30-b143-4d43-8376-509767e9ae67.png"
+          }
+        },
+        "garment_QtMW3f": {
+          "type": "garment",
+          "settings": {
+            "product": "essential-heavyweight-oversized-tee",
+            "title": "Breton long sleeve",
+            "tag": "$58",
+            "description": "Classic ink-and-bone Breton stripe with a boat neck.",
+            "details": "220 gsm, Boat neck, Long sleeve",
+            "link": "",
+            "image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_8feacab9-623c-4985-921c-0c094035cde6.png",
+            "side_image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_48e83125-c2c4-43cc-a7d7-58750596b84f.png"
           }
         },
         "garment_7VP6EV": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "ribbed-fitted-crop-tee",
             "title": "Graphic tee · CCgather",
             "tag": "$52",
             "description": "Black tee with the CCgather wordmark printed front and back.",
             "details": "240 gsm, Regular fit, Screen print",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_3fce5b10-c7aa-416a-ad8f-c567249626ec.png",
+            "side_image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_19f3d5e0-cc44-490c-aeec-946ec2697a7c.png"
           }
         },
         "garment_DPrtka": {
@@ -206,19 +223,6 @@
             "link": ""
           }
         },
-        "garment_QtMW3f": {
-          "type": "garment",
-          "settings": {
-            "product": "essential-heavyweight-oversized-tee",
-            "title": "Breton long sleeve",
-            "tag": "$58",
-            "description": "Classic ink-and-bone Breton stripe with a boat neck.",
-            "details": "220 gsm, Boat neck, Long sleeve",
-            "link": "",
-            "image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_8feacab9-623c-4985-921c-0c094035cde6.png",
-            "side_image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_48e83125-c2c4-43cc-a7d7-58750596b84f.png"
-          }
-        },
         "garment_wwk9zJ": {
           "type": "garment",
           "settings": {
@@ -233,6 +237,7 @@
       },
       "block_order": [
         "garment_HtznF9",
+        "garment_QtMW3f",
         "garment_7VP6EV",
         "garment_DPrtka",
         "garment_tdArkj",
@@ -240,7 +245,6 @@
         "garment_zPirrd",
         "garment_RXefE9",
         "garment_3dCX8c",
-        "garment_QtMW3f",
         "garment_wwk9zJ"
       ],
       "name": "Clothing rail hero",
