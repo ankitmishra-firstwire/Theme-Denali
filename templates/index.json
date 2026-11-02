@@ -186,12 +186,14 @@
         "garment_7AmaF7": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "vintage-wash-denim-trucker-jacket",
             "title": "Hoodie · Maestiq",
             "tag": "$88",
             "description": "Heather fleece hoodie with the Maestiq wordmark across the chest.",
             "details": "400 gsm fleece, Kangaroo pocket, Chest print",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_32c09642-f4f8-4a04-b3f5-045b25768b10.png",
+            "side_image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_76129440-a7e8-4ab7-9911-f477e36d0fd4.png"
           }
         },
         "garment_zPirrd": {
