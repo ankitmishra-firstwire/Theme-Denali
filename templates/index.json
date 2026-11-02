@@ -160,23 +160,27 @@
         "garment_DPrtka": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "quilted-puffer-jacket",
             "title": "Oxford shirt · Sky",
             "tag": "$74",
             "description": "Pale sky oxford with a button-down collar and a tiny Maestiq embroidery.",
             "details": "Oxford cotton, Button-down collar, Chest pocket",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/womens-burgundy-puffer-jacket_9dae85e3-ca25-4570-9a82-7c7228995f1e.png",
+            "side_image": "shopify://shop_images/womens-burgundy-puffer-jacket_701e0dfb-898f-436f-a690-42c6d68bcf9a.png"
           }
         },
         "garment_tdArkj": {
           "type": "garment",
           "settings": {
-            "product": "",
+            "product": "wool-blend-overcoat",
             "title": "Knit cardigan · Olive",
             "tag": "$96",
             "description": "Chunky olive wool cardigan with wooden buttons and ribbed trims.",
             "details": "Lambswool, Wooden buttons, V-neck",
-            "link": ""
+            "link": "",
+            "image": "shopify://shop_images/mens-camel-wool-blend-overcoat_57ff3188-25d0-4f3b-9c51-fbf7c5004cda.png",
+            "side_image": "shopify://shop_images/mens-camel-wool-blend-overcoat_b07deb6b-3150-4f90-a0d9-cd50c2c3f847.png"
           }
         },
         "garment_7AmaF7": {
