@@ -20,7 +20,7 @@
     "color_schemes": {
       "scheme-1": {
         "settings": {
-          "background": "#FFFFFF",
+          "background": "#ffffff",
           "background_gradient": "",
           "text": "#1e2a26",
           "accent": "#2f5d50",
@@ -56,12 +56,12 @@
       },
       "scheme-4": {
         "settings": {
-          "background": "#202522",
+          "background": "#000000",
           "background_gradient": "",
           "text": "#f2f3f1",
           "accent": "#e7d9b8",
           "button": "#e7d9b8",
-          "button_label": "#202522",
+          "button_label": "#000000",
           "secondary_button_label": "#f2f3f1",
           "border": "#444a46"
         }
