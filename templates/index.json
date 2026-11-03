@@ -648,8 +648,8 @@
         "color_bg": "#fafafa",
         "color_intro_heading": "#1f2937",
         "color_intro_sub": "#6b7280",
-        "color_arc_heading": "#FFFFFF",
-        "color_arc_text": "#FFFFFF",
+        "color_arc_heading": "#ffffff",
+        "color_arc_text": "#ffffff",
         "color_arc_accent": "#60a5fa",
         "color_back_bg": "#111827",
         "color_back_border": "#374151",
@@ -937,7 +937,7 @@
         "button_label": "",
         "button_link": "",
         "alignment": "center",
-        "color_scheme": ""
+        "color_scheme": "scheme-4"
       }
     },
     "collection_carousel_fVVH8k": {
