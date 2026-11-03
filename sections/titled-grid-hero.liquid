@@ -1,0 +1,807 @@
+{%- comment -%}
+  Tilted Grid Hero
+  A row of images streams around the inside of a cylinder: the centre faces
+  you flat, the ends curl toward you and fade into the page.
+  Typography is NOT styled here \C3\A2\E2\82\AC\E2\80\9D headings, text and buttons inherit the
+  theme's own styles for the tags/classes used.
+{%- endcomment -%}
+
+{%- liquid
+  assign s = section.settings
+  assign heading_tag = s.heading_tag | default: 'h1'
+
+  case s.content_layout
+    when 'top'
+      assign justify = 'flex-start'
+    when 'center'
+      assign justify = 'center'
+    when 'bottom'
+      assign justify = 'flex-end'
+    else
+      assign justify = 'space-between'
+  endcase
+
+  case s.text_align
+    when 'left'
+      assign align_items = 'flex-start'
+    when 'right'
+      assign align_items = 'flex-end'
+    else
+      assign align_items = 'center'
+  endcase
+-%}
+
+<style>
+  #tgh-{{ section.id }} {
+    --tgh-h: {{ s.height_desktop }}px;
+    --tgh-h-mobile: {{ s.height_mobile }}px;
+    --tgh-fade: {{ s.fade }}%;
+    --tgh-tile-radius: {{ s.tile_radius }}px;
+    --tgh-radius: {{ s.radius }}px;
+    --tgh-content-pad: {{ s.content_padding }}px;
+    --tgh-content-max: {{ s.content_max_width }}px;
+    --tgh-justify: {{ justify }};
+    --tgh-align: {{ align_items }};
+    --tgh-text-align: {{ s.text_align }};
+    {%- if s.tile_bg != blank and s.tile_bg.alpha != 0 %}
+      --tgh-tile-bg: {{ s.tile_bg }};
+    {%- endif %}
+    {%- if s.bg_color != blank and s.bg_color.alpha != 0 %}
+      background-color: {{ s.bg_color }};
+    {%- endif %}
+    {%- if s.text_color != blank and s.text_color.alpha != 0 %}
+      color: {{ s.text_color }};
+    {%- endif %}
+    {%- if s.show_border %}
+      border: 1px solid {% if s.border_color != blank and s.border_color.alpha != 0 %}{{ s.border_color }}{% else %}rgba(127,127,127,.25){% endif %};
+    {%- endif %}
+  }
+  {%- if s.subtext_color != blank and s.subtext_color.alpha != 0 %}
+    #tgh-{{ section.id }} .tgh__text { color: {{ s.subtext_color }}; }
+  {%- endif %}
+  .tgh-section-{{ section.id }} {
+    padding-top: {{ s.padding_top }}px;
+    padding-bottom: {{ s.padding_bottom }}px;
+  }
+  {%- unless s.full_width %}
+    .tgh-section-{{ section.id }} .tgh-wrap {
+      max-width: {{ s.max_width }}px;
+      margin-inline: auto;
+      padding-inline: 1.5rem;
+    }
+  {%- endunless %}
+</style>
+
+<style>
+  .tgh-wrap { width: 100%; box-sizing: border-box; }
+
+  tilted-grid-hero.tgh {
+    --tgh-tile-bg: rgba(127, 127, 127, 0.15);
+    display: block;
+    position: relative;
+    overflow: hidden;
+    container-type: size;
+    height: var(--tgh-h-mobile);
+    border-radius: var(--tgh-radius);
+    box-sizing: border-box;
+    isolation: isolate;
+  }
+  @media screen and (min-width: 750px) {
+    tilted-grid-hero.tgh { height: var(--tgh-h); }
+  }
+
+  .tgh__band {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--tgh-fade), #000 calc(100% - var(--tgh-fade)), transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 var(--tgh-fade), #000 calc(100% - var(--tgh-fade)), transparent);
+  }
+  .tgh__band.is-ready { opacity: 1; }
+
+  .tgh__tile {
+    position: absolute;
+    transform-style: preserve-3d;
+  }
+  .tgh__strip {
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+    background: var(--tgh-tile-bg);
+    backface-visibility: hidden;
+  }
+  .tgh__strip--first { border-radius: var(--tgh-tile-radius) 0 0 var(--tgh-tile-radius); }
+  .tgh__strip--last  { border-radius: 0 var(--tgh-tile-radius) var(--tgh-tile-radius) 0; }
+  .tgh__strip img {
+    position: absolute;
+    top: 0;
+    display: block;
+    max-width: none;
+    object-fit: cover;
+    user-select: none;
+  }
+
+  /* Pausing (not removing) keeps every tile in place as a finished still */
+  tilted-grid-hero[data-pause-hover="true"]:hover .tgh__tile,
+  tilted-grid-hero.is-offscreen .tgh__tile { animation-play-state: paused; }
+  tilted-grid-hero[data-direction="reverse"] .tgh__tile { animation-direction: reverse; }
+  @media (prefers-reduced-motion: reduce) {
+    .tgh__tile { animation-play-state: paused !important; }
+  }
+
+  .tgh__content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: var(--tgh-justify);
+    align-items: var(--tgh-align);
+    text-align: var(--tgh-text-align);
+    gap: 1rem;
+    padding: var(--tgh-content-pad) 1.5rem;
+  }
+  .tgh__block {
+    max-width: var(--tgh-content-max);
+    display: flex;
+    flex-direction: column;
+    align-items: var(--tgh-align);
+    gap: 1rem;
+  }
+  .tgh__heading,
+  .tgh__text,
+  .tgh__text > *:first-child { margin-top: 0; }
+  .tgh__heading,
+  .tgh__text > *:last-child { margin-bottom: 0; }
+  .tgh__heading, .tgh__text { text-wrap: balance; }
+</style>
+
+<div class="tgh-section-{{ section.id }}">
+  <div class="tgh-wrap">
+    <tilted-grid-hero
+      id="tgh-{{ section.id }}"
+      class="tgh"
+      data-uid="{{ section.id }}"
+      data-speed="{{ s.speed }}"
+      data-tile-height="{{ s.tile_height }}"
+      data-aspect="{{ s.aspect_ratio }}"
+      data-gap="{{ s.gap }}"
+      data-axis="{{ s.axis }}"
+      data-curve="{{ s.curve }}"
+      data-pause-hover="{{ s.pause_on_hover }}"
+      data-direction="{% if s.direction == 'ltr' %}reverse{% else %}normal{% endif %}"
+    >
+      <script type="application/json" data-tgh-images>
+        [
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign src = ''
+              if block.settings.image != blank
+                assign src = block.settings.image | image_url: width: 1400
+              elsif block.settings.image_url != blank
+                assign src = block.settings.image_url
+              endif
+            -%}
+            {%- unless forloop.first -%},{%- endunless -%}
+            {"src": {{ src | json }}}
+          {%- endfor -%}
+        ]
+      </script>
+      <style data-tgh-style></style>
+
+      <div class="tgh__band" data-tgh-band aria-hidden="true"></div>
+
+      {%- if s.heading != blank or s.text != blank or s.button_label != blank -%}
+        <div class="tgh__content">
+          {%- if s.heading != blank -%}
+            <div class="tgh__block">
+              <{{ heading_tag }} class="tgh__heading {{ s.heading_class }}">
+                {{- s.heading | escape | newline_to_br -}}
+              </{{ heading_tag }}>
+            </div>
+          {%- endif -%}
+
+          {%- if s.text != blank or s.button_label != blank -%}
+            <div class="tgh__block">
+              {%- if s.text != blank -%}
+                <div class="tgh__text {{ s.text_class }}">{{ s.text }}</div>
+              {%- endif -%}
+              {%- if s.button_label != blank -%}
+                <a
+                  class="{{ s.button_class }}"
+                  {% if s.button_link != blank %}href="{{ s.button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}
+                >
+                  {{- s.button_label | escape -}}
+                </a>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </tilted-grid-hero>
+  </div>
+</div>
+
+<script>
+  (function () {
+    if (customElements.get('tilted-grid-hero')) return;
+
+    // Strips per tile: each a flat facet of the cylinder.
+    var SLICES = 16;
+    // Camera distance as a multiple of the cylinder radius.
+    var CAMERA = 1.6;
+    // A tile is never wider than this % of the hero.
+    var MAX_WIDTH = 55;
+
+    function num(v, fallback) {
+      var n = parseFloat(v);
+      return isFinite(n) ? n : fallback;
+    }
+    function fix(n, d) { return +n.toFixed(d); }
+
+    // Cylinder radius (share of width) that puts the frame edge `bend` rad round the arc.
+    function arc(bend) {
+      return (CAMERA - 1 + Math.cos(bend)) / (2 * CAMERA * Math.sin(bend));
+    }
+
+    function measure(width, height, tile, aspect, gap, bend) {
+      var h = Math.min((tile / 100) * height, ((MAX_WIDTH / 100) * width) / aspect);
+      var radius = width * arc(bend);
+      if (!(h > 0) || !(radius > 0)) return { columns: 2, sweep: 0, unit: 0, limit: 0 };
+      var deg = function (rad) { return (rad * 180) / Math.PI; };
+      var unit = deg(h / radius);
+      var pitch = (aspect + gap / 100) * unit;
+      var limit = deg(bend) + (aspect * unit) / 2;
+      var columns = Math.min(60, Math.max(2, Math.ceil((2 * limit) / pitch)));
+      var sweep = fix((columns * pitch) / 2, 4);
+      return { columns: columns, sweep: sweep, unit: fix(unit, 4), limit: fix(Math.min(sweep, limit), 4) };
+    }
+
+    class TiltedGridHero extends HTMLElement {
+      connectedCallback() {
+        this.band = this.querySelector('[data-tgh-band]');
+        this.styleEl = this.querySelector('[data-tgh-style]');
+        if (!this.band || !this.styleEl) return;
+
+        var d = this.dataset;
+        var curve = Math.min(85, Math.max(5, num(d.curve, 80)));
+        this.cfg = {
+          speed: Math.max(0.5, num(d.speed, 4)),
+          tileHeight: num(d.tileHeight, 26),
+          aspect: num(d.aspect, 16 / 9) || 16 / 9,
+          gap: num(d.gap, 6),
+          axis: num(d.axis, 56),
+          bend: (curve * Math.PI) / 180
+        };
+
+        var uid = 'tgh' + String(d.uid || Math.random().toString(36).slice(2)).replace(/[^a-zA-Z0-9]/g, '');
+        this.orbit = uid + '-orbit';
+
+        var images = [];
+        try {
+          images = JSON.parse(this.querySelector('[data-tgh-images]').textContent) || [];
+        } catch (e) {}
+        this.images = images.filter(function (i) { return i && i.src; });
+        if (!this.images.length) return;
+
+        // Fetch every image up front; a tile swaps just before it reappears.
+        this.images.forEach(function (i) { var im = new Image(); im.src = i.src; });
+
+        this.shown = {};
+        this.tiles = [];
+        this.layout = null;
+        this.band.innerHTML = '';
+
+        var self = this;
+        this.ro = new ResizeObserver(function (entries) {
+          var rect = entries[0].contentRect;
+          var c = self.cfg;
+          var next = measure(rect.width, rect.height, c.tileHeight, c.aspect, c.gap, c.bend);
+          var prev = self.layout;
+          if (prev && prev.columns === next.columns && prev.sweep === next.sweep && prev.unit === next.unit) return;
+          self.layout = next;
+          self.apply();
+          self.band.classList.add('is-ready');
+        });
+        this.ro.observe(this);
+
+        // Pause the animation while the hero is off-screen.
+        if ('IntersectionObserver' in window) {
+          this.io = new IntersectionObserver(function (entries) {
+            self.classList.toggle('is-offscreen', !entries[0].isIntersecting);
+          });
+          this.io.observe(this);
+        }
+      }
+
+      disconnectedCallback() {
+        if (this.ro) this.ro.disconnect();
+        if (this.io) this.io.disconnect();
+      }
+
+      // Every length is a multiple of the tile height.
+      u(n) {
+        var c = this.cfg;
+        return 'calc(' + fix(n, 4) + ' * min(' + c.tileHeight + 'cqh, ' + fix(MAX_WIDTH / c.aspect, 4) + 'cqw))';
+      }
+
+      turn(deg) {
+        var radius = this.radius;
+        return 'translateZ(' + radius + ') rotateY(' + fix(deg, 4) + 'deg) translateZ(-' + radius + ')';
+      }
+
+      makeTile(t) {
+        var self = this;
+        var c = this.cfg;
+        var share = c.aspect / SLICES;
+        var el = document.createElement('div');
+        el.className = 'tgh__tile';
+        el.style.left = 'calc(50% - ' + this.u(c.aspect / 2) + ')';
+        el.style.top = 'calc(' + c.axis + '% - ' + this.u(0.5) + ')';
+        el.style.width = this.u(c.aspect);
+        el.style.height = this.u(1);
+
+        var strips = [];
+        var imgs = [];
+        for (var k = 0; k < SLICES; k++) {
+          var strip = document.createElement('div');
+          strip.className = 'tgh__strip' + (k === 0 ? ' tgh__strip--first' : '') + (k === SLICES - 1 ? ' tgh__strip--last' : '');
+          strip.style.left = this.u((c.aspect - share) / 2);
+          // A pixel wider so neighbouring facets overlap with no hairline.
+          strip.style.width = k === SLICES - 1 ? this.u(share) : 'calc(' + this.u(share) + ' + 1px)';
+          strip.style.height = this.u(1);
+
+          var img = document.createElement('img');
+          img.alt = '';
+          img.draggable = false;
+          img.decoding = 'async';
+          img.style.left = this.u(-k * share);
+          img.style.width = this.u(c.aspect);
+          img.style.height = this.u(1);
+
+          strip.appendChild(img);
+          el.appendChild(strip);
+          strips.push(strip);
+          imgs.push(img);
+        }
+
+        // Each time the tile wraps (out of sight) it takes its next image.
+        el.addEventListener('animationiteration', function (e) {
+          if (e.target !== el || !self.layout) return;
+          var cols = self.layout.columns;
+          var lap = Math.round(e.elapsedTime / (cols * self.cfg.speed));
+          self.shown[t] = lap * cols + (cols - 1 - t);
+          self.setImage(t);
+        });
+
+        this.band.appendChild(el);
+        return { el: el, strips: strips, imgs: imgs, src: null };
+      }
+
+      setImage(t) {
+        var tile = this.tiles[t];
+        if (!tile) return;
+        var cols = this.layout.columns;
+        var first = cols - 1 - t;
+        var idx = this.shown[t] != null ? this.shown[t] : first;
+        var img = this.images[((idx % this.images.length) + this.images.length) % this.images.length];
+        if (!img || tile.src === img.src) return;
+        tile.src = img.src;
+        tile.imgs.forEach(function (i) { i.src = img.src; });
+      }
+
+      apply() {
+        var L = this.layout;
+        var c = this.cfg;
+        var r = 100 * arc(c.bend);
+        this.radius = fix(r, 3) + 'cqw';
+
+        this.band.style.perspective = fix(r * CAMERA, 3) + 'cqw';
+        this.band.style.perspectiveOrigin = '50% ' + c.axis + '%';
+
+        // Beyond `limit` a tile is wholly off-screen, so it's hidden there.
+        var hide = fix(((L.sweep - L.limit) / (2 * L.sweep || 1)) * 100, 4);
+        this.styleEl.textContent =
+          '@keyframes ' + this.orbit + '{' +
+          'from{transform:' + this.turn(-L.sweep) + '}to{transform:' + this.turn(L.sweep) + '}' +
+          '0%,' + hide + '%,' + (100 - hide) + '%,100%{visibility:hidden}' +
+          (hide + 0.001) + '%,' + (100 - hide - 0.001) + '%{visibility:visible}}';
+
+        while (this.tiles.length < L.columns) this.tiles.push(this.makeTile(this.tiles.length));
+        while (this.tiles.length > L.columns) {
+          var gone = this.tiles.pop();
+          gone.el.remove();
+          delete this.shown[this.tiles.length];
+        }
+
+        var share = c.aspect / SLICES;
+        var duration = L.columns * c.speed;
+        for (var t = 0; t < this.tiles.length; t++) {
+          var tile = this.tiles[t];
+          // Tile t starts t tiles along the loop.
+          tile.el.style.animation = this.orbit + ' ' + duration + 's linear ' + (-t * c.speed) + 's infinite';
+          for (var k = 0; k < SLICES; k++) {
+            tile.strips[k].style.transform = this.turn((c.aspect / 2 - (k + 0.5) * share) * L.unit);
+          }
+          this.setImage(t);
+        }
+      }
+    }
+
+    customElements.define('tilted-grid-hero', TiltedGridHero);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Tilted grid hero",
+  "tag": "section",
+  "class": "section section-tilted-grid-hero",
+  "max_blocks": 30,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Every frame,\nbrought into focus.",
+      "info": "Press Enter for a line break."
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag",
+      "info": "The heading takes your theme's style for this tag.",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h4", "label": "H4" },
+        { "value": "p", "label": "Paragraph" },
+        { "value": "div", "label": "Div" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "text",
+      "id": "heading_class",
+      "label": "Heading extra CSS class",
+      "info": "Optional. Add a theme class such as h0 or h1 to change the heading size."
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Images curve in from one edge, flatten out at the centre, then fade away round the other.</p>"
+    },
+    {
+      "type": "text",
+      "id": "text_class",
+      "label": "Text extra CSS class",
+      "info": "Optional. For example rte or a theme body class."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "text",
+      "id": "button_class",
+      "label": "Button CSS class",
+      "default": "button",
+      "info": "Uses your theme's button style, e.g. button or button button--secondary."
+    },
+    {
+      "type": "header",
+      "content": "Content layout"
+    },
+    {
+      "type": "select",
+      "id": "content_layout",
+      "label": "Content position",
+      "options": [
+        { "value": "split", "label": "Heading top, text bottom" },
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "split"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 300,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "content_padding",
+      "label": "Content vertical padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Image row"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Seconds per tile",
+      "info": "Time for the row to move by one tile. Lower is faster.",
+      "min": 1,
+      "max": 12,
+      "step": 0.5,
+      "unit": "s",
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Direction",
+      "options": [
+        { "value": "rtl", "label": "Right to left" },
+        { "value": "ltr", "label": "Left to right" }
+      ],
+      "default": "rtl"
+    },
+    {
+      "type": "range",
+      "id": "tile_height",
+      "label": "Tile height",
+      "info": "Percentage of the hero height.",
+      "min": 10,
+      "max": 60,
+      "step": 1,
+      "unit": "%",
+      "default": 26
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Tile shape",
+      "options": [
+        { "value": "1.7778", "label": "Wide (16:9)" },
+        { "value": "2.3333", "label": "Cinema (21:9)" },
+        { "value": "1.5", "label": "Landscape (3:2)" },
+        { "value": "1.3333", "label": "Classic (4:3)" },
+        { "value": "1", "label": "Square (1:1)" },
+        { "value": "0.8", "label": "Portrait (4:5)" }
+      ],
+      "default": "1.7778"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between tiles",
+      "info": "Percentage of tile height.",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "%",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "axis",
+      "label": "Row vertical position",
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "curve",
+      "label": "Curve strength",
+      "info": "Higher bends the ends harder toward the viewer.",
+      "min": 5,
+      "max": 85,
+      "step": 1,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "fade",
+      "label": "Edge fade width",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "%",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "tile_radius",
+      "label": "Tile corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause on hover",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Size"
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "Height on desktop",
+      "min": 300,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Height on mobile",
+      "min": 260,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "default": 460
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width (when not full width)",
+      "min": 800,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Hero corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors",
+      "info": "Leave a color empty to use your theme's colors."
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Heading and text"
+    },
+    {
+      "type": "color",
+      "id": "subtext_color",
+      "label": "Text (override)"
+    },
+    {
+      "type": "color",
+      "id": "tile_bg",
+      "label": "Tile placeholder",
+      "info": "Shown while an image loads."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border",
+      "label": "Show border",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border"
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "image_url",
+          "label": "Or image URL",
+          "info": "Used only when no image is picked above."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tilted grid hero",
+      "blocks": [
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80&auto=format&fit=crop" } },
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1400&q=80&auto=format&fit=crop" } },
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=80&auto=format&fit=crop" } },
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&q=80&auto=format&fit=crop" } },
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80&auto=format&fit=crop" } },
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80&auto=format&fit=crop" } },
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&q=80&auto=format&fit=crop" } },
+        { "type": "image", "settings": { "image_url": "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1400&q=80&auto=format&fit=crop" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
