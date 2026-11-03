@@ -1079,7 +1079,7 @@
       "type": "image-with-overlap-card",
       "name": "Image with overlap card",
       "settings": {
-        "image": "shopify://shop_images/about.jpg",
+        "image": "shopify://shop_images/about-sec.webp",
         "image_position": "right",
         "image_width": 64,
         "image_height": "custom",
