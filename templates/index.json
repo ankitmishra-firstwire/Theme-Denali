@@ -1081,9 +1081,9 @@
       "settings": {
         "image": "shopify://shop_images/about-sec.webp",
         "image_position": "right",
-        "image_width": 64,
+        "image_width": 62,
         "image_height": "custom",
-        "image_height_desktop": 580,
+        "image_height_desktop": 490,
         "image_height_mobile": 320,
         "image_focus": "default",
         "image_radius": 0,
