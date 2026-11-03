@@ -535,7 +535,7 @@
         "bg_reveal": "circle",
         "bg_duration": 1600,
         "bg_overlay_color": "#ffffff",
-        "bg_overlay_opacity": 40,
+        "bg_overlay_opacity": 0,
         "full_screen": false,
         "height_desktop": 800,
         "height_mobile": 640,
