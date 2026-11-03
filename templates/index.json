@@ -928,18 +928,6 @@
         "color_scheme": "scheme-4"
       }
     },
-    "rich_text": {
-      "type": "rich-text",
-      "settings": {
-        "subheading": "Our story",
-        "heading": "Thoughtfully grown for everyday life",
-        "text": "<p>Share your brand story, values or a message with your customers.</p>",
-        "button_label": "",
-        "button_link": "",
-        "alignment": "center",
-        "color_scheme": "scheme-4"
-      }
-    },
     "collection_carousel_fVVH8k": {
       "type": "collection-carousel",
       "blocks": {
@@ -1002,7 +990,7 @@
         "subheading": "Browse our latest collections, picked for the season.",
         "heading_alignment": "center",
         "heading_size": 40,
-        "heading_color": "#1a1a1a",
+        "heading_color": "#000000",
         "subheading_color": "#5c5c5c",
         "background": "#ffffff",
         "full_width": true,
@@ -1610,7 +1598,6 @@
     "collection_bento",
     "featured_product",
     "hotspots",
-    "rich_text",
     "collection_carousel_fVVH8k",
     "collection_product_scroll_iXcUpD",
     "image_with_overlap_card_i4MYrd",
