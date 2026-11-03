@@ -63,7 +63,7 @@
           "button": "#e7d9b8",
           "button_label": "#000000",
           "secondary_button_label": "#f2f3f1",
-          "border": "#444a46"
+          "border": "#000000"
         }
       }
     }
