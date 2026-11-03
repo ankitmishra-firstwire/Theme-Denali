@@ -34,11 +34,11 @@
         "settings": {
           "background": "#f4f1ea",
           "background_gradient": "",
-          "text": "#1e2a26",
+          "text": "#000000",
           "accent": "#2f5d50",
-          "button": "#1e2a26",
+          "button": "#000000",
           "button_label": "#ffffff",
-          "secondary_button_label": "#1e2a26",
+          "secondary_button_label": "#000000",
           "border": "#d6d0c2"
         }
       },
