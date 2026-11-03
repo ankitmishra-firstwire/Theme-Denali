@@ -25,7 +25,7 @@
         "mega_menu_WpxwnP": {
           "type": "mega_menu",
           "settings": {
-            "menu_item": "",
+            "menu_item": "New Arrivals",
             "layout": "columns",
             "column_menu": "",
             "show_links": true,
