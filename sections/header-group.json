@@ -22,6 +22,69 @@
     "header": {
       "type": "header",
       "blocks": {
+        "mega_menu_fLYFUf": {
+          "type": "mega_menu",
+          "settings": {
+            "menu_item": "New Arrivals",
+            "layout": "products",
+            "column_menu": "",
+            "show_links": true,
+            "show_headings": true,
+            "columns": 4,
+            "show_view_all": false,
+            "collections": [],
+            "products": [
+              "linen-wrap-maxi-dress",
+              "essential-heavyweight-oversized-tee",
+              "quilted-puffer-jacket",
+              "ribbed-fitted-crop-tee"
+            ],
+            "media_count": 4,
+            "media_position": "right",
+            "media_width": 60,
+            "image_ratio": "4 / 5",
+            "card_max_height": 220,
+            "image_radius": 4,
+            "show_card_text": true,
+            "show_buttons": true,
+            "show_price": true,
+            "show_vendor": false,
+            "show_product_count": false,
+            "title_1": "",
+            "text_1": "",
+            "button_1": "",
+            "link_1": "",
+            "title_2": "",
+            "text_2": "",
+            "button_2": "",
+            "link_2": "",
+            "title_3": "",
+            "text_3": "",
+            "button_3": "",
+            "link_3": "",
+            "title_4": "",
+            "text_4": "",
+            "button_4": "",
+            "link_4": "",
+            "promo_height": 300,
+            "promo_overlay": 30,
+            "promo_text_position": "bottom-left",
+            "custom_text": "",
+            "custom_liquid": "",
+            "width_mode": "full",
+            "custom_width": 1000,
+            "align": "center",
+            "padding_y": 28,
+            "gap": 32,
+            "bg_color": "",
+            "text_color": "",
+            "heading_color": "",
+            "hover_color": "",
+            "animation": "inherit",
+            "speed": 0,
+            "mobile_show_media": true
+          }
+        },
         "mega_menu_MC8XLM": {
           "type": "mega_menu",
           "settings": {
@@ -87,6 +150,7 @@
         }
       },
       "block_order": [
+        "mega_menu_fLYFUf",
         "mega_menu_MC8XLM"
       ],
       "settings": {
