@@ -59,7 +59,7 @@
           "background": "#ffffff",
           "background_gradient": "",
           "text": "#000000",
-          "accent": "#e7d9b8",
+          "accent": "#000000",
           "button": "#000000",
           "button_label": "#000000",
           "secondary_button_label": "#000000",
