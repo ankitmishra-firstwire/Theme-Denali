@@ -980,14 +980,6 @@
         "color_scheme": ""
       }
     },
-    "newsletter": {
-      "type": "newsletter",
-      "settings": {
-        "heading": "Stay in the loop",
-        "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
-        "color_scheme": ""
-      }
-    },
     "collection_carousel_fVVH8k": {
       "type": "collection-carousel",
       "blocks": {
@@ -1489,6 +1481,14 @@
         "caption_color": "#f4efe7",
         "accent_color": "#c9a27a"
       }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Stay in the loop",
+        "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
+        "color_scheme": ""
+      }
     }
   },
   "order": [
@@ -1497,18 +1497,18 @@
     "ferris_wheel_gallery_DfdeLM",
     "scroll_morph_hero_3prAnb",
     "grid_features_card_gY4nYg",
-    "testimonial_autoscroll_iJ4ch6",
     "slideshow",
     "featured_collection",
     "collection_bento",
     "featured_product",
     "hotspots",
     "rich_text",
-    "newsletter",
     "collection_carousel_fVVH8k",
     "collection_product_scroll_iXcUpD",
     "image_with_overlap_card_i4MYrd",
     "fashion_hover_reveal_KT6XNt",
-    "scroll_expand_lookbook_hCCxWy"
+    "scroll_expand_lookbook_hCCxWy",
+    "testimonial_autoscroll_iJ4ch6",
+    "newsletter"
   ]
 }
