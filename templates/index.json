@@ -1119,7 +1119,7 @@
         "body_line_height": 19,
         "background": "#f2f2f2",
         "eyebrow_color": "#e0a23b",
-        "heading_color": "#1a1a1a",
+        "heading_color": "#000000",
         "body_color": "#3a3a3a",
         "button_label": "",
         "button_link": "",
