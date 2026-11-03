@@ -888,7 +888,7 @@
     "featured_product": {
       "type": "featured-product",
       "custom_css": [
-        ".shopify-payment-button__button--unbranded{background-color: #000;}"
+        ".shopify-payment-button__button--unbranded {background-color: #000;}"
       ],
       "settings": {
         "product": "linen-wrap-maxi-dress",
@@ -1050,6 +1050,110 @@
         "dot_style": "dots",
         "dot_color": "#c8c8c8",
         "dot_active_color": "#1a1a1a"
+      }
+    },
+    "fashion_hover_reveal_KT6XNt": {
+      "type": "fashion-hover-reveal",
+      "blocks": {
+        "item_taLjM8": {
+          "type": "item",
+          "settings": {
+            "title": "Dresses",
+            "tag": "dresses",
+            "image": "shopify://shop_images/womens-stone-beige-wrap-dress.png",
+            "link": "shopify://collections/dresses"
+          }
+        },
+        "item_thbDGn": {
+          "type": "item",
+          "settings": {
+            "title": "T-Shirts",
+            "tag": "T-Shirts",
+            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt.png",
+            "link": "shopify://collections/t-shirts"
+          }
+        },
+        "item_YKMgie": {
+          "type": "item",
+          "settings": {
+            "title": "Jackets",
+            "tag": "Jackets",
+            "image": "shopify://shop_images/mens-deep-navy-full-zip-hoodie.png",
+            "link": "shopify://collections/jackets"
+          }
+        },
+        "item_9E3kcK": {
+          "type": "item",
+          "settings": {
+            "title": "Hoodie",
+            "tag": "Hoodie",
+            "image": "shopify://shop_images/washed-charcoal-pullover-hoodie.png",
+            "link": "shopify://collections/hoodies-sweatshirts"
+          }
+        }
+      },
+      "block_order": [
+        "item_taLjM8",
+        "item_thbDGn",
+        "item_YKMgie",
+        "item_9E3kcK"
+      ],
+      "name": "Fashion hover reveal",
+      "settings": {
+        "eyebrow": "The Edit",
+        "heading": "Dressed for <em>every</em> season",
+        "description": "Hover over a collection to preview the look. New pieces arrive every week.",
+        "view_all_label": "View all collections",
+        "view_all_link": "shopify://collections",
+        "header_layout": "split",
+        "heading_size": 56,
+        "title_size_desktop": 88,
+        "title_size_mobile": 34,
+        "title_weight": "400",
+        "title_tightening": 2,
+        "title_uppercase": false,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "show_numbers": true,
+        "show_tags": true,
+        "show_arrow": true,
+        "show_dividers": true,
+        "row_padding": 22,
+        "hover_style": "fill",
+        "dim_opacity": 25,
+        "reveal_on_scroll": true,
+        "animation_speed": 800,
+        "preview_width": 300,
+        "preview_ratio": "3 / 4",
+        "preview_radius": 4,
+        "preview_layer": "behind",
+        "follow_smoothness": 5,
+        "preview_tilt": true,
+        "preview_shadow": true,
+        "mobile_image": "thumb",
+        "thumb_size": 72,
+        "show_marquee": true,
+        "marquee_text": "New season|Free shipping over $150|Shop the lookbook|Made to last",
+        "marquee_separator": "✦",
+        "marquee_position": "bottom",
+        "marquee_direction": "left",
+        "marquee_speed": 54,
+        "marquee_size": 16,
+        "marquee_padding": 14,
+        "marquee_tilt": false,
+        "marquee_pause": true,
+        "marquee_use_font": false,
+        "marquee_bg": "#141414",
+        "marquee_text_color": "#f5f1ea",
+        "background": "#f5f1ea",
+        "text_color": "#141414",
+        "muted_color": "#7a7368",
+        "accent_color": "#a8432c",
+        "divider_color": "#d9d1c4",
+        "full_width": true,
+        "side_padding": 48,
+        "padding_top": 96,
+        "padding_bottom": 0
       }
     },
     "collection_product_scroll_iXcUpD": {
@@ -1231,110 +1335,6 @@
         "mobile_layout": "stack",
         "mobile_overlap": 40,
         "mobile_side_space": 16
-      }
-    },
-    "fashion_hover_reveal_KT6XNt": {
-      "type": "fashion-hover-reveal",
-      "blocks": {
-        "item_taLjM8": {
-          "type": "item",
-          "settings": {
-            "title": "Dresses",
-            "tag": "dresses",
-            "image": "shopify://shop_images/womens-stone-beige-wrap-dress.png",
-            "link": "shopify://collections/dresses"
-          }
-        },
-        "item_thbDGn": {
-          "type": "item",
-          "settings": {
-            "title": "T-Shirts",
-            "tag": "T-Shirts",
-            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt.png",
-            "link": "shopify://collections/t-shirts"
-          }
-        },
-        "item_YKMgie": {
-          "type": "item",
-          "settings": {
-            "title": "Jackets",
-            "tag": "Jackets",
-            "image": "shopify://shop_images/mens-deep-navy-full-zip-hoodie.png",
-            "link": "shopify://collections/jackets"
-          }
-        },
-        "item_9E3kcK": {
-          "type": "item",
-          "settings": {
-            "title": "Hoodie",
-            "tag": "Hoodie",
-            "image": "shopify://shop_images/washed-charcoal-pullover-hoodie.png",
-            "link": "shopify://collections/hoodies-sweatshirts"
-          }
-        }
-      },
-      "block_order": [
-        "item_taLjM8",
-        "item_thbDGn",
-        "item_YKMgie",
-        "item_9E3kcK"
-      ],
-      "name": "Fashion hover reveal",
-      "settings": {
-        "eyebrow": "The Edit",
-        "heading": "Dressed for <em>every</em> season",
-        "description": "Hover over a collection to preview the look. New pieces arrive every week.",
-        "view_all_label": "View all collections",
-        "view_all_link": "shopify://collections",
-        "header_layout": "split",
-        "heading_size": 56,
-        "title_size_desktop": 88,
-        "title_size_mobile": 34,
-        "title_weight": "400",
-        "title_tightening": 2,
-        "title_uppercase": false,
-        "use_custom_font": false,
-        "title_font": "assistant_n4",
-        "show_numbers": true,
-        "show_tags": true,
-        "show_arrow": true,
-        "show_dividers": true,
-        "row_padding": 22,
-        "hover_style": "fill",
-        "dim_opacity": 25,
-        "reveal_on_scroll": true,
-        "animation_speed": 800,
-        "preview_width": 300,
-        "preview_ratio": "3 / 4",
-        "preview_radius": 4,
-        "preview_layer": "behind",
-        "follow_smoothness": 5,
-        "preview_tilt": true,
-        "preview_shadow": true,
-        "mobile_image": "thumb",
-        "thumb_size": 72,
-        "show_marquee": true,
-        "marquee_text": "New season|Free shipping over $150|Shop the lookbook|Made to last",
-        "marquee_separator": "✦",
-        "marquee_position": "bottom",
-        "marquee_direction": "left",
-        "marquee_speed": 54,
-        "marquee_size": 16,
-        "marquee_padding": 14,
-        "marquee_tilt": false,
-        "marquee_pause": true,
-        "marquee_use_font": false,
-        "marquee_bg": "#141414",
-        "marquee_text_color": "#f5f1ea",
-        "background": "#f5f1ea",
-        "text_color": "#141414",
-        "muted_color": "#7a7368",
-        "accent_color": "#a8432c",
-        "divider_color": "#d9d1c4",
-        "full_width": true,
-        "side_padding": 48,
-        "padding_top": 96,
-        "padding_bottom": 0
       }
     },
     "scroll_expand_lookbook_hCCxWy": {
@@ -1602,9 +1602,9 @@
     "featured_product",
     "hotspots",
     "collection_carousel_fVVH8k",
+    "fashion_hover_reveal_KT6XNt",
     "collection_product_scroll_iXcUpD",
     "image_with_overlap_card_i4MYrd",
-    "fashion_hover_reveal_KT6XNt",
     "scroll_expand_lookbook_hCCxWy",
     "testimonial_autoscroll_iJ4ch6",
     "newsletter"
