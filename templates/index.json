@@ -819,7 +819,7 @@
         "description": "<p>Discover the products featured in this image.</p>",
         "image": "shopify://shop_images/Premium_Olive_Bomber_and_Cream_Tee_Display.png",
         "link_label": "View product",
-        "color_scheme": ""
+        "color_scheme": "scheme-4"
       }
     },
     "rich_text": {
