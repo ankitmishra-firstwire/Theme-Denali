@@ -958,19 +958,19 @@
             "button_label": ""
           }
         },
-        "collection_X9GbRr": {
+        "collection_dpG6WP": {
           "type": "collection",
           "settings": {
-            "collection": "dresses",
+            "collection": "hoodies-sweatshirts",
             "title": "",
             "description": "",
             "button_label": ""
           }
         },
-        "collection_dpG6WP": {
+        "collection_X9GbRr": {
           "type": "collection",
           "settings": {
-            "collection": "hoodies-sweatshirts",
+            "collection": "dresses",
             "title": "",
             "description": "",
             "button_label": ""
@@ -981,8 +981,8 @@
         "collection_FF9rJe",
         "collection_MFgjAg",
         "collection_xUGPWW",
-        "collection_X9GbRr",
-        "collection_dpG6WP"
+        "collection_dpG6WP",
+        "collection_X9GbRr"
       ],
       "name": "Collection carousel",
       "settings": {
