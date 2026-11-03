@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "type": "header",
   "name": "Header group",
@@ -6,16 +15,154 @@
       "type": "announcement-bar",
       "settings": {
         "text": "Free shipping on orders over $50",
+        "link": "",
         "color_scheme": "scheme-3"
       }
     },
     "header": {
       "type": "header",
+      "blocks": {
+        "mega_menu_MC8XLM": {
+          "type": "mega_menu",
+          "settings": {
+            "menu_item": "Catalog",
+            "layout": "columns",
+            "column_menu": "",
+            "show_links": true,
+            "show_headings": true,
+            "columns": 4,
+            "show_view_all": false,
+            "collections": [
+              "dresses",
+              "hoodies-sweatshirts",
+              "jackets",
+              "shirts",
+              "t-shirts"
+            ],
+            "products": [
+              "brushed-flannel-shirt",
+              "classic-oxford-button-down",
+              "linen-wrap-maxi-dress",
+              "minimal-french-terry-hoodie",
+              "cropped-fleece-hoodie"
+            ],
+            "media_count": 4,
+            "media_columns": 2,
+            "media_position": "right",
+            "media_width": 45,
+            "image_ratio": "4 / 5",
+            "image_radius": 4,
+            "show_card_text": true,
+            "show_buttons": true,
+            "show_price": true,
+            "show_vendor": false,
+            "show_product_count": false,
+            "title_1": "",
+            "text_1": "",
+            "button_1": "",
+            "link_1": "",
+            "title_2": "",
+            "text_2": "",
+            "button_2": "",
+            "link_2": "",
+            "title_3": "",
+            "text_3": "",
+            "button_3": "",
+            "link_3": "",
+            "promo_height": 360,
+            "promo_overlay": 30,
+            "promo_text_position": "bottom-left",
+            "custom_text": "",
+            "custom_liquid": "",
+            "width_mode": "full",
+            "custom_width": 1000,
+            "align": "center",
+            "padding_y": 40,
+            "gap": 32,
+            "bg_color": "",
+            "text_color": "",
+            "heading_color": "",
+            "hover_color": "",
+            "animation": "inherit",
+            "speed": 0,
+            "mobile_show_media": true
+          }
+        }
+      },
+      "block_order": [
+        "mega_menu_MC8XLM"
+      ],
       "settings": {
+        "layout": "left_center",
+        "mobile_layout": "logo_center",
+        "container_width": "page",
+        "max_width": 1400,
+        "padding_x": 32,
+        "header_height": 80,
+        "header_height_mobile": 60,
+        "nav_row_height": 48,
+        "nav_align": "center",
+        "nav_gap": 28,
+        "logo_width": 140,
+        "logo_width_mobile": 100,
         "menu": "main-menu",
-        "color_scheme": "scheme-1"
+        "mobile_menu": "",
+        "menu_trigger": "hover",
+        "open_delay": 75,
+        "close_delay": 250,
+        "transition_speed": 250,
+        "default_animation": "slide",
+        "hover_effect": "underline",
+        "mega_overlay": true,
+        "dropdown_width": 240,
+        "dropdown_align": "left",
+        "nav_font": "assistant_n4",
+        "nav_size": 15,
+        "nav_size_mobile": 17,
+        "nav_transform": "none",
+        "nav_tracking": 0,
+        "bg_color": "#ffffff",
+        "text_color": "#1c1c1c",
+        "accent_color": "#2f5d50",
+        "border_color": "#e7e7e3",
+        "dropdown_bg": "#ffffff",
+        "dropdown_text": "#1c1c1c",
+        "badge_bg": "#2f5d50",
+        "badge_text": "#ffffff",
+        "sticky_mode": "always",
+        "transparent_mode": "none",
+        "transparent_text_color": "#ffffff",
+        "border_width": 1,
+        "shadow": "none",
+        "shadow_on_scroll": true,
+        "icon_size": 22,
+        "icon_gap": 14,
+        "show_search": true,
+        "show_search_mobile": true,
+        "search_style": "panel",
+        "search_placeholder": "Search products",
+        "show_account": true,
+        "show_account_mobile": false,
+        "show_wishlist": false,
+        "show_wishlist_mobile": false,
+        "wishlist_url": "",
+        "show_cart": true,
+        "ann_autoplay": true,
+        "ann_speed": 5,
+        "ann_font_size": 13,
+        "drawer_side": "left",
+        "drawer_width": 380,
+        "drawer_bg": "#ffffff",
+        "drawer_text": "#1c1c1c",
+        "drawer_single_open": true,
+        "drawer_show_account": true,
+        "drawer_show_wishlist": false,
+        "drawer_footer_text": ""
       }
     }
   },
-  "order": ["announcement", "header"]
+  "order": [
+    "announcement",
+    "header"
+  ]
 }
