@@ -26,14 +26,19 @@
           "type": "mega_menu",
           "settings": {
             "menu_item": "New Arrivals",
-            "layout": "columns",
+            "layout": "products",
             "column_menu": "",
             "show_links": true,
             "show_headings": true,
             "columns": 4,
             "show_view_all": false,
             "collections": [],
-            "products": [],
+            "products": [
+              "classic-crew-neck-cotton-tee",
+              "essential-heavyweight-oversized-tee",
+              "linen-wrap-maxi-dress",
+              "relaxed-linen-resort-shirt"
+            ],
             "media_count": 4,
             "media_position": "right",
             "media_width": 60,
