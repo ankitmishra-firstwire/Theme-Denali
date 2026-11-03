@@ -1,5 +1,5 @@
 {%- comment -%}
-  Scroll Morph Hero \E2\80\94 Shopify section
+  Scroll Morph Hero - Shopify section
   Port of the React / Framer Motion "scroll-morph-hero" component.
   No external dependencies: the spring physics, virtual scroll, parallax
   and card flip are re-implemented in vanilla JS + CSS.
@@ -10,8 +10,13 @@
     page is only released once the final state is actually on screen).
   - The arc heading sits in the center and reveals word by word.
 
+  v3:
+  - Optional background image banner. It flows in (circle expand, wipe up
+    or fade) at the same moment the arc heading starts revealing, and
+    hides again if the visitor scrolls back.
+
   Install: save as sections/scroll-morph-hero.liquid,
-  then Online Store \E2\86\92 Customize \E2\86\92 Add section \E2\86\92 "Scroll morph hero".
+  then Online Store -> Customize -> Add section -> "Scroll morph hero".
 {%- endcomment -%}
 
 {%- liquid
@@ -33,6 +38,9 @@
   endif
 
   assign arc_words = section.settings.arc_heading | strip | split: ' '
+
+  assign bg_overlay_opacity = section.settings.bg_overlay_opacity | divided_by: 100.0
+  assign bg_duration = section.settings.bg_duration | divided_by: 1000.0
 -%}
 
 {%- style -%}
@@ -56,6 +64,9 @@
     --smh-h-mobile: {{ section.settings.height_mobile }}px;
     --smh-h-desktop: {{ section.settings.height_desktop }}px;
     --smh-radius: {{ section.settings.border_radius }}px;
+    --smh-bg-overlay: {{ section.settings.bg_overlay_color }};
+    --smh-bg-overlay-opacity: {{ bg_overlay_opacity }};
+    --smh-bg-duration: {{ bg_duration }}s;
   }
 {%- endstyle -%}
 
@@ -87,6 +98,75 @@
     clip: rect(0, 0, 0, 0) !important;
     white-space: nowrap !important;
     border: 0 !important;
+  }
+
+  /* Background image banner: hidden until the arc heading reveals */
+  .smh .smh__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease, clip-path 0.6s ease, -webkit-clip-path 0.6s ease;
+  }
+  .smh .smh__bg-img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    transform: scale(1.18);
+    filter: blur(14px);
+    transition: transform 0.6s ease, filter 0.6s ease;
+    will-change: transform, filter;
+  }
+  .smh .smh__bg-img--mobile { display: none; }
+  @media (max-width: 749px) {
+    .smh .smh__bg--has-mobile .smh__bg-img--desktop { display: none; }
+    .smh .smh__bg--has-mobile .smh__bg-img--mobile { display: block; }
+  }
+  .smh .smh__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--smh-bg-overlay);
+    opacity: var(--smh-bg-overlay-opacity);
+  }
+
+  /* Reveal styles (starting shape) */
+  .smh .smh__bg--circle {
+    -webkit-clip-path: circle(0% at 50% 55%);
+    clip-path: circle(0% at 50% 55%);
+  }
+  .smh .smh__bg--wipe {
+    -webkit-clip-path: inset(100% 0 0 0);
+    clip-path: inset(100% 0 0 0);
+  }
+
+  /* Revealed state (toggled together with the arc heading) */
+  .smh.smh--bg-on .smh__bg {
+    opacity: 1;
+    transition:
+      opacity calc(var(--smh-bg-duration) * 0.5) ease,
+      clip-path var(--smh-bg-duration) cubic-bezier(0.65, 0, 0.35, 1),
+      -webkit-clip-path var(--smh-bg-duration) cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .smh.smh--bg-on .smh__bg--circle {
+    -webkit-clip-path: circle(80% at 50% 55%);
+    clip-path: circle(80% at 50% 55%);
+  }
+  .smh.smh--bg-on .smh__bg--wipe {
+    -webkit-clip-path: inset(0 0 0 0);
+    clip-path: inset(0 0 0 0);
+  }
+  .smh.smh--bg-on .smh__bg-img {
+    transform: scale(1);
+    filter: blur(0);
+    transition:
+      transform calc(var(--smh-bg-duration) * 1.6) cubic-bezier(0.16, 1, 0.3, 1),
+      filter var(--smh-bg-duration) ease;
   }
 
   /* Intro text (fades out as the circle morphs) */
@@ -336,6 +416,10 @@
     .smh .smh__word,
     .smh .smh__arc-line,
     .smh .smh__arc-text,
+    .smh .smh__bg,
+    .smh .smh__bg-img,
+    .smh.smh--bg-on .smh__bg,
+    .smh.smh--bg-on .smh__bg-img,
     .smh .smh__arc.is-revealed .smh__word,
     .smh .smh__arc.is-revealed .smh__arc-line,
     .smh .smh__arc.is-revealed .smh__arc-text {
@@ -357,6 +441,49 @@
     role="region"
     aria-label="{{ section.settings.arc_heading | default: section.settings.intro_heading | escape }}"
   >
+    {%- if section.settings.bg_image != blank -%}
+      {%- liquid
+        assign bg_focal = section.settings.bg_image.presentation.focal_point | default: 'center'
+        assign bg_style = 'object-position: ' | append: bg_focal | append: ';'
+        assign bg_has_mobile = false
+        if section.settings.bg_image_mobile != blank
+          assign bg_has_mobile = true
+          assign bg_focal_m = section.settings.bg_image_mobile.presentation.focal_point | default: 'center'
+          assign bg_style_m = 'object-position: ' | append: bg_focal_m | append: ';'
+        endif
+      -%}
+      <div
+        class="smh__bg smh__bg--{{ section.settings.bg_reveal }}{% if bg_has_mobile %} smh__bg--has-mobile{% endif %}"
+        aria-hidden="true"
+      >
+        {{
+          section.settings.bg_image
+          | image_url: width: 3000
+          | image_tag:
+            loading: 'lazy',
+            widths: '750, 1100, 1500, 2000, 2500, 3000',
+            sizes: '100vw',
+            alt: '',
+            class: 'smh__bg-img smh__bg-img--desktop',
+            style: bg_style
+        }}
+        {%- if bg_has_mobile -%}
+          {{
+            section.settings.bg_image_mobile
+            | image_url: width: 1500
+            | image_tag:
+              loading: 'lazy',
+              widths: '375, 550, 750, 1100, 1500',
+              sizes: '100vw',
+              alt: '',
+              class: 'smh__bg-img smh__bg-img--mobile',
+              style: bg_style_m
+          }}
+        {%- endif -%}
+        <div class="smh__bg-overlay"></div>
+      </div>
+    {%- endif -%}
+
     <div class="smh__intro">
       {%- if section.settings.intro_heading != blank -%}
         <h2 class="smh__intro-heading" data-smh-intro-heading>{{ section.settings.intro_heading | escape }}</h2>
@@ -449,7 +576,7 @@
   (function () {
     if (!window.customElements || window.customElements.get('scroll-morph-hero')) return;
 
-    var MORPH_DISTANCE = 600; // virtual scroll px for circle \E2\86\92 arc
+    var MORPH_DISTANCE = 600; // virtual scroll px for circle -> arc
     var MAX_STEP = 120;       // max virtual px a single wheel/touch event can add
     var MAX_LEAD = 400;       // how far the scroll target may run ahead of what is on screen
     var SETTLE_MS = 250;      // short pause on the finished state before releasing the page
@@ -607,7 +734,7 @@
         if (this.intersectionObserver) this.intersectionObserver.disconnect();
       }
 
-      /* --- Intro sequence: scatter \E2\86\92 line \E2\86\92 circle --- */
+      /* --- Intro sequence: scatter -> line -> circle --- */
       startIntro() {
         var self = this;
         this.started = true;
@@ -683,8 +810,8 @@
       /* --- Virtual scroll --- */
       shouldCapture(delta) {
         if (!delta || !this.visible) return false;
-        if (this.checkComplete(performance.now())) return false;   // finished \E2\86\92 never hold
-        if (delta < 0 && this.scroll <= 0) return false;            // at the start, scrolling up \E2\86\92 let go
+        if (this.checkComplete(performance.now())) return false;   // finished -> never hold
+        if (delta < 0 && this.scroll <= 0) return false;            // at the start, scrolling up -> let go
         return this.visibleRatio() >= (this.lockPage ? 0.5 : 0.8);
       }
 
@@ -921,8 +1048,9 @@
           }
         }
 
-        // Centered heading: plays its reveal once the cards reach the chosen point.
-        // Separate show/hide thresholds stop it flickering around the trigger.
+        // Centered heading + background image: both play their reveal once the
+        // cards reach the chosen point. Separate show/hide thresholds stop them
+        // flickering around the trigger.
         if (this.arc) {
           var progress = clamp(rotateValue / 360, 0, 1);
           var on;
@@ -935,6 +1063,7 @@
           if (on !== this.revealed) {
             this.revealed = on;
             this.arc.classList.toggle('is-revealed', on);
+            this.classList.toggle('smh--bg-on', on);
           }
         }
       }
@@ -995,6 +1124,61 @@
         { "value": "shuffle", "label": "When the cards slide to the left" }
       ],
       "default": "shuffle"
+    },
+    {
+      "type": "header",
+      "content": "Background image",
+      "info": "Flows in at the same moment the arc heading starts to appear."
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Image",
+      "info": "Wide landscape image, at least 2000px wide. Set a focal point in the image settings to control cropping."
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image_mobile",
+      "label": "Mobile image",
+      "info": "Optional. Portrait image used on screens under 750px."
+    },
+    {
+      "type": "select",
+      "id": "bg_reveal",
+      "label": "Reveal style",
+      "options": [
+        { "value": "circle", "label": "Circle expand from center" },
+        { "value": "wipe", "label": "Wipe up from bottom" },
+        { "value": "fade", "label": "Fade and focus" }
+      ],
+      "default": "circle"
+    },
+    {
+      "type": "range",
+      "id": "bg_duration",
+      "min": 400,
+      "max": 3000,
+      "step": 100,
+      "unit": "ms",
+      "label": "Reveal duration",
+      "default": 1600
+    },
+    {
+      "type": "color",
+      "id": "bg_overlay_color",
+      "label": "Overlay color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "bg_overlay_opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Overlay opacity",
+      "info": "Keeps the heading readable over the image.",
+      "default": 40
     },
     {
       "type": "header",
