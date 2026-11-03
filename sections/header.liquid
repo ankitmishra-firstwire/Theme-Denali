@@ -243,3 +243,1189 @@
   ]
 }
 {% endschema %} {% endcomment %}
+
+
+
+{%- comment -%}
+  ============================================================================
+  Mega Header — Shopify Online Store 2.0 header section
+  ----------------------------------------------------------------------------
+  Assets:  assets/header.css, assets/header.js
+  Blocks:  "announcement"  → rotating announcement bar messages
+           "mega_menu"     → one per top-level menu item; each picks its own
+                             layout, content, colors, width and animation
+  Matching: a Mega menu block attaches to the top-level menu item whose title
+            matches the block's "Menu item title" (case/spacing insensitive).
+  ============================================================================
+{%- endcomment -%}
+
+{{ 'header.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'header.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign s = section.settings
+
+  assign transparent = false
+  if s.transparent_mode == 'all'
+    assign transparent = true
+  elsif s.transparent_mode == 'home' and request.page_type == 'index'
+    assign transparent = true
+  endif
+
+  assign menu = s.menu
+  assign mobile_menu = s.menu
+  if s.mobile_menu != blank
+    assign mobile_menu = s.mobile_menu
+  endif
+
+  assign nav_below = false
+  if s.layout == 'center_below' or s.layout == 'left_below'
+    assign nav_below = true
+  endif
+
+  assign nav_justify = 'center'
+  case s.nav_align
+    when 'left'
+      assign nav_justify = 'flex-start'
+    when 'right'
+      assign nav_justify = 'flex-end'
+  endcase
+
+  assign nav_font = s.nav_font
+  assign logo_w2 = s.logo_width | times: 2
+  assign logo_wm2 = s.logo_width_mobile | times: 2
+-%}
+
+{%- style -%}
+  {{ nav_font | font_face: font_display: 'swap' }}
+
+  #Hdr-{{ section.id }} {
+    --hdr-bg: {{ s.bg_color }};
+    --hdr-text: {{ s.text_color }};
+    --hdr-accent: {{ s.accent_color }};
+    --hdr-border: {{ s.border_color }};
+    --hdr-border-w: {{ s.border_width }}px;
+    --hdr-dd-bg: {{ s.dropdown_bg }};
+    --hdr-dd-text: {{ s.dropdown_text }};
+    --hdr-dd-w: {{ s.dropdown_width }}px;
+    --hdr-trans-text: {{ s.transparent_text_color }};
+    --hdr-badge-bg: {{ s.badge_bg }};
+    --hdr-badge-text: {{ s.badge_text }};
+    --hdr-height: {{ s.header_height }}px;
+    --hdr-height-mobile: {{ s.header_height_mobile }}px;
+    --hdr-nav-row: {{ s.nav_row_height }}px;
+    --hdr-max-w: {% if s.container_width == 'full' %}100%{% else %}{{ s.max_width }}px{% endif %};
+    --hdr-pad-x: {{ s.padding_x }}px;
+    --hdr-nav-gap: {{ s.nav_gap }}px;
+    --hdr-nav-justify: {{ nav_justify }};
+    --hdr-logo-w: {{ s.logo_width }}px;
+    --hdr-logo-w-mobile: {{ s.logo_width_mobile }}px;
+    --hdr-icon-size: {{ s.icon_size }}px;
+    --hdr-icon-gap: {{ s.icon_gap }}px;
+    --hdr-nav-font: {{ nav_font.family }}, {{ nav_font.fallback_families }};
+    --hdr-nav-weight: {{ nav_font.weight }};
+    --hdr-nav-style: {{ nav_font.style }};
+    --hdr-nav-size: {{ s.nav_size }}px;
+    --hdr-nav-size-mobile: {{ s.nav_size_mobile }}px;
+    --hdr-nav-transform: {{ s.nav_transform }};
+    --hdr-nav-tracking: {{ s.nav_tracking | divided_by: 100.0 }}em;
+    --hdr-speed: {{ s.transition_speed }}ms;
+    --hdr-drawer-bg: {{ s.drawer_bg }};
+    --hdr-drawer-text: {{ s.drawer_text }};
+    --hdr-drawer-w: {{ s.drawer_width }}px;
+    --ann-size: {{ s.ann_font_size }}px;
+  }
+
+  #shopify-section-{{ section.id }} {
+    {%- case s.sticky_mode -%}
+      {%- when 'none' %} position: relative;
+      {%- when 'fixed' %} position: fixed; left: 0; right: 0;
+      {%- else %} position: sticky;
+    {%- endcase %}
+    top: 0;
+    z-index: 40;
+    {%- if transparent and s.sticky_mode != 'fixed' %}
+    margin-bottom: calc(var(--hdr-offset, 0px) * -1);
+    {%- endif %}
+  }
+
+  {%- if s.sticky_mode == 'fixed' and transparent == false %}
+  body { padding-top: var(--hdr-offset, 0px); }
+  {%- endif %}
+{%- endstyle -%}
+
+{%- comment -%} ---------- Inline icons (captured once, reused) ---------- {%- endcomment -%}
+{%- capture icon_chevron -%}<svg class="hdr-ico hdr-ico--chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>{%- endcapture -%}
+{%- capture icon_chevron_right -%}<svg class="hdr-ico hdr-ico--chev-r" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 6 6 6-6 6"/></svg>{%- endcapture -%}
+{%- capture icon_chevron_left -%}<svg class="hdr-ico hdr-ico--chev-r" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 6-6 6 6 6"/></svg>{%- endcapture -%}
+{%- capture icon_search -%}<svg class="hdr-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>{%- endcapture -%}
+{%- capture icon_account -%}<svg class="hdr-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>{%- endcapture -%}
+{%- capture icon_heart -%}<svg class="hdr-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.6 3.9 4 7.4 4c2 0 3.5 1.1 4.6 2.6C13.1 5.1 14.6 4 16.6 4c3.5 0 5.8 3.6 4.6 7.1-1.7 4.8-9.2 9.4-9.2 9.4z"/></svg>{%- endcapture -%}
+{%- capture icon_cart -%}<svg class="hdr-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8h14l-1.2 12.1a1 1 0 0 1-1 .9H7.2a1 1 0 0 1-1-.9L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>{%- endcapture -%}
+{%- capture icon_menu -%}<svg class="hdr-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18M3 12h18M3 18h18"/></svg>{%- endcapture -%}
+{%- capture icon_close -%}<svg class="hdr-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>{%- endcapture -%}
+
+<mega-header
+  id="Hdr-{{ section.id }}"
+  class="hdr hdr--d-{{ s.layout }} hdr--m-{{ s.mobile_layout }} hdr--hover-{{ s.hover_effect }} hdr--shadow-{{ s.shadow }}{% if s.shadow_on_scroll %} hdr--shadow-scroll{% endif %}{% if nav_below %} hdr--nav-below{% endif %}{% if transparent %} hdr--transparent{% if s.logo_transparent != blank %} hdr--has-trans-logo{% endif %}{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-trigger="{{ s.menu_trigger }}"
+  data-open-delay="{{ s.open_delay }}"
+  data-close-delay="{{ s.close_delay }}"
+  data-sticky="{{ s.sticky_mode }}"
+>
+  {%- comment -%} ======================= Announcement bar ======================= {%- endcomment -%}
+  {%- assign ann_blocks = section.blocks | where: 'type', 'announcement' -%}
+  {%- if ann_blocks.size > 0 -%}
+    <div
+      class="hdr-ann"
+      data-ann
+      data-autoplay="{{ s.ann_autoplay }}"
+      data-interval="{{ s.ann_speed | times: 1000 }}"
+      role="region"
+      aria-label="Announcements"
+      style="--ann-arrow: {{ ann_blocks.first.settings.text_color }};"
+    >
+      <div class="hdr-ann__track">
+        {%- for b in ann_blocks -%}
+          <div
+            class="hdr-ann__slide{% if forloop.first %} is-active{% endif %}"
+            data-ann-slide
+            data-text="{{ b.settings.text_color }}"
+            style="--ann-bg: {{ b.settings.bg_color }}; --ann-fg: {{ b.settings.text_color }};"
+            aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+            {{ b.shopify_attributes }}
+          >
+            {%- if b.settings.link != blank -%}
+              <a class="hdr-ann__msg" href="{{ b.settings.link }}">{{ b.settings.text }}</a>
+            {%- else -%}
+              <p class="hdr-ann__msg">{{ b.settings.text }}</p>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+      {%- if ann_blocks.size > 1 -%}
+        <button type="button" class="hdr-ann__arrow hdr-ann__arrow--prev" data-ann-prev aria-label="Previous announcement">{{ icon_chevron_left }}</button>
+        <button type="button" class="hdr-ann__arrow hdr-ann__arrow--next" data-ann-next aria-label="Next announcement">{{ icon_chevron_right }}</button>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ======================= Main bar ======================= {%- endcomment -%}
+  <div class="hdr__bar">
+    <div class="hdr__inner">
+      {%- comment -%} Hamburger (mobile) {%- endcomment -%}
+      <div class="hdr__burger-wrap">
+        <button
+          type="button"
+          class="hdr__icon hdr__burger"
+          data-drawer-open
+          aria-controls="HdrDrawer-{{ section.id }}"
+          aria-expanded="false"
+          aria-label="Open menu"
+        >
+          {{ icon_menu }}
+        </button>
+      </div>
+
+      {%- comment -%} Logo {%- endcomment -%}
+      {%- if request.page_type == 'index' -%}<h1 class="hdr__logo">{%- else -%}<div class="hdr__logo">{%- endif -%}
+        <a href="{{ routes.root_url }}" class="hdr__logo-link">
+          {%- if s.logo != blank -%}
+            {%- assign logo_alt = s.logo.alt | default: shop.name | escape -%}
+            <picture class="hdr__logo-pic hdr__logo-pic--default">
+              {%- if s.logo_mobile != blank -%}
+                <source media="(max-width: 989px)" srcset="{{ s.logo_mobile | image_url: width: logo_wm2 }}">
+              {%- endif -%}
+              {{ s.logo | image_url: width: logo_w2 | image_tag: class: 'hdr__logo-img', alt: logo_alt, loading: 'eager', fetchpriority: 'high' }}
+            </picture>
+            {%- if transparent and s.logo_transparent != blank -%}
+              <picture class="hdr__logo-pic hdr__logo-pic--transparent">
+                {{ s.logo_transparent | image_url: width: logo_w2 | image_tag: class: 'hdr__logo-img', alt: logo_alt, loading: 'eager' }}
+              </picture>
+            {%- endif -%}
+          {%- else -%}
+            <span class="hdr__logo-text">{{ shop.name | escape }}</span>
+          {%- endif -%}
+        </a>
+      {%- if request.page_type == 'index' -%}</h1>{%- else -%}</div>{%- endif -%}
+
+      {%- comment -%} ======================= Desktop navigation ======================= {%- endcomment -%}
+      <nav class="hdr__nav" aria-label="Main">
+        <ul class="hdr__menu" role="list">
+          {%- for link in menu.links -%}
+            {%- liquid
+              assign top_index = forloop.index
+              assign mega = nil
+              for b in section.blocks
+                if b.type == 'mega_menu'
+                  assign b_key = b.settings.menu_item | handleize
+                  if b_key != blank and b_key == link.handle
+                    assign mega = b
+                    break
+                  endif
+                endif
+              endfor
+
+              assign layout = 'dropdown'
+              if mega
+                assign layout = mega.settings.layout
+              endif
+
+              assign col_links = link.links
+              if mega and mega.settings.column_menu != blank
+                assign col_links = mega.settings.column_menu.links
+              endif
+
+              assign has_children = false
+              if col_links.size > 0
+                assign has_children = true
+              endif
+
+              assign has_panel = true
+              if layout == 'dropdown' and has_children == false
+                assign has_panel = false
+              endif
+
+              assign panel_id = 'HdrPanel-' | append: section.id | append: '-' | append: top_index
+
+              assign anim = s.default_animation
+              if mega and mega.settings.animation != 'inherit'
+                assign anim = mega.settings.animation
+              endif
+
+              assign show_va = false
+              if link.url != '#' and link.url != blank
+                if s.menu_trigger == 'click'
+                  assign show_va = true
+                elsif mega and mega.settings.show_view_all
+                  assign show_va = true
+                endif
+              endif
+            -%}
+
+            {%- comment -%} Per-panel CSS variables from the block {%- endcomment -%}
+            {%- capture mm_style -%}
+              {%- if mega -%}
+                {%- assign ms = mega.settings -%}
+                {%- if ms.bg_color != blank -%}--mm-bg:{{ ms.bg_color }};{%- endif -%}
+                {%- if ms.text_color != blank -%}--mm-text:{{ ms.text_color }};{%- endif -%}
+                {%- if ms.heading_color != blank -%}--mm-heading:{{ ms.heading_color }};{%- endif -%}
+                {%- if ms.hover_color != blank -%}--mm-hover:{{ ms.hover_color }};{%- endif -%}
+                {%- if ms.speed > 0 -%}--mm-speed:{{ ms.speed }}ms;{%- endif -%}
+                --mm-cols:{{ ms.columns }};--mm-pad-y:{{ ms.padding_y }}px;--mm-gap:{{ ms.gap }}px;--mm-width:{{ ms.custom_width }}px;--mm-ratio:{{ ms.image_ratio }};--mm-radius:{{ ms.image_radius }}px;--mm-media-w:{{ ms.media_width }}%;--mm-media-cols:{{ ms.media_columns }};--mm-overlay:{{ ms.promo_overlay | divided_by: 100.0 }};--mm-promo-h:{{ ms.promo_height }}px;
+              {%- endif -%}
+            {%- endcapture -%}
+
+            <li
+              class="hdr__item {% if layout == 'dropdown' %}hdr__item--dropdown{% else %}hdr__item--mega{% endif %}{% if link.active or link.child_active %} is-active{% endif %}"
+              data-hdr-item
+              {% if has_panel %}data-has-panel{% endif %}
+            >
+              {%- if has_panel and s.menu_trigger == 'click' -%}
+                <button type="button" class="hdr__link" data-hdr-toggle aria-expanded="false" aria-controls="{{ panel_id }}">
+                  <span>{{ link.title | escape }}</span>{{ icon_chevron }}
+                </button>
+              {%- else -%}
+                <a href="{{ link.url }}" class="hdr__link"{% if link.current %} aria-current="page"{% endif %}>
+                  <span>{{ link.title | escape }}</span>
+                </a>
+                {%- if has_panel -%}
+                  <button type="button" class="hdr__caret" data-hdr-toggle aria-expanded="false" aria-controls="{{ panel_id }}" aria-label="{{ link.title | escape }} menu">
+                    {{ icon_chevron }}
+                  </button>
+                {%- endif -%}
+              {%- endif -%}
+
+              {%- if has_panel -%}
+                {%- if layout == 'dropdown' -%}
+                  {%- comment -%} ---------- Standard dropdown ---------- {%- endcomment -%}
+                  <div
+                    id="{{ panel_id }}"
+                    class="hdr-dd hdr-dd--{{ s.dropdown_align }} hdr-anim--{{ anim }}"
+                    data-hdr-panel
+                    {% if mega %}data-mm-id="{{ mega.id }}" {{ mega.shopify_attributes }}{% endif %}
+                    style="{{ mm_style }}"
+                  >
+                    <ul class="hdr-dd__list" role="list">
+                      {%- if show_va -%}
+                        <li class="hdr-dd__item hdr-dd__item--all">
+                          <a class="hdr-dd__link" href="{{ link.url }}">View all {{ link.title | escape }}</a>
+                        </li>
+                      {%- endif -%}
+                      {%- for child in col_links -%}
+                        <li class="hdr-dd__item{% if child.links.size > 0 %} hdr-dd__item--parent{% endif %}">
+                          <a
+                            class="hdr-dd__link{% if child.active or child.child_active %} is-active{% endif %}"
+                            href="{{ child.url }}"
+                            {% if child.current %}aria-current="page"{% endif %}
+                            {% if child.links.size > 0 %}aria-haspopup="true" aria-expanded="false"{% endif %}
+                          >
+                            <span>{{ child.title | escape }}</span>
+                            {%- if child.links.size > 0 -%}{{ icon_chevron_right }}{%- endif -%}
+                          </a>
+                          {%- if child.links.size > 0 -%}
+                            <ul class="hdr-dd__sub" role="list">
+                              {%- for grand in child.links -%}
+                                <li class="hdr-dd__item">
+                                  <a class="hdr-dd__link{% if grand.active %} is-active{% endif %}" href="{{ grand.url }}"{% if grand.current %} aria-current="page"{% endif %}>
+                                    {{- grand.title | escape -}}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                {%- else -%}
+                  {%- comment -%} ---------- Mega menu panel ---------- {%- endcomment -%}
+                  {%- assign ms = mega.settings -%}
+
+                  {%- capture media -%}
+                    {%- case layout -%}
+                      {%- when 'images' -%}
+                        {%- assign cards_rendered = 0 -%}
+                        {%- for i in (1..3) -%}
+                          {%- liquid
+                            assign k = 'image_' | append: i
+                            assign c_img = ms[k]
+                            assign k = 'title_' | append: i
+                            assign c_title = ms[k]
+                            assign k = 'text_' | append: i
+                            assign c_text = ms[k]
+                            assign k = 'button_' | append: i
+                            assign c_btn = ms[k]
+                            assign k = 'link_' | append: i
+                            assign c_link = ms[k]
+                            assign c_tag = 'div'
+                            if c_link != blank
+                              assign c_tag = 'a'
+                            endif
+                          -%}
+                          {%- if c_img != blank or c_title != blank -%}
+                            {%- assign cards_rendered = cards_rendered | plus: 1 -%}
+                            <{{ c_tag }} class="hdr-card"{% if c_link != blank %} href="{{ c_link }}"{% endif %}>
+                              <div class="hdr-card__media">
+                                {%- if c_img != blank -%}
+                                  {{ c_img | image_url: width: 900 | image_tag: class: 'hdr-card__img', loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 990px) 25vw, 60vw' }}
+                                {%- else -%}
+                                  {{ 'lifestyle-1' | placeholder_svg_tag: 'hdr-card__ph' }}
+                                {%- endif -%}
+                              </div>
+                              {%- if ms.show_card_text -%}
+                                {%- if c_title != blank -%}<span class="hdr-card__title">{{ c_title | escape }}</span>{%- endif -%}
+                                {%- if c_text != blank -%}<p class="hdr-card__text">{{ c_text | escape }}</p>{%- endif -%}
+                              {%- endif -%}
+                              {%- if ms.show_buttons and c_btn != blank -%}<span class="hdr-btn">{{ c_btn | escape }}</span>{%- endif -%}
+                            </{{ c_tag }}>
+                          {%- endif -%}
+                        {%- endfor -%}
+                        {%- if cards_rendered == 0 and request.design_mode -%}
+                          {%- for i in (1..3) -%}
+                            <div class="hdr-card">
+                              <div class="hdr-card__media">{{ 'lifestyle-2' | placeholder_svg_tag: 'hdr-card__ph' }}</div>
+                              <span class="hdr-card__title">Image card {{ i }}</span>
+                            </div>
+                          {%- endfor -%}
+                        {%- endif -%}
+
+                      {%- when 'collections' -%}
+                        {%- if ms.collections != blank -%}
+                          {%- for col in ms.collections limit: ms.media_count -%}
+                            {%- assign col_img = col.featured_image | default: col.products.first.featured_image -%}
+                            <a class="hdr-card hdr-card--collection" href="{{ col.url }}">
+                              <div class="hdr-card__media">
+                                {%- if col_img != blank -%}
+                                  {{ col_img | image_url: width: 600 | image_tag: class: 'hdr-card__img', loading: 'lazy', widths: '200, 300, 450, 600', sizes: '(min-width: 990px) 15vw, 40vw' }}
+                                {%- else -%}
+                                  {{ 'collection-1' | placeholder_svg_tag: 'hdr-card__ph' }}
+                                {%- endif -%}
+                              </div>
+                              {%- if ms.show_card_text -%}<span class="hdr-card__title">{{ col.title | escape }}</span>{%- endif -%}
+                              {%- if ms.show_product_count -%}<span class="hdr-card__meta">{{ col.products_count }} {% if col.products_count == 1 %}product{% else %}products{% endif %}</span>{%- endif -%}
+                            </a>
+                          {%- endfor -%}
+                        {%- elsif request.design_mode -%}
+                          {%- for i in (1..4) -%}
+                            <div class="hdr-card"><div class="hdr-card__media">{{ 'collection-1' | placeholder_svg_tag: 'hdr-card__ph' }}</div><span class="hdr-card__title">Collection {{ i }}</span></div>
+                          {%- endfor -%}
+                        {%- endif -%}
+
+                      {%- when 'products' -%}
+                        {%- if ms.products != blank -%}
+                          {%- for product in ms.products limit: ms.media_count -%}
+                            <a class="hdr-card hdr-card--product" href="{{ product.url }}">
+                              <div class="hdr-card__media">
+                                {%- if product.featured_image != blank -%}
+                                  {{ product.featured_image | image_url: width: 600 | image_tag: class: 'hdr-card__img', loading: 'lazy', widths: '200, 300, 450, 600', sizes: '(min-width: 990px) 15vw, 40vw' }}
+                                {%- else -%}
+                                  {{ 'product-1' | placeholder_svg_tag: 'hdr-card__ph' }}
+                                {%- endif -%}
+                                {%- unless product.available -%}<span class="hdr-card__badge">Sold out</span>{%- endunless -%}
+                              </div>
+                              {%- if ms.show_vendor -%}<span class="hdr-card__meta">{{ product.vendor | escape }}</span>{%- endif -%}
+                              {%- if ms.show_card_text -%}<span class="hdr-card__title">{{ product.title | escape }}</span>{%- endif -%}
+                              {%- if ms.show_price -%}
+                                <span class="hdr-card__price">
+                                  {%- if product.price_varies -%}From {% endif -%}
+                                  {{- product.price | money -}}
+                                  {%- if product.compare_at_price > product.price %} <s>{{ product.compare_at_price | money }}</s>{%- endif -%}
+                                </span>
+                              {%- endif -%}
+                            </a>
+                          {%- endfor -%}
+                        {%- elsif request.design_mode -%}
+                          {%- for i in (1..4) -%}
+                            <div class="hdr-card"><div class="hdr-card__media">{{ 'product-1' | placeholder_svg_tag: 'hdr-card__ph' }}</div><span class="hdr-card__title">Product {{ i }}</span><span class="hdr-card__price">{{ 4900 | money }}</span></div>
+                          {%- endfor -%}
+                        {%- endif -%}
+
+                      {%- when 'promo' -%}
+                        {%- liquid
+                          assign c_tag = 'div'
+                          if ms.link_1 != blank
+                            assign c_tag = 'a'
+                          endif
+                        -%}
+                        <{{ c_tag }} class="hdr-promo hdr-promo--{{ ms.promo_text_position }}"{% if ms.link_1 != blank %} href="{{ ms.link_1 }}"{% endif %}>
+                          {%- if ms.image_1 != blank -%}
+                            {{ ms.image_1 | image_url: width: 1600 | image_tag: class: 'hdr-promo__img', loading: 'lazy', widths: '600, 900, 1200, 1600', sizes: '(min-width: 990px) 50vw, 100vw' }}
+                          {%- else -%}
+                            {{ 'lifestyle-1' | placeholder_svg_tag: 'hdr-promo__img hdr-promo__img--ph' }}
+                          {%- endif -%}
+                          {%- if ms.title_1 != blank or ms.text_1 != blank or ms.button_1 != blank -%}
+                            <div class="hdr-promo__content">
+                              {%- if ms.show_card_text -%}
+                                {%- if ms.title_1 != blank -%}<span class="hdr-promo__title">{{ ms.title_1 | escape }}</span>{%- endif -%}
+                                {%- if ms.text_1 != blank -%}<p class="hdr-promo__text">{{ ms.text_1 | escape }}</p>{%- endif -%}
+                              {%- endif -%}
+                              {%- if ms.show_buttons and ms.button_1 != blank -%}<span class="hdr-btn hdr-btn--solid">{{ ms.button_1 | escape }}</span>{%- endif -%}
+                            </div>
+                          {%- endif -%}
+                        </{{ c_tag }}>
+
+                      {%- when 'custom' -%}
+                        <div class="hdr-custom">
+                          {%- if ms.image_1 != blank -%}
+                            {%- if ms.link_1 != blank -%}<a href="{{ ms.link_1 }}" class="hdr-card">{%- else -%}<div class="hdr-card">{%- endif -%}
+                              <div class="hdr-card__media">
+                                {{ ms.image_1 | image_url: width: 900 | image_tag: class: 'hdr-card__img', loading: 'lazy', widths: '300, 600, 900', sizes: '(min-width: 990px) 30vw, 80vw' }}
+                              </div>
+                            {%- if ms.link_1 != blank -%}</a>{%- else -%}</div>{%- endif -%}
+                          {%- endif -%}
+                          {%- if ms.custom_text != blank -%}<div class="hdr-custom__rte">{{ ms.custom_text }}</div>{%- endif -%}
+                          {%- if ms.custom_liquid != blank -%}<div class="hdr-custom__liquid">{{ ms.custom_liquid }}</div>{%- endif -%}
+                        </div>
+                    {%- endcase -%}
+                  {%- endcapture -%}
+                  {%- assign media = media | strip -%}
+
+                  <div
+                    id="{{ panel_id }}"
+                    class="hdr-mega hdr-mega--{{ layout }} hdr-mega--w-{{ ms.width_mode }} hdr-mega--a-{{ ms.align }} hdr-anim--{{ anim }}"
+                    data-hdr-panel
+                    data-mm-id="{{ mega.id }}"
+                    style="{{ mm_style }}"
+                    {{ mega.shopify_attributes }}
+                  >
+                    <div class="hdr-mega__inner{% if ms.media_position == 'left' %} hdr-mega__inner--media-left{% endif %}">
+                      {%- if ms.show_links and has_children -%}
+                        <div class="hdr-mega__links">
+                          {%- for child in col_links -%}
+                            <div class="hdr-mega__col">
+                              {%- if ms.show_headings -%}
+                                <a class="hdr-mega__heading{% if child.active or child.child_active %} is-active{% endif %}" href="{{ child.url }}">{{ child.title | escape }}</a>
+                                {%- if child.links.size > 0 -%}
+                                  <ul class="hdr-mega__list" role="list">
+                                    {%- for grand in child.links -%}
+                                      <li><a class="hdr-mega__link{% if grand.active %} is-active{% endif %}" href="{{ grand.url }}"{% if grand.current %} aria-current="page"{% endif %}>{{ grand.title | escape }}</a></li>
+                                    {%- endfor -%}
+                                  </ul>
+                                {%- endif -%}
+                              {%- else -%}
+                                <ul class="hdr-mega__list" role="list">
+                                  <li><a class="hdr-mega__link hdr-mega__link--strong{% if child.active %} is-active{% endif %}" href="{{ child.url }}">{{ child.title | escape }}</a></li>
+                                  {%- for grand in child.links -%}
+                                    <li><a class="hdr-mega__link{% if grand.active %} is-active{% endif %}" href="{{ grand.url }}">{{ grand.title | escape }}</a></li>
+                                  {%- endfor -%}
+                                </ul>
+                              {%- endif -%}
+                            </div>
+                          {%- endfor -%}
+                        </div>
+                      {%- endif -%}
+
+                      {%- if media != blank -%}
+                        <div class="hdr-mega__media hdr-mega__media--{{ layout }}">{{ media }}</div>
+                      {%- endif -%}
+                    </div>
+
+                    {%- if show_va -%}
+                      <div class="hdr-mega__footer">
+                        <a class="hdr-btn" href="{{ link.url }}">View all {{ link.title | escape }}</a>
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+
+      {%- comment -%} ======================= Icons ======================= {%- endcomment -%}
+      <div class="hdr__icons">
+        {%- if s.show_search -%}
+          {%- if s.search_style == 'panel' -%}
+            <button type="button" class="hdr__icon{% unless s.show_search_mobile %} hdr-hide-m{% endunless %}" data-search-toggle aria-controls="HdrSearch-{{ section.id }}" aria-expanded="false" aria-label="Search">
+              {{ icon_search }}
+            </button>
+          {%- else -%}
+            <a href="{{ routes.search_url }}" class="hdr__icon{% unless s.show_search_mobile %} hdr-hide-m{% endunless %}" aria-label="Search">{{ icon_search }}</a>
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- if s.show_account and shop.customer_accounts_enabled -%}
+          <a
+            href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
+            class="hdr__icon{% unless s.show_account_mobile %} hdr-hide-m{% endunless %}"
+            aria-label="{% if customer %}Account{% else %}Log in{% endif %}"
+          >
+            {{ icon_account }}
+          </a>
+        {%- endif -%}
+
+        {%- if s.show_wishlist and s.wishlist_url != blank -%}
+          <a href="{{ s.wishlist_url }}" class="hdr__icon{% unless s.show_wishlist_mobile %} hdr-hide-m{% endunless %}" aria-label="Wishlist">{{ icon_heart }}</a>
+        {%- endif -%}
+
+        {%- if s.show_cart -%}
+          <a
+            href="{{ routes.cart_url }}"
+            id="cart-icon-bubble"
+            class="hdr__icon hdr__cart"
+            data-cart-link
+            aria-label="Cart, {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}"
+          >
+            {{ icon_cart }}
+            <span class="hdr__count" data-cart-count aria-hidden="true"{% if cart.item_count == 0 %} hidden{% endif %}>
+              {{- cart.item_count -}}
+            </span>
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} ======================= Search panel ======================= {%- endcomment -%}
+    {%- if s.show_search and s.search_style == 'panel' -%}
+      <div class="hdr-search" id="HdrSearch-{{ section.id }}" data-search-panel>
+        <form action="{{ routes.search_url }}" method="get" role="search" class="hdr-search__form">
+          <label for="HdrSearchInput-{{ section.id }}" class="hdr-vh">Search the store</label>
+          {{ icon_search }}
+          <input
+            id="HdrSearchInput-{{ section.id }}"
+            class="hdr-search__input"
+            type="search"
+            name="q"
+            value="{{ search.terms | escape }}"
+            placeholder="{{ s.search_placeholder | escape }}"
+            autocomplete="off"
+          >
+          <input type="hidden" name="options[prefix]" value="last">
+          <button type="button" class="hdr__icon" data-search-close aria-label="Close search">{{ icon_close }}</button>
+        </form>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- if s.mega_overlay -%}<div class="hdr-backdrop" aria-hidden="true"></div>{%- endif -%}
+
+  {%- comment -%} ======================= Mobile drawer ======================= {%- endcomment -%}
+  <div
+    class="hdr-drawer hdr-drawer--{{ s.drawer_side }}"
+    id="HdrDrawer-{{ section.id }}"
+    data-drawer
+    data-single="{{ s.drawer_single_open }}"
+  >
+    <div class="hdr-drawer__overlay" data-drawer-close></div>
+    <div class="hdr-drawer__panel" data-drawer-panel role="dialog" aria-modal="true" aria-label="Menu" tabindex="-1">
+      <div class="hdr-drawer__head">
+        <a href="{{ routes.root_url }}" class="hdr-drawer__logo">
+          {%- assign d_logo = s.logo_mobile | default: s.logo -%}
+          {%- if d_logo != blank -%}
+            {{ d_logo | image_url: width: 240 | image_tag: loading: 'lazy', class: 'hdr-drawer__logo-img', alt: shop.name }}
+          {%- else -%}
+            {{ shop.name | escape }}
+          {%- endif -%}
+        </a>
+        <button type="button" class="hdr__icon hdr-drawer__close" data-drawer-close aria-label="Close menu">{{ icon_close }}</button>
+      </div>
+
+      <nav class="hdr-drawer__nav" aria-label="Mobile">
+        <ul class="hdr-drawer__list" role="list">
+          {%- for link in mobile_menu.links -%}
+            {%- liquid
+              assign top_index = forloop.index
+              assign mega = nil
+              for b in section.blocks
+                if b.type == 'mega_menu'
+                  assign b_key = b.settings.menu_item | handleize
+                  if b_key != blank and b_key == link.handle
+                    assign mega = b
+                    break
+                  endif
+                endif
+              endfor
+
+              assign col_links = link.links
+              if mega and mega.settings.column_menu != blank
+                assign col_links = mega.settings.column_menu.links
+              endif
+
+              assign show_strip = false
+              if mega and mega.settings.mobile_show_media and mega.settings.layout != 'dropdown' and mega.settings.layout != 'columns'
+                assign show_strip = true
+              endif
+
+              assign acc_id = 'HdrAcc-' | append: section.id | append: '-' | append: top_index
+            -%}
+
+            {%- if col_links.size > 0 or show_strip -%}
+              <li class="hdr-acc" {% if mega %}data-mm-ref="{{ mega.id }}"{% endif %}>
+                <div class="hdr-acc__row">
+                  <a class="hdr-m-link{% if link.active or link.child_active %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+                  <button type="button" class="hdr-acc__btn" data-acc-toggle aria-expanded="false" aria-controls="{{ acc_id }}" aria-label="{{ link.title | escape }} submenu">{{ icon_chevron }}</button>
+                </div>
+                <div class="hdr-acc__panel" id="{{ acc_id }}">
+                  <div class="hdr-acc__inner">
+                    <ul role="list">
+                      {%- for child in col_links -%}
+                        {%- if child.links.size > 0 -%}
+                          {%- assign sub_id = acc_id | append: '-' | append: forloop.index -%}
+                          <li class="hdr-acc hdr-acc--l2">
+                            <div class="hdr-acc__row">
+                              <a class="hdr-m-link hdr-m-link--l2{% if child.active or child.child_active %} is-active{% endif %}" href="{{ child.url }}">{{ child.title | escape }}</a>
+                              <button type="button" class="hdr-acc__btn" data-acc-toggle aria-expanded="false" aria-controls="{{ sub_id }}" aria-label="{{ child.title | escape }} submenu">{{ icon_chevron }}</button>
+                            </div>
+                            <div class="hdr-acc__panel" id="{{ sub_id }}">
+                              <div class="hdr-acc__inner">
+                                <ul role="list">
+                                  {%- for grand in child.links -%}
+                                    <li><a class="hdr-m-link hdr-m-link--l3{% if grand.active %} is-active{% endif %}" href="{{ grand.url }}"{% if grand.current %} aria-current="page"{% endif %}>{{ grand.title | escape }}</a></li>
+                                  {%- endfor -%}
+                                </ul>
+                              </div>
+                            </div>
+                          </li>
+                        {%- else -%}
+                          <li><a class="hdr-m-link hdr-m-link--l2{% if child.active %} is-active{% endif %}" href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>{{ child.title | escape }}</a></li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+
+                    {%- if show_strip -%}
+                      {%- assign ms = mega.settings -%}
+                      <div class="hdr-mstrip" style="--mm-ratio:{{ ms.image_ratio }};--mm-radius:{{ ms.image_radius }}px;">
+                        {%- case ms.layout -%}
+                          {%- when 'collections' -%}
+                            {%- for col in ms.collections limit: ms.media_count -%}
+                              {%- assign col_img = col.featured_image | default: col.products.first.featured_image -%}
+                              <a class="hdr-card" href="{{ col.url }}">
+                                <div class="hdr-card__media">
+                                  {%- if col_img != blank -%}{{ col_img | image_url: width: 400 | image_tag: class: 'hdr-card__img', loading: 'lazy', widths: '200, 300, 400', sizes: '45vw' }}{%- else -%}{{ 'collection-1' | placeholder_svg_tag: 'hdr-card__ph' }}{%- endif -%}
+                                </div>
+                                <span class="hdr-card__title">{{ col.title | escape }}</span>
+                              </a>
+                            {%- endfor -%}
+                          {%- when 'products' -%}
+                            {%- for product in ms.products limit: ms.media_count -%}
+                              <a class="hdr-card" href="{{ product.url }}">
+                                <div class="hdr-card__media">
+                                  {%- if product.featured_image != blank -%}{{ product.featured_image | image_url: width: 400 | image_tag: class: 'hdr-card__img', loading: 'lazy', widths: '200, 300, 400', sizes: '45vw' }}{%- else -%}{{ 'product-1' | placeholder_svg_tag: 'hdr-card__ph' }}{%- endif -%}
+                                </div>
+                                <span class="hdr-card__title">{{ product.title | escape }}</span>
+                                {%- if ms.show_price -%}<span class="hdr-card__price">{{ product.price | money }}</span>{%- endif -%}
+                              </a>
+                            {%- endfor -%}
+                          {%- else -%}
+                            {%- for i in (1..3) -%}
+                              {%- liquid
+                                assign k = 'image_' | append: i
+                                assign c_img = ms[k]
+                                assign k = 'title_' | append: i
+                                assign c_title = ms[k]
+                                assign k = 'link_' | append: i
+                                assign c_link = ms[k]
+                              -%}
+                              {%- if c_img != blank -%}
+                                <a class="hdr-card" href="{{ c_link | default: link.url }}">
+                                  <div class="hdr-card__media">{{ c_img | image_url: width: 500 | image_tag: class: 'hdr-card__img', loading: 'lazy', widths: '250, 375, 500', sizes: '45vw' }}</div>
+                                  {%- if c_title != blank -%}<span class="hdr-card__title">{{ c_title | escape }}</span>{%- endif -%}
+                                </a>
+                              {%- endif -%}
+                              {%- if ms.layout == 'promo' or ms.layout == 'custom' -%}{%- break -%}{%- endif -%}
+                            {%- endfor -%}
+                        {%- endcase -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </li>
+            {%- else -%}
+              <li><a class="hdr-m-link{% if link.active %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </nav>
+
+      {%- if s.drawer_show_account or s.drawer_show_wishlist or s.drawer_footer_text != blank -%}
+        <div class="hdr-drawer__foot">
+          {%- if s.drawer_show_account and shop.customer_accounts_enabled -%}
+            <a class="hdr-drawer__foot-link" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}">
+              {{ icon_account }}<span>{% if customer %}Account{% else %}Log in{% endif %}</span>
+            </a>
+          {%- endif -%}
+          {%- if s.drawer_show_wishlist and s.wishlist_url != blank -%}
+            <a class="hdr-drawer__foot-link" href="{{ s.wishlist_url }}">{{ icon_heart }}<span>Wishlist</span></a>
+          {%- endif -%}
+          {%- if s.drawer_footer_text != blank -%}
+            <div class="hdr-drawer__note">{{ s.drawer_footer_text }}</div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} Editor-only: flag Mega menu blocks that don't match any menu item {%- endcomment -%}
+  {%- if request.design_mode and menu != blank -%}
+    {%- assign link_handles = menu.links | map: 'handle' | join: ',' | prepend: ',' | append: ',' -%}
+    {%- for b in section.blocks -%}
+      {%- if b.type == 'mega_menu' -%}
+        {%- assign b_key = b.settings.menu_item | handleize | prepend: ',' | append: ',' -%}
+        {%- unless link_handles contains b_key -%}
+          <div class="hdr-notice" {{ b.shopify_attributes }}>
+            Mega menu block “{{ b.settings.menu_item | escape }}” doesn’t match any top-level item in “{{ menu.title | escape }}”. Type the item’s title exactly as it appears in the menu.
+          </div>
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+</mega-header>
+
+{% schema %}
+{
+  "name": "Header",
+  "tag": "header",
+  "class": "hdr-section",
+  "enabled_on": { "groups": ["header"] },
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Desktop layout",
+      "options": [
+        { "value": "left_center", "label": "Logo left, menu center, icons right" },
+        { "value": "center_below", "label": "Logo center, menu below" },
+        { "value": "left_below", "label": "Logo left, menu below" },
+        { "value": "center_split", "label": "Menu left, logo center, icons right" }
+      ],
+      "default": "left_center"
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "logo_center", "label": "Menu left, logo center" },
+        { "value": "logo_left", "label": "Logo left, menu right" }
+      ],
+      "default": "logo_center"
+    },
+    {
+      "type": "select",
+      "id": "container_width",
+      "label": "Header width",
+      "options": [
+        { "value": "page", "label": "Page width" },
+        { "value": "full", "label": "Full width" }
+      ],
+      "default": "page"
+    },
+    { "type": "range", "id": "max_width", "label": "Page width", "min": 1000, "max": 1800, "step": 20, "unit": "px", "default": 1400 },
+    { "type": "range", "id": "padding_x", "label": "Side padding", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 32 },
+    { "type": "range", "id": "header_height", "label": "Desktop height", "min": 48, "max": 140, "step": 2, "unit": "px", "default": 80 },
+    { "type": "range", "id": "header_height_mobile", "label": "Mobile height", "min": 44, "max": 100, "step": 2, "unit": "px", "default": 60 },
+    { "type": "range", "id": "nav_row_height", "label": "Menu row height", "info": "Used by layouts with the menu below the logo.", "min": 36, "max": 80, "step": 2, "unit": "px", "default": 48 },
+    {
+      "type": "select",
+      "id": "nav_align",
+      "label": "Menu alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    { "type": "range", "id": "nav_gap", "label": "Space between menu items", "min": 8, "max": 64, "step": 2, "unit": "px", "default": 28 },
+
+    { "type": "header", "content": "Logo" },
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "image_picker", "id": "logo_mobile", "label": "Mobile logo", "info": "Optional. Shown below 990px." },
+    { "type": "image_picker", "id": "logo_transparent", "label": "Logo on transparent header", "info": "Optional. Usually a light version of your logo." },
+    { "type": "range", "id": "logo_width", "label": "Desktop logo width", "min": 50, "max": 400, "step": 5, "unit": "px", "default": 140 },
+    { "type": "range", "id": "logo_width_mobile", "label": "Mobile logo width", "min": 40, "max": 250, "step": 5, "unit": "px", "default": 100 },
+
+    { "type": "header", "content": "Navigation" },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "link_list", "id": "mobile_menu", "label": "Mobile menu", "info": "Optional. Uses the main menu when empty." },
+    {
+      "type": "select",
+      "id": "menu_trigger",
+      "label": "Open menus on",
+      "options": [
+        { "value": "hover", "label": "Hover" },
+        { "value": "click", "label": "Click" }
+      ],
+      "default": "hover"
+    },
+    { "type": "range", "id": "open_delay", "label": "Hover open delay", "min": 0, "max": 500, "step": 25, "unit": "ms", "default": 75 },
+    { "type": "range", "id": "close_delay", "label": "Hover close delay", "info": "Keeps menus open while the cursor travels to the dropdown.", "min": 0, "max": 1000, "step": 50, "unit": "ms", "default": 250 },
+    { "type": "range", "id": "transition_speed", "label": "Animation speed", "min": 100, "max": 800, "step": 50, "unit": "ms", "default": 250 },
+    {
+      "type": "select",
+      "id": "default_animation",
+      "label": "Default menu animation",
+      "options": [
+        { "value": "fade", "label": "Fade" },
+        { "value": "slide", "label": "Fade and slide" },
+        { "value": "scale", "label": "Fade and scale" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "slide"
+    },
+    {
+      "type": "select",
+      "id": "hover_effect",
+      "label": "Menu item hover effect",
+      "options": [
+        { "value": "underline", "label": "Underline" },
+        { "value": "color", "label": "Color change" },
+        { "value": "pill", "label": "Background pill" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "underline"
+    },
+    { "type": "checkbox", "id": "mega_overlay", "label": "Dim page when a menu is open", "default": true },
+    { "type": "range", "id": "dropdown_width", "label": "Dropdown width", "min": 180, "max": 360, "step": 10, "unit": "px", "default": 240 },
+    {
+      "type": "select",
+      "id": "dropdown_align",
+      "label": "Dropdown position",
+      "options": [
+        { "value": "left", "label": "Aligned to item" },
+        { "value": "center", "label": "Centered under item" }
+      ],
+      "default": "left"
+    },
+
+    { "type": "header", "content": "Typography" },
+    { "type": "font_picker", "id": "nav_font", "label": "Menu font", "default": "assistant_n4" },
+    { "type": "range", "id": "nav_size", "label": "Desktop menu size", "min": 11, "max": 22, "step": 1, "unit": "px", "default": 15 },
+    { "type": "range", "id": "nav_size_mobile", "label": "Mobile menu size", "min": 14, "max": 24, "step": 1, "unit": "px", "default": 17 },
+    {
+      "type": "select",
+      "id": "nav_transform",
+      "label": "Menu letter case",
+      "options": [
+        { "value": "none", "label": "As typed" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "none"
+    },
+    { "type": "range", "id": "nav_tracking", "label": "Letter spacing", "info": "In hundredths of an em.", "min": 0, "max": 20, "step": 1, "default": 0 },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "bg_color", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text and icons", "default": "#1c1c1c" },
+    { "type": "color", "id": "accent_color", "label": "Hover and active", "default": "#2f5d50" },
+    { "type": "color", "id": "border_color", "label": "Borders", "default": "#e7e7e3" },
+    { "type": "color", "id": "dropdown_bg", "label": "Dropdown background", "default": "#ffffff" },
+    { "type": "color", "id": "dropdown_text", "label": "Dropdown text", "default": "#1c1c1c" },
+    { "type": "color", "id": "badge_bg", "label": "Cart count background", "default": "#2f5d50" },
+    { "type": "color", "id": "badge_text", "label": "Cart count text", "default": "#ffffff" },
+
+    { "type": "header", "content": "Sticky and transparent" },
+    {
+      "type": "select",
+      "id": "sticky_mode",
+      "label": "Header behavior",
+      "options": [
+        { "value": "none", "label": "Scrolls with page" },
+        { "value": "always", "label": "Sticky" },
+        { "value": "scroll_up", "label": "Sticky, hides on scroll down" },
+        { "value": "fixed", "label": "Fixed" }
+      ],
+      "default": "always"
+    },
+    {
+      "type": "select",
+      "id": "transparent_mode",
+      "label": "Transparent header",
+      "options": [
+        { "value": "none", "label": "Off" },
+        { "value": "home", "label": "Home page only" },
+        { "value": "all", "label": "All pages" }
+      ],
+      "default": "none",
+      "info": "Overlays the first section. Turns solid on hover, on scroll and when a menu opens."
+    },
+    { "type": "color", "id": "transparent_text_color", "label": "Transparent header text", "default": "#ffffff" },
+
+    { "type": "header", "content": "Borders and shadow" },
+    { "type": "range", "id": "border_width", "label": "Bottom border", "min": 0, "max": 4, "step": 1, "unit": "px", "default": 1 },
+    {
+      "type": "select",
+      "id": "shadow",
+      "label": "Shadow",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "soft", "label": "Soft" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "strong", "label": "Strong" }
+      ],
+      "default": "none"
+    },
+    { "type": "checkbox", "id": "shadow_on_scroll", "label": "Only show shadow after scrolling", "default": true },
+
+    { "type": "header", "content": "Icons" },
+    { "type": "range", "id": "icon_size", "label": "Icon size", "min": 16, "max": 32, "step": 1, "unit": "px", "default": 22 },
+    { "type": "range", "id": "icon_gap", "label": "Space between icons", "min": 4, "max": 32, "step": 2, "unit": "px", "default": 14 },
+    { "type": "checkbox", "id": "show_search", "label": "Show search", "default": true },
+    { "type": "checkbox", "id": "show_search_mobile", "label": "Show search on mobile", "default": true },
+    {
+      "type": "select",
+      "id": "search_style",
+      "label": "Search opens",
+      "options": [
+        { "value": "panel", "label": "Search bar under header" },
+        { "value": "link", "label": "Search page" }
+      ],
+      "default": "panel"
+    },
+    { "type": "text", "id": "search_placeholder", "label": "Search placeholder", "default": "Search products" },
+    { "type": "checkbox", "id": "show_account", "label": "Show account", "default": true },
+    { "type": "checkbox", "id": "show_account_mobile", "label": "Show account on mobile", "default": false },
+    { "type": "checkbox", "id": "show_wishlist", "label": "Show wishlist", "default": false },
+    { "type": "checkbox", "id": "show_wishlist_mobile", "label": "Show wishlist on mobile", "default": false },
+    { "type": "url", "id": "wishlist_url", "label": "Wishlist link" },
+    { "type": "checkbox", "id": "show_cart", "label": "Show cart", "default": true },
+
+    { "type": "header", "content": "Announcement bar" },
+    { "type": "paragraph", "content": "Add Announcement blocks to show messages above the header." },
+    { "type": "checkbox", "id": "ann_autoplay", "label": "Rotate messages automatically", "default": true },
+    { "type": "range", "id": "ann_speed", "label": "Change message every", "min": 3, "max": 10, "step": 1, "unit": "s", "default": 5 },
+    { "type": "range", "id": "ann_font_size", "label": "Text size", "min": 11, "max": 16, "step": 1, "unit": "px", "default": 13 },
+
+    { "type": "header", "content": "Mobile drawer" },
+    {
+      "type": "select",
+      "id": "drawer_side",
+      "label": "Open from",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    { "type": "range", "id": "drawer_width", "label": "Drawer width", "min": 280, "max": 480, "step": 10, "unit": "px", "default": 380 },
+    { "type": "color", "id": "drawer_bg", "label": "Drawer background", "default": "#ffffff" },
+    { "type": "color", "id": "drawer_text", "label": "Drawer text", "default": "#1c1c1c" },
+    { "type": "checkbox", "id": "drawer_single_open", "label": "Keep only one submenu open", "default": true },
+    { "type": "checkbox", "id": "drawer_show_account", "label": "Show account link", "default": true },
+    { "type": "checkbox", "id": "drawer_show_wishlist", "label": "Show wishlist link", "default": false },
+    { "type": "richtext", "id": "drawer_footer_text", "label": "Drawer footer text" }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "limit": 5,
+      "settings": [
+        { "type": "inline_richtext", "id": "text", "label": "Message", "default": "Free shipping on orders over $75" },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "color", "id": "bg_color", "label": "Background", "default": "#2f5d50" },
+        { "type": "color", "id": "text_color", "label": "Text", "default": "#ffffff" }
+      ]
+    },
+    {
+      "type": "mega_menu",
+      "name": "Mega menu",
+      "settings": [
+        { "type": "text", "id": "menu_item", "label": "Menu item title", "info": "Must match a top-level item in your menu, e.g. Shop." },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "Layout",
+          "options": [
+            { "value": "dropdown", "label": "Standard dropdown" },
+            { "value": "columns", "label": "Multi-column" },
+            { "value": "images", "label": "Image cards" },
+            { "value": "collections", "label": "Featured collections" },
+            { "value": "products", "label": "Featured products" },
+            { "value": "promo", "label": "Promotional banner" },
+            { "value": "custom", "label": "Custom content" }
+          ],
+          "default": "columns"
+        },
+        { "type": "link_list", "id": "column_menu", "label": "Column menu", "info": "Optional. Build columns from a different menu instead of this item's submenu." },
+
+        { "type": "header", "content": "Links" },
+        { "type": "checkbox", "id": "show_links", "label": "Show navigation links", "default": true },
+        { "type": "checkbox", "id": "show_headings", "label": "Show second-level items as column headings", "default": true },
+        { "type": "range", "id": "columns", "label": "Link columns", "min": 1, "max": 6, "step": 1, "default": 4 },
+        { "type": "checkbox", "id": "show_view_all", "label": "Show “View all” link", "default": false },
+
+        { "type": "header", "content": "Featured content" },
+        { "type": "collection_list", "id": "collections", "label": "Collections", "limit": 8, "info": "Featured collections layout." },
+        { "type": "product_list", "id": "products", "label": "Products", "limit": 8, "info": "Featured products layout." },
+        { "type": "range", "id": "media_count", "label": "Items to show", "min": 1, "max": 8, "step": 1, "default": 4 },
+        { "type": "range", "id": "media_columns", "label": "Items per row", "min": 1, "max": 4, "step": 1, "default": 2 },
+        {
+          "type": "select",
+          "id": "media_position",
+          "label": "Content position",
+          "options": [
+            { "value": "right", "label": "Right of links" },
+            { "value": "left", "label": "Left of links" }
+          ],
+          "default": "right"
+        },
+        { "type": "range", "id": "media_width", "label": "Content width", "min": 25, "max": 75, "step": 5, "unit": "%", "default": 45 },
+        {
+          "type": "select",
+          "id": "image_ratio",
+          "label": "Image shape",
+          "options": [
+            { "value": "auto", "label": "Original" },
+            { "value": "1 / 1", "label": "Square" },
+            { "value": "4 / 5", "label": "Portrait 4:5" },
+            { "value": "3 / 4", "label": "Portrait 3:4" },
+            { "value": "3 / 2", "label": "Landscape 3:2" },
+            { "value": "16 / 9", "label": "Wide 16:9" }
+          ],
+          "default": "4 / 5"
+        },
+        { "type": "range", "id": "image_radius", "label": "Image corner radius", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 4 },
+        { "type": "checkbox", "id": "show_card_text", "label": "Show titles and text", "default": true },
+        { "type": "checkbox", "id": "show_buttons", "label": "Show buttons", "default": true },
+        { "type": "checkbox", "id": "show_price", "label": "Show product price", "default": true },
+        { "type": "checkbox", "id": "show_vendor", "label": "Show product vendor", "default": false },
+        { "type": "checkbox", "id": "show_product_count", "label": "Show collection product count", "default": false },
+
+        { "type": "header", "content": "Image card 1" },
+        { "type": "paragraph", "content": "Image cards layout uses cards 1–3. Promotional banner uses card 1 as the banner. Custom content shows card 1’s image." },
+        { "type": "image_picker", "id": "image_1", "label": "Image" },
+        { "type": "text", "id": "title_1", "label": "Heading" },
+        { "type": "text", "id": "text_1", "label": "Text" },
+        { "type": "text", "id": "button_1", "label": "Button label" },
+        { "type": "url", "id": "link_1", "label": "Link" },
+        { "type": "header", "content": "Image card 2" },
+        { "type": "image_picker", "id": "image_2", "label": "Image" },
+        { "type": "text", "id": "title_2", "label": "Heading" },
+        { "type": "text", "id": "text_2", "label": "Text" },
+        { "type": "text", "id": "button_2", "label": "Button label" },
+        { "type": "url", "id": "link_2", "label": "Link" },
+        { "type": "header", "content": "Image card 3" },
+        { "type": "image_picker", "id": "image_3", "label": "Image" },
+        { "type": "text", "id": "title_3", "label": "Heading" },
+        { "type": "text", "id": "text_3", "label": "Text" },
+        { "type": "text", "id": "button_3", "label": "Button label" },
+        { "type": "url", "id": "link_3", "label": "Link" },
+
+        { "type": "header", "content": "Promotional banner" },
+        { "type": "range", "id": "promo_height", "label": "Banner height", "min": 240, "max": 600, "step": 20, "unit": "px", "default": 360 },
+        { "type": "range", "id": "promo_overlay", "label": "Image overlay", "min": 0, "max": 80, "step": 5, "unit": "%", "default": 30 },
+        {
+          "type": "select",
+          "id": "promo_text_position",
+          "label": "Text position",
+          "options": [
+            { "value": "top-left", "label": "Top left" },
+            { "value": "center", "label": "Center" },
+            { "value": "bottom-left", "label": "Bottom left" }
+          ],
+          "default": "bottom-left"
+        },
+
+        { "type": "header", "content": "Custom content" },
+        { "type": "richtext", "id": "custom_text", "label": "Text" },
+        { "type": "liquid", "id": "custom_liquid", "label": "Custom Liquid", "info": "Add app snippets or other Liquid code." },
+
+        { "type": "header", "content": "Appearance" },
+        {
+          "type": "select",
+          "id": "width_mode",
+          "label": "Menu width",
+          "options": [
+            { "value": "full", "label": "Full screen, content at page width" },
+            { "value": "edge", "label": "Full screen, content edge to edge" },
+            { "value": "custom", "label": "Custom width" }
+          ],
+          "default": "full"
+        },
+        { "type": "range", "id": "custom_width", "label": "Custom width", "min": 600, "max": 1600, "step": 20, "unit": "px", "default": 1000 },
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Custom width alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "center"
+        },
+        { "type": "range", "id": "padding_y", "label": "Vertical padding", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 40 },
+        { "type": "range", "id": "gap", "label": "Spacing", "min": 8, "max": 80, "step": 4, "unit": "px", "default": 32 },
+        { "type": "color", "id": "bg_color", "label": "Background", "info": "Leave empty to use the header dropdown colors." },
+        { "type": "color", "id": "text_color", "label": "Text" },
+        { "type": "color", "id": "heading_color", "label": "Headings" },
+        { "type": "color", "id": "hover_color", "label": "Link hover" },
+
+        { "type": "header", "content": "Animation" },
+        {
+          "type": "select",
+          "id": "animation",
+          "label": "Animation",
+          "options": [
+            { "value": "inherit", "label": "Header default" },
+            { "value": "fade", "label": "Fade" },
+            { "value": "slide", "label": "Fade and slide" },
+            { "value": "scale", "label": "Fade and scale" },
+            { "value": "none", "label": "None" }
+          ],
+          "default": "inherit"
+        },
+        { "type": "range", "id": "speed", "label": "Speed", "info": "0 uses the header default.", "min": 0, "max": 800, "step": 50, "unit": "ms", "default": 0 },
+
+        { "type": "header", "content": "Mobile" },
+        { "type": "checkbox", "id": "mobile_show_media", "label": "Show images in mobile menu", "default": true }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mega header",
+      "blocks": [
+        { "type": "announcement" },
+        { "type": "mega_menu", "settings": { "menu_item": "Shop", "layout": "collections" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
