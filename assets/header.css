@@ -538,8 +538,11 @@ a.hdr-ann__msg {
   right: 0;
   border-top: 1px solid var(--hdr-border);
   box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.18);
-  max-height: calc(100vh - var(--hdr-offset, 120px));
-  max-height: calc(100dvh - var(--hdr-offset, 120px));
+  /* Compact: content decides the height, capped well below the viewport. */
+  max-width: 100vw;
+  max-height: min(72vh, calc(100vh - var(--hdr-offset, 120px) - 24px));
+  max-height: min(72dvh, calc(100dvh - var(--hdr-offset, 120px) - 24px));
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -582,12 +585,17 @@ a.hdr-ann__msg {
   min-width: 0;
   display: grid;
   grid-template-columns: repeat(var(--mm-cols, 4), minmax(0, 1fr));
-  gap: 28px var(--mm-gap, 32px);
+  gap: 22px var(--mm-gap, 32px);
   align-content: start;
+}
+/* Links share the panel with cards: let columns reflow instead of squeezing. */
+.hdr-mega__links:has(+ .hdr-mega__media),
+.hdr-mega__media + .hdr-mega__links {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 .hdr-mega__heading {
   display: block;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.3;
@@ -595,7 +603,7 @@ a.hdr-ann__msg {
   transition: color 0.15s ease;
 }
 .hdr-mega__heading:hover { color: var(--mm-hover, var(--hdr-accent)); }
-.hdr-mega__list li + li { margin-top: 9px; }
+.hdr-mega__list li + li { margin-top: 7px; }
 .hdr-mega__link {
   display: inline-block;
   line-height: 1.4;
@@ -611,15 +619,39 @@ a.hdr-ann__msg {
   color: var(--mm-hover, var(--hdr-accent));
 }
 
+/* Card track: every card sits in ONE row. Columns are created implicitly
+   (grid-auto-flow: column) and share the width equally, so 2, 4 or 6 cards
+   always line up side by side with identical dimensions and never wrap. */
 .hdr-mega__media {
-  flex: 0 1 var(--mm-media-w, 45%);
+  --mm-card-gap: 16px;
+  flex: 0 1 var(--mm-media-w, 60%);
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(var(--mm-media-cols, 2), minmax(0, 1fr));
-  gap: 20px;
-  align-content: start;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: none;
+  grid-template-rows: auto;
+  gap: var(--mm-card-gap);
+  align-items: start;
 }
-.hdr-mega__media:only-child { flex: 1 1 auto; }
+.hdr-mega__media:only-child {
+  flex: 1 1 auto;
+  /* Without links, keep a handful of cards from becoming oversized. */
+  max-width: min(100%, 1200px);
+  margin-inline: auto;
+  width: 100%;
+}
+.hdr-mega__links + .hdr-mega__media,
+.hdr-mega__media:has(+ .hdr-mega__links) {
+  padding-inline-start: var(--mm-gap, 32px);
+  border-inline-start: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+.hdr-mega__inner--media-left .hdr-mega__media {
+  padding-inline-start: 0;
+  border-inline-start: 0;
+  padding-inline-end: var(--mm-gap, 32px);
+  border-inline-end: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
 .hdr-mega__media--promo,
 .hdr-mega__media--custom {
   grid-template-columns: minmax(0, 1fr);
@@ -642,6 +674,7 @@ a.hdr-ann__msg {
 }
 .hdr-card__media {
   position: relative;
+  width: 100%;
   aspect-ratio: var(--mm-ratio, 4 / 5);
   overflow: hidden;
   border-radius: var(--mm-radius, 4px);
@@ -650,9 +683,11 @@ a.hdr-ann__msg {
 }
 .hdr-card__img,
 .hdr-card__ph {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .hdr-card__ph { fill: currentColor; opacity: 0.25; }
@@ -667,6 +702,18 @@ a.hdr-card:hover .hdr-card__title { color: var(--mm-hover, var(--hdr-accent)); }
   font-size: 13px;
   line-height: 1.5;
   opacity: 0.75;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.hdr-card__title {
+  overflow-wrap: anywhere;
+}
+/* In the desktop panel the frame keeps its ratio until it reaches the
+   height cap; past that it is cropped (object-fit: cover), never stretched. */
+.hdr-mega .hdr-card__media {
+  max-height: var(--mm-card-h, 220px);
 }
 .hdr-card__meta {
   font-size: 12px;
@@ -704,7 +751,7 @@ a.hdr-card:hover .hdr-btn { color: var(--mm-hover, var(--hdr-accent)); }
   position: relative;
   isolation: isolate;
   display: flex;
-  min-height: var(--mm-promo-h, 360px);
+  min-height: min(var(--mm-promo-h, 300px), 52vh);
   overflow: hidden;
   border-radius: var(--mm-radius, 4px);
   color: #fff;
@@ -956,15 +1003,25 @@ a.hdr-promo:hover .hdr-btn--solid { color: #1c1c1c; background: rgba(255, 255, 2
 .hdr-acc.is-open > .hdr-acc__panel > .hdr-acc__inner { padding-bottom: 8px; }
 
 /* Media strip inside mobile accordions */
+/* Phones: swipeable row, ~2.2 cards visible so the next card hints at scroll. */
 .hdr-mstrip {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 44%;
+  grid-auto-columns: calc((100% - 2 * 12px) / 2.2);
   gap: 12px;
+  max-width: 100%;
   padding: 10px 20px 14px 32px;
+  scroll-padding-inline: 32px;
   overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
+}
+.hdr-mstrip .hdr-card__media { max-height: 200px; }
+/* Tablets (wider drawer): three cards per view. */
+@media (min-width: 750px) {
+  .hdr-mstrip { grid-auto-columns: calc((100% - 2 * 12px) / 3); }
 }
 .hdr-mstrip::-webkit-scrollbar { display: none; }
 .hdr-mstrip .hdr-card { scroll-snap-align: start; }
@@ -986,6 +1043,41 @@ a.hdr-promo:hover .hdr-btn--solid { color: #1c1c1c; background: rgba(255, 255, 2
 .hdr-drawer__foot-link .hdr-ico { width: 20px; height: 20px; }
 .hdr-drawer__note { font-size: 13px; line-height: 1.55; opacity: 0.75; }
 .hdr-drawer__note a { text-decoration: underline; }
+
+/* ---------- Mega menu: responsive tuning ---------- */
+/* Small desktops / landscape tablets (990–1199px): tighter spacing, cards
+   still in one row; links stack above cards when space runs out. */
+@media (min-width: 990px) and (max-width: 1199px) {
+  .hdr-mega__inner {
+    gap: min(var(--mm-gap, 32px), 24px);
+    padding-block: min(var(--mm-pad-y, 28px), 24px);
+    padding-inline: min(var(--hdr-pad-x), 24px);
+  }
+  .hdr-mega__media { --mm-card-gap: 12px; flex-basis: max(var(--mm-media-w, 60%), 55%); }
+  .hdr-mega__links + .hdr-mega__media,
+  .hdr-mega__media:has(+ .hdr-mega__links) { padding-inline-start: 20px; }
+  .hdr-mega__links:has(+ .hdr-mega__media),
+  .hdr-mega__media + .hdr-mega__links {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .hdr-mega .hdr-card__media { max-height: min(var(--mm-card-h, 220px), 180px); }
+  .hdr-mega .hdr-card__text { -webkit-line-clamp: 1; }
+  .hdr-mega .hdr-card__title { font-size: 13px; }
+}
+/* Very narrow desktop window with many cards: stack links on top so the
+   single card row gets the full width rather than wrapping. */
+@media (min-width: 990px) and (max-width: 1099px) {
+  .hdr-mega__inner:has(.hdr-mega__links):has(.hdr-mega__media) { flex-direction: column; align-items: stretch; }
+  .hdr-mega__inner:has(.hdr-mega__links):has(.hdr-mega__media) .hdr-mega__media {
+    flex-basis: auto;
+    padding-inline: 0;
+    border: 0;
+  }
+}
+/* Large screens: a little more air between cards. */
+@media (min-width: 1400px) {
+  .hdr-mega__media { --mm-card-gap: 20px; }
+}
 
 /* ---------- Theme editor notice ---------- */
 .hdr-notice {
