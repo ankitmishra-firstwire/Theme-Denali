@@ -23,6 +23,12 @@
     --ig-cols-tablet: {{ section.settings.columns_desktop | at_most: 2 }};
     --ig-cols-desktop: {{ section.settings.columns_desktop }};
     --ig-lines: {{ section.settings.description_lines }};
+    {%- if section.settings.full_width %}
+    --ig-max-width: 100%;
+    {%- else %}
+    --ig-max-width: {{ section.settings.content_width }}px;
+    {%- endif %}
+    --ig-side-pad: {{ section.settings.side_padding }}px;
     --ig-pad-top: {{ section.settings.padding_top | times: 0.75 | round }}px;
     --ig-pad-bottom: {{ section.settings.padding_bottom | times: 0.75 | round }}px;
   }
@@ -37,6 +43,8 @@
 
 <style>
   .ig {
+    display: block;
+    box-sizing: border-box;
     background: var(--ig-bg);
     color: var(--ig-text);
     padding-top: var(--ig-pad-top);
@@ -44,9 +52,11 @@
   }
 
   .ig__inner {
-    max-width: 64rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--ig-max-width);
     margin-inline: auto;
-    padding-inline: 1.5rem;
+    padding-inline: var(--ig-side-pad);
   }
 
   .ig__header { max-width: 42rem; }
@@ -383,6 +393,37 @@
         { "value": "center", "label": "Center" }
       ],
       "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Section width"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Make section full width",
+      "info": "Cards spread across the whole screen. Overrides the max width below.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Max width",
+      "min": 600,
+      "max": 1600,
+      "step": 100,
+      "unit": "px",
+      "default": 1000
+    },
+    {
+      "type": "range",
+      "id": "side_padding",
+      "label": "Side padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 24
     },
     {
       "type": "header",
