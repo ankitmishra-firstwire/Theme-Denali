@@ -225,7 +225,7 @@
         "garment_ayCL9d": {
           "type": "garment",
           "settings": {
-            "product": "poplin-shirt-dress",
+            "product": "classic-oxford-button-down",
             "title": "Piqué polo · Forest",
             "tag": "$62",
             "description": "Forest piqué polo with a bone CCgather embroidery on the chest.",
@@ -238,40 +238,14 @@
         "garment_QiJUj8": {
           "type": "garment",
           "settings": {
-            "product": "poplin-shirt-dress",
+            "product": "oversized-fleece-crewneck-sweatshirt",
             "title": "Piqué polo · Forest",
             "tag": "$62",
             "description": "Forest piqué polo with a bone CCgather embroidery on the chest.",
             "details": "Piqué knit, Two-button placket, Embroidered",
             "link": "",
-            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
-            "side_image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_582ed9b6-ad7c-425d-8c9b-cad9590d45c4.png"
-          }
-        },
-        "garment_keVKFf": {
-          "type": "garment",
-          "settings": {
-            "product": "poplin-shirt-dress",
-            "title": "Piqué polo · Forest",
-            "tag": "$62",
-            "description": "Forest piqué polo with a bone CCgather embroidery on the chest.",
-            "details": "Piqué knit, Two-button placket, Embroidered",
-            "link": "",
-            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
-            "side_image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_582ed9b6-ad7c-425d-8c9b-cad9590d45c4.png"
-          }
-        },
-        "garment_dx6ENB": {
-          "type": "garment",
-          "settings": {
-            "product": "poplin-shirt-dress",
-            "title": "Piqué polo · Forest",
-            "tag": "$62",
-            "description": "Forest piqué polo with a bone CCgather embroidery on the chest.",
-            "details": "Piqué knit, Two-button placket, Embroidered",
-            "link": "",
-            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
-            "side_image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_582ed9b6-ad7c-425d-8c9b-cad9590d45c4.png"
+            "image": "shopify://shop_images/mens-sage-green-camp-collar-linen-shirt_93c6cfa8-c15a-40a0-b5f7-85c8b7ec2be2.png",
+            "side_image": "shopify://shop_images/mens-sage-green-camp-collar-linen-shirt_ba838ee7-5c59-4f08-af4d-742e6d32a17e.png"
           }
         }
       },
@@ -285,9 +259,7 @@
         "garment_zPirrd",
         "garment_RXefE9",
         "garment_ayCL9d",
-        "garment_QiJUj8",
-        "garment_keVKFf",
-        "garment_dx6ENB"
+        "garment_QiJUj8"
       ],
       "name": "Clothing rail hero",
       "settings": {
