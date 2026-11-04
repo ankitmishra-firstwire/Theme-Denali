@@ -1,13 +1,44 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-product",
       "blocks": {
-        "title": { "type": "title", "settings": { "show_vendor": true } },
-        "price": { "type": "price", "settings": {} },
-        "variant_picker": { "type": "variant_picker", "settings": { "picker_type": "buttons" } },
-        "quantity_selector": { "type": "quantity_selector", "settings": {} },
-        "inventory": { "type": "inventory", "settings": { "inventory_threshold": 10, "show_inventory_quantity": false } },
+        "title": {
+          "type": "title",
+          "settings": {
+            "show_vendor": true
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "buttons"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "inventory": {
+          "type": "inventory",
+          "settings": {
+            "inventory_threshold": 10,
+            "show_inventory_quantity": false
+          }
+        },
         "buy_buttons": {
           "type": "buy_buttons",
           "settings": {
@@ -16,27 +47,59 @@
             "show_gift_card_recipient": true
           }
         },
-        "description": { "type": "description", "settings": {} },
-        "care": {
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
+        "tab_shipping": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Shipping & returns",
+            "content": "<p>Add your shipping and returns information here, or choose a page in the block settings.</p>"
+          }
+        },
+        "tab_care": {
           "type": "collapsible_tab",
           "settings": {
             "heading": "Care instructions",
-            "content": "<p>Add care, materials or shipping details for this product.</p>"
+            "content": "<p>Add care instructions for your products here.</p>"
           }
         },
-        "complementary": {
-          "type": "complementary",
-          "settings": { "heading": "Pairs well with", "product_list_limit": 3 }
-        },
-        "share": { "type": "share", "settings": {} }
+        "share": {
+          "type": "share",
+          "settings": {}
+        }
       },
-      "block_order": ["title", "price", "variant_picker", "quantity_selector", "inventory", "buy_buttons", "description", "care", "complementary", "share"],
-      "settings": {}
+      "block_order": [
+        "title",
+        "price",
+        "variant_picker",
+        "quantity_selector",
+        "inventory",
+        "buy_buttons",
+        "description",
+        "tab_shipping",
+        "tab_care",
+        "share"
+      ],
+      "settings": {
+        "color_scheme": "scheme-1",
+        "media_size": "large",
+        "enable_video_looping": false
+      }
     },
     "recommendations": {
       "type": "product-recommendations",
-      "settings": {}
+      "settings": {
+        "heading": "You may also like",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "color_scheme": "scheme-1"
+      }
     }
   },
-  "order": ["main", "recommendations"]
+  "order": [
+    "main",
+    "recommendations"
+  ]
 }
