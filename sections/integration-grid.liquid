@@ -1,0 +1,615 @@
+{%- comment -%}
+  Section: Integrations grid
+  Port of the React "Integrations" block (heading, subheading, 3-column grid of soft cards
+  with icon, title and a clamped description). Every card is a block, so merchants can
+  add, remove, reorder and link them from the theme editor.
+{%- endcomment -%}
+
+{%- liquid
+  assign section_id = 'integrations-' | append: section.id
+  assign card_style = section.settings.card_style
+-%}
+
+<style>
+  #{{ section_id }} {
+    --ig-bg: {{ section.settings.color_background }};
+    --ig-text: {{ section.settings.color_text }};
+    --ig-muted: {{ section.settings.color_muted }};
+    --ig-card-bg: {{ section.settings.color_card }};
+    --ig-card-border: {{ section.settings.color_card_border }};
+    --ig-radius: {{ section.settings.card_radius }}px;
+    --ig-icon: {{ section.settings.icon_size }}px;
+    --ig-cols-mobile: {{ section.settings.columns_mobile }};
+    --ig-cols-tablet: {{ section.settings.columns_desktop | at_most: 2 }};
+    --ig-cols-desktop: {{ section.settings.columns_desktop }};
+    --ig-lines: {{ section.settings.description_lines }};
+    --ig-pad-top: {{ section.settings.padding_top | times: 0.75 | round }}px;
+    --ig-pad-bottom: {{ section.settings.padding_bottom | times: 0.75 | round }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #{{ section_id }} {
+      --ig-pad-top: {{ section.settings.padding_top }}px;
+      --ig-pad-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+</style>
+
+<style>
+  .ig {
+    background: var(--ig-bg);
+    color: var(--ig-text);
+    padding-top: var(--ig-pad-top);
+    padding-bottom: var(--ig-pad-bottom);
+  }
+
+  .ig__inner {
+    max-width: 64rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .ig__header { max-width: 42rem; }
+  .ig__header--center { margin-inline: auto; text-align: center; }
+
+  .ig__heading {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    color: inherit;
+  }
+  .ig__heading--small  { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 1.875rem); }
+  .ig__heading--medium { font-size: clamp(1.875rem, 1.5rem + 1.5vw, 2.25rem); }
+  .ig__heading--large  { font-size: clamp(2.25rem, 1.8rem + 2vw, 3rem); }
+
+  .ig__subheading {
+    margin: 0.75rem 0 0;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ig-muted);
+  }
+  .ig__subheading p { margin: 0; }
+
+  .ig__grid {
+    list-style: none;
+    margin: 3rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(var(--ig-cols-mobile), minmax(0, 1fr));
+  }
+  @media screen and (min-width: 640px) {
+    .ig__grid { grid-template-columns: repeat(var(--ig-cols-tablet), minmax(0, 1fr)); }
+  }
+  @media screen and (min-width: 1024px) {
+    .ig__grid { grid-template-columns: repeat(var(--ig-cols-desktop), minmax(0, 1fr)); }
+  }
+
+  .ig__item { display: flex; }
+
+  .ig-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 1.5rem;
+    border-radius: var(--ig-radius);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .ig-card--soft    { background: var(--ig-card-bg); border: 1px solid transparent; }
+  .ig-card--outline { background: transparent; border: 1px solid var(--ig-card-border); }
+  .ig-card--plain   { background: transparent; border: 1px solid transparent; padding-inline: 0; }
+
+  /* Hover only answers an action, so it only appears on linked cards. */
+  a.ig-card--soft:hover    { border-color: var(--ig-card-border); }
+  a.ig-card--outline:hover { background: var(--ig-card-bg); }
+  a.ig-card--plain:hover .ig-card__title { text-decoration: underline; text-underline-offset: 0.2em; }
+
+  a.ig-card:focus-visible {
+    outline: 2px solid var(--ig-text);
+    outline-offset: 3px;
+  }
+
+  .ig-card__icon {
+    width: var(--ig-icon);
+    height: var(--ig-icon);
+    flex-shrink: 0;
+  }
+  .ig-card__icon img,
+  .ig-card__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .ig-card__fallback {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: calc(var(--ig-radius) * 0.6);
+    border: 1px solid var(--ig-card-border);
+    font-weight: 600;
+    font-size: calc(var(--ig-icon) * 0.42);
+    color: var(--ig-muted);
+  }
+
+  .ig-card__body { margin-top: 1.5rem; }
+  .ig-card__body > * + * { margin-top: 0.375rem; }
+
+  .ig-card__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: inherit;
+  }
+
+  .ig-card__text {
+    margin: 0;
+    color: var(--ig-muted);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--ig-lines);
+    line-clamp: var(--ig-lines);
+    overflow: hidden;
+  }
+
+  /* Optional single reveal for the whole grid (off by default). */
+  .ig[data-reveal="true"] .ig__item {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transition-delay: calc(var(--ig-index, 0) * 60ms);
+  }
+  .ig[data-reveal="true"].is-visible .ig__item {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ig[data-reveal="true"] .ig__item {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  .ig__item.is-selected .ig-card {
+    outline: 2px dashed var(--ig-muted);
+    outline-offset: 3px;
+  }
+</style>
+
+<integrations-grid
+  id="{{ section_id }}"
+  class="ig"
+  data-reveal="{{ section.settings.enable_reveal }}"
+>
+  <section class="ig__inner" aria-labelledby="{{ section_id }}-heading">
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="ig__header{% if section.settings.text_alignment == 'center' %} ig__header--center{% endif %}">
+        {%- if section.settings.heading != blank -%}
+          <h2 id="{{ section_id }}-heading" class="ig__heading ig__heading--{{ section.settings.heading_size }}">
+            {{- section.settings.heading | escape -}}
+          </h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <div class="ig__subheading">{{ section.settings.subheading }}</div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="ig__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign title = block.settings.title
+            assign has_link = false
+            if block.settings.link != blank
+              assign has_link = true
+            endif
+          -%}
+          <li
+            class="ig__item"
+            style="--ig-index: {{ forloop.index0 }};"
+            data-block-id="{{ block.id }}"
+            {{ block.shopify_attributes }}
+          >
+            {%- if has_link -%}
+              <a
+                class="ig-card ig-card--{{ card_style }}"
+                href="{{ block.settings.link }}"
+                {% if block.settings.new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}
+              >
+            {%- else -%}
+              <div class="ig-card ig-card--{{ card_style }}">
+            {%- endif -%}
+
+              <div class="ig-card__icon">
+                {%- if block.settings.icon != blank -%}
+                  {{
+                    block.settings.icon
+                    | image_url: width: 160
+                    | image_tag:
+                      loading: 'lazy',
+                      alt: block.settings.icon.alt | default: title,
+                      width: section.settings.icon_size,
+                      height: section.settings.icon_size
+                  }}
+                {%- elsif block.settings.icon_svg != blank -%}
+                  {{ block.settings.icon_svg }}
+                {%- else -%}
+                  <span class="ig-card__fallback" aria-hidden="true">
+                    {{- title | default: '?' | slice: 0 | upcase -}}
+                  </span>
+                {%- endif -%}
+              </div>
+
+              <div class="ig-card__body">
+                {%- if title != blank -%}
+                  <h3 class="ig-card__title">{{ title | escape }}</h3>
+                {%- endif -%}
+                {%- if block.settings.description != blank -%}
+                  <p class="ig-card__text">{{ block.settings.description | escape }}</p>
+                {%- endif -%}
+              </div>
+
+              {%- if has_link and block.settings.new_tab -%}
+                <span class="visually-hidden">(opens in a new tab)</span>
+              {%- endif -%}
+
+            {%- if has_link -%}
+              </a>
+            {%- else -%}
+              </div>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </section>
+</integrations-grid>
+
+<script>
+  (function () {
+    if (customElements.get('integrations-grid')) return;
+
+    class IntegrationsGrid extends HTMLElement {
+      connectedCallback() {
+        this.setupReveal();
+        this.onBlockSelect = this.onBlockSelect.bind(this);
+        this.onBlockDeselect = this.onBlockDeselect.bind(this);
+        document.addEventListener('shopify:block:select', this.onBlockSelect);
+        document.addEventListener('shopify:block:deselect', this.onBlockDeselect);
+      }
+
+      disconnectedCallback() {
+        if (this.observer) this.observer.disconnect();
+        document.removeEventListener('shopify:block:select', this.onBlockSelect);
+        document.removeEventListener('shopify:block:deselect', this.onBlockDeselect);
+      }
+
+      setupReveal() {
+        if (this.dataset.reveal !== 'true') return;
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const inEditor = window.Shopify && window.Shopify.designMode;
+
+        if (reduceMotion || inEditor || !('IntersectionObserver' in window)) {
+          this.classList.add('is-visible');
+          return;
+        }
+
+        this.observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              this.classList.add('is-visible');
+              this.observer.disconnect();
+            });
+          },
+          { threshold: 0.15 }
+        );
+        this.observer.observe(this);
+      }
+
+      findItem(blockId) {
+        return this.querySelector('[data-block-id="' + blockId + '"]');
+      }
+
+      onBlockSelect(event) {
+        const item = this.findItem(event.detail.blockId);
+        if (!item) return;
+        this.classList.add('is-visible');
+        item.classList.add('is-selected');
+        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      onBlockDeselect(event) {
+        const item = this.findItem(event.detail.blockId);
+        if (item) item.classList.remove('is-selected');
+      }
+    }
+
+    customElements.define('integrations-grid', IntegrationsGrid);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Integrations grid",
+  "tag": "div",
+  "class": "section-integrations-grid",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Integrate with your favorite tools"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Connect seamlessly with popular platforms and services to enhance your workflow.</p>"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Grid"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1 column" },
+        { "value": "2", "label": "2 columns" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Card style",
+      "options": [
+        { "value": "soft", "label": "Soft (filled)" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "plain", "label": "Plain" }
+      ],
+      "default": "soft"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 24,
+      "max": 72,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "description_lines",
+      "label": "Description lines before truncating",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_reveal",
+      "label": "Fade cards in when the section scrolls into view",
+      "info": "Skipped for visitors who prefer reduced motion.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text",
+      "default": "#18181b"
+    },
+    {
+      "type": "color",
+      "id": "color_muted",
+      "label": "Secondary text",
+      "default": "#71717a"
+    },
+    {
+      "type": "color",
+      "id": "color_card",
+      "label": "Card background",
+      "default": "#f4f4f5"
+    },
+    {
+      "type": "color",
+      "id": "color_card_border",
+      "label": "Card border",
+      "default": "#e4e4e7"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 128
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 128
+    }
+  ],
+  "blocks": [
+    {
+      "type": "integration",
+      "name": "Integration",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon",
+          "info": "Square SVG or PNG works best. Upload the logo you have rights to use."
+        },
+        {
+          "type": "html",
+          "id": "icon_svg",
+          "label": "Icon SVG code",
+          "info": "Used only when no image is selected. Paste inline <svg> markup."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Integration"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Describe what this integration does for your customers in a sentence or two."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Optional. Makes the whole card clickable."
+        },
+        {
+          "type": "checkbox",
+          "id": "new_tab",
+          "label": "Open link in a new tab",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "max_blocks": 24,
+  "presets": [
+    {
+      "name": "Integrations grid",
+      "blocks": [
+        {
+          "type": "integration",
+          "settings": {
+            "title": "Google Gemini",
+            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente."
+          }
+        },
+        {
+          "type": "integration",
+          "settings": {
+            "title": "Replit",
+            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente."
+          }
+        },
+        {
+          "type": "integration",
+          "settings": {
+            "title": "Magic UI",
+            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente."
+          }
+        },
+        {
+          "type": "integration",
+          "settings": {
+            "title": "VSCodium",
+            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente."
+          }
+        },
+        {
+          "type": "integration",
+          "settings": {
+            "title": "MediaWiki",
+            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente."
+          }
+        },
+        {
+          "type": "integration",
+          "settings": {
+            "title": "Google PaLM",
+            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
