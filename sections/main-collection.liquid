@@ -1,0 +1,373 @@
+{{ 'commerce.css' | asset_url | stylesheet_tag }}
+{{ 'collection.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'commerce.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'collection.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign s = section.settings
+  assign cols_d = s.columns_desktop
+  assign cols_t = s.columns_tablet | plus: 0
+  assign cols_m = s.columns_mobile | plus: 0
+  assign vw_d = 100 | divided_by: cols_d
+  assign vw_t = 100 | divided_by: cols_t
+  assign vw_m = 100 | divided_by: cols_m
+  capture card_sizes
+    echo '(min-width: 990px) '
+    echo vw_d
+    echo 'vw, (min-width: 750px) '
+    echo vw_t
+    echo 'vw, '
+    echo vw_m
+    echo 'vw'
+  endcapture
+
+  assign show_filters = false
+  if s.enable_filtering and collection.filters.size > 0
+    assign show_filters = true
+  endif
+
+  assign active_count = 0
+  for filter in collection.filters
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign active_count = active_count | plus: 1
+      endif
+    else
+      assign active_count = active_count | plus: filter.active_values.size
+    endif
+  endfor
+
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign clear_url = collection.url | append: '?sort_by=' | append: sort_by
+  assign form_id = 'FacetForm-' | append: section.id
+-%}
+
+<facet-filters
+  class="shop-section collection collection--{{ s.filter_layout }}"
+  id="Collection-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-layout="{{ s.filter_layout }}"
+  data-after-add="{{ s.after_add }}"
+  data-label-added="{{ 'products.product.added' | t | escape }}"
+  data-label-view-cart="{{ 'products.product.view_cart' | t | escape }}"
+  data-label-error="{{ 'products.product.error' | t | escape }}"
+  data-cart-url="{{ routes.cart_url }}"
+  style="
+    --shop-cols: {{ cols_d }}; --shop-cols-t: {{ cols_t }}; --shop-cols-m: {{ cols_m }};
+    --shop-btn-bg: {{ s.button_bg }}; --shop-btn-text: {{ s.button_text }}; --shop-sale-color: {{ s.sale_color }};
+    --shop-card-ratio: {{ s.image_ratio }}; --shop-card-radius: {{ s.image_radius }}px; --shop-sticky-top: {{ s.sticky_top }}px;
+    --shop-surface: {{ s.drawer_bg }}; --shop-surface-text: {{ s.drawer_text }};
+  "
+>
+  {%- if s.show_banner -%}
+    {%- liquid
+      assign banner_image = nil
+      if s.show_image and collection.image != blank
+        assign banner_image = collection.image
+      endif
+    -%}
+    <div class="collection-banner{% if banner_image %} collection-banner--image{% endif %}">
+      {%- if banner_image -%}
+        <div class="collection-banner__media">
+          {{
+            banner_image
+            | image_url: width: 2400
+            | image_tag: widths: '750, 1100, 1500, 1800, 2400', sizes: '100vw', loading: 'eager', fetchpriority: 'high', alt: ''
+          }}
+        </div>
+      {%- endif -%}
+      <div class="page-width collection-banner__content">
+        <nav class="breadcrumbs" aria-label="{{ 'general.breadcrumb' | t }}">
+          <ol role="list">
+            <li><a href="{{ routes.root_url }}">{{ 'general.home' | t }}</a></li>
+            <li><span aria-current="page">{{ collection.title | escape }}</span></li>
+          </ol>
+        </nav>
+        <h1 class="collection-banner__title">{{ collection.title | escape }}</h1>
+        {%- if s.show_description and collection.description != blank -%}
+          <div class="collection-banner__description rte">{{ collection.description }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- else -%}
+    <h1 class="visually-hidden">{{ collection.title | escape }}</h1>
+  {%- endif -%}
+
+  <div class="page-width">
+    {%- paginate collection.products by s.products_per_page -%}
+      <div class="collection-toolbar">
+        <div class="collection-toolbar__start">
+          {%- if show_filters -%}
+            <button type="button" class="collection-toolbar__filter" data-facets-open aria-controls="Facets-{{ section.id }}" aria-expanded="false">
+              {% render 'icon', icon: 'filter' %}
+              {{ 'products.facets.filter' | t }}
+              <span class="collection-toolbar__count-pill" data-render-part="active-count">{% if active_count > 0 %}{{ active_count }}{% endif %}</span>
+            </button>
+          {%- endif -%}
+          <p class="collection-toolbar__count" role="status" data-render-part="count">
+            {{ 'products.facets.product_count' | t: count: collection.products_count }}
+          </p>
+        </div>
+
+        {%- if s.enable_sorting -%}
+          <div class="collection-toolbar__sort">
+            <label for="SortBy-{{ section.id }}">{{ 'products.facets.sort_by' | t }}</label>
+            <select id="SortBy-{{ section.id }}" class="select" name="sort_by" form="{{ form_id }}" data-sort>
+              {%- for option in collection.sort_options -%}
+                <option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>
+              {%- endfor -%}
+            </select>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="active-facets" data-render-part="active-facets">
+        {%- if active_count > 0 -%}
+          {%- for filter in collection.filters -%}
+            {%- if filter.type == 'price_range' -%}
+              {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                {%- capture price_label -%}{{ filter.min_value.value | default: 0 | money }} – {{ filter.max_value.value | default: filter.range_max | money }}{%- endcapture -%}
+                <a href="{{ filter.url_to_remove }}" class="active-facets__pill" data-facet-link aria-label="{{ 'products.facets.remove' | t: filter: price_label | strip_html | escape }}">
+                  {{ price_label }} {% render 'icon', icon: 'close' %}
+                </a>
+              {%- endif -%}
+            {%- else -%}
+              {%- for value in filter.active_values -%}
+                {%- capture pill_label -%}{{ filter.label }}: {{ value.label }}{%- endcapture -%}
+                <a href="{{ value.url_to_remove }}" class="active-facets__pill" data-facet-link aria-label="{{ 'products.facets.remove' | t: filter: pill_label | escape }}">
+                  {{ pill_label | escape }} {% render 'icon', icon: 'close' %}
+                </a>
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <a href="{{ clear_url }}" class="link" data-facet-link>{{ 'products.facets.clear_all' | t }}</a>
+        {%- endif -%}
+      </div>
+
+      <div class="collection__body">
+        {%- if show_filters -%}
+          <div class="facets" id="Facets-{{ section.id }}" data-facets-drawer>
+            <div class="facets__overlay" data-facets-close></div>
+            <div class="facets__panel" role="dialog" aria-modal="true" aria-labelledby="FacetsTitle-{{ section.id }}" data-facets-panel>
+              <div class="facets__header">
+                <h2 class="facets__title" id="FacetsTitle-{{ section.id }}">{{ 'products.facets.filter' | t }}</h2>
+                <button type="button" class="icon-button" data-facets-close aria-label="{{ 'products.facets.close' | t }}">{% render 'icon', icon: 'close' %}</button>
+              </div>
+
+              <form id="{{ form_id }}" class="facets__form" action="{{ collection.url }}" method="get" data-facets-form>
+                {%- unless s.enable_sorting -%}
+                  <input type="hidden" name="sort_by" value="{{ sort_by | escape }}">
+                {%- endunless -%}
+
+                {%- for filter in collection.filters -%}
+                  {%- liquid
+                    assign facet_id = 'Facet-' | append: section.id | append: '-' | append: forloop.index
+                    assign is_open = false
+                    if forloop.index <= s.open_facets
+                      assign is_open = true
+                    endif
+                    if filter.active_values.size > 0 or filter.min_value.value != nil or filter.max_value.value != nil
+                      assign is_open = true
+                    endif
+                  -%}
+                  <details class="facet"{% if is_open %} open{% endif %}>
+                    <summary class="facet__summary">
+                      <span>{{ filter.label | escape }}</span>
+                      {% render 'icon', icon: 'chevron-down' %}
+                    </summary>
+                    <div class="facet__body" id="{{ facet_id }}" data-facet-body>
+                      {%- if filter.type == 'price_range' -%}
+                        {%- liquid
+                          assign range_max = filter.range_max | money_without_currency | replace: ',', ''
+                          assign range_max_money = filter.range_max | money
+                        -%}
+                        <div class="facet__price">
+                          <label class="facet__price-field">
+                            <span aria-hidden="true">{{ cart.currency.symbol }}</span>
+                            <span class="visually-hidden">{{ 'products.facets.from' | t }}</span>
+                            <input type="number" inputmode="decimal" min="0" max="{{ range_max }}" name="{{ filter.min_value.param_name }}" placeholder="0"
+                              {% if filter.min_value.value %}value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"{% endif %}>
+                          </label>
+                          <span aria-hidden="true">–</span>
+                          <label class="facet__price-field">
+                            <span aria-hidden="true">{{ cart.currency.symbol }}</span>
+                            <span class="visually-hidden">{{ 'products.facets.to' | t }}</span>
+                            <input type="number" inputmode="decimal" min="0" max="{{ range_max }}" name="{{ filter.max_value.param_name }}" placeholder="{{ range_max }}"
+                              {% if filter.max_value.value %}value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"{% endif %}>
+                          </label>
+                        </div>
+                        <p class="facet__hint">{{ 'products.facets.max_price' | t: price: range_max_money }}</p>
+                      {%- else -%}
+                        {%- liquid
+                          assign is_swatch = false
+                          if filter.presentation == 'swatch'
+                            assign is_swatch = true
+                          endif
+                        -%}
+                        <ul class="facet__list{% if is_swatch %} facet__list--swatch{% endif %}" role="list">
+                          {%- for value in filter.values -%}
+                            {%- liquid
+                              assign input_id = facet_id | append: '-' | append: forloop.index
+                              assign disabled = false
+                              if value.count == 0 and value.active == false
+                                assign disabled = true
+                              endif
+                            -%}
+                            <li>
+                              <label class="facet__option{% if disabled %} is-disabled{% endif %}" for="{{ input_id }}"{% if is_swatch %} title="{{ value.label | escape }}"{% endif %}>
+                                <input type="checkbox" class="facet__checkbox" id="{{ input_id }}" name="{{ value.param_name }}" value="{{ value.value }}"
+                                  {% if value.active %}checked{% endif %} {% if disabled %}disabled{% endif %}>
+                                {%- if is_swatch -%}
+                                  {%- liquid
+                                    if value.swatch.image
+                                      assign sw_img = value.swatch.image | image_url: width: 80
+                                      assign sw_style = 'background-image: url(' | append: sw_img | append: ');'
+                                    elsif value.swatch.color
+                                      assign sw_style = 'background-color: ' | append: value.swatch.color | append: ';'
+                                    else
+                                      assign sw_style = 'background-color: ' | append: value.label | append: ';'
+                                    endif
+                                  -%}
+                                  <span class="facet__swatch" style="{{ sw_style | escape }}"></span>
+                                  <span class="visually-hidden">{{ value.label | escape }} ({{ value.count }})</span>
+                                {%- else -%}
+                                  <span class="facet__box" aria-hidden="true">{% render 'icon', icon: 'check' %}</span>
+                                  <span>{{ value.label | escape }}</span>
+                                  <span class="facet__count">({{ value.count }})</span>
+                                {%- endif -%}
+                              </label>
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      {%- endif -%}
+                    </div>
+                  </details>
+                {%- endfor -%}
+
+                <noscript><button type="submit" class="button" style="margin-block: 1.6rem;">{{ 'products.facets.apply' | t }}</button></noscript>
+              </form>
+
+              <div class="facets__footer">
+                <a href="{{ clear_url }}" class="link" data-facet-link>{{ 'products.facets.clear_all' | t }}</a>
+                <button type="submit" class="button" form="{{ form_id }}">
+                  {{ 'products.facets.show_results' | t }} (<span data-render-part="total">{{ collection.products_count }}</span>)
+                </button>
+              </div>
+            </div>
+          </div>
+        {%- elsif s.enable_sorting -%}
+          <form id="{{ form_id }}" action="{{ collection.url }}" method="get" data-facets-form hidden></form>
+        {%- endif -%}
+
+        <div class="collection__results" id="Results-{{ section.id }}" data-render-part="results">
+          {%- if collection.products.size == 0 -%}
+            <div class="empty-state">
+              {%- if active_count > 0 -%}
+                <h2>{{ 'products.facets.no_results_title' | t }}</h2>
+                <p>{{ 'products.facets.no_results_text' | t }}</p>
+                <a href="{{ clear_url }}" class="button" data-facet-link>{{ 'products.facets.clear_all' | t }}</a>
+              {%- else -%}
+                <h2>{{ 'collections.empty_title' | t }}</h2>
+                <p>{{ 'collections.empty_text' | t }}</p>
+                <a href="{{ routes.all_products_collection_url }}" class="button">{{ 'collections.shop_all' | t }}</a>
+              {%- endif -%}
+            </div>
+          {%- else -%}
+            <ul class="product-grid" role="list">
+              {%- for product in collection.products -%}
+                {%- liquid
+                  assign lazy = true
+                  if paginate.current_page == 1 and forloop.index <= cols_d
+                    assign lazy = false
+                  endif
+                -%}
+                <li class="product-grid__item">
+                  {% render 'product-card',
+                    product: product,
+                    lazy: lazy,
+                    sizes: card_sizes,
+                    show_secondary: s.show_secondary_image,
+                    show_vendor: s.show_vendor,
+                    show_quick_add: s.show_quick_add
+                  %}
+                </li>
+              {%- endfor -%}
+            </ul>
+            {% render 'pagination', paginate: paginate, link_attr: 'data-facet-link data-scroll-top' %}
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endpaginate -%}
+  </div>
+</facet-filters>
+
+{% schema %}
+{
+  "name": "Collection products",
+  "class": "section-main-collection",
+  "settings": [
+    { "type": "header", "content": "Banner" },
+    { "type": "checkbox", "id": "show_banner", "label": "Show collection banner", "default": true },
+    { "type": "checkbox", "id": "show_image", "label": "Show collection image", "default": true },
+    { "type": "checkbox", "id": "show_description", "label": "Show collection description", "default": true },
+
+    { "type": "header", "content": "Product grid" },
+    { "type": "range", "id": "products_per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 },
+    { "type": "range", "id": "columns_desktop", "label": "Columns on desktop", "min": 2, "max": 5, "step": 1, "default": 4 },
+    {
+      "type": "select", "id": "columns_tablet", "label": "Columns on tablet",
+      "options": [ { "value": "2", "label": "2" }, { "value": "3", "label": "3" }, { "value": "4", "label": "4" } ],
+      "default": "3"
+    },
+    {
+      "type": "select", "id": "columns_mobile", "label": "Columns on mobile",
+      "options": [ { "value": "1", "label": "1" }, { "value": "2", "label": "2" } ],
+      "default": "2"
+    },
+
+    { "type": "header", "content": "Product card" },
+    {
+      "type": "select", "id": "image_ratio", "label": "Image ratio",
+      "options": [
+        { "value": "1 / 1", "label": "Square" },
+        { "value": "4 / 5", "label": "Portrait (4:5)" },
+        { "value": "3 / 4", "label": "Portrait (3:4)" },
+        { "value": "2 / 3", "label": "Tall (2:3)" }
+      ],
+      "default": "3 / 4"
+    },
+    { "type": "range", "id": "image_radius", "label": "Image corner radius", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 4 },
+    { "type": "checkbox", "id": "show_secondary_image", "label": "Show second image on hover", "default": true },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_quick_add", "label": "Show quick add button", "default": true },
+    {
+      "type": "select", "id": "after_add", "label": "After quick add",
+      "options": [
+        { "value": "auto", "label": "Open theme cart drawer if available" },
+        { "value": "message", "label": "Show “Added to cart” message" },
+        { "value": "cart", "label": "Go to cart page" }
+      ],
+      "default": "auto"
+    },
+
+    { "type": "header", "content": "Filtering and sorting" },
+    { "type": "paragraph", "content": "Choose filters in the Search & Discovery app." },
+    { "type": "checkbox", "id": "enable_filtering", "label": "Enable filtering", "default": true },
+    {
+      "type": "select", "id": "filter_layout", "label": "Desktop filter layout", "info": "Mobile always uses a drawer.",
+      "options": [ { "value": "sidebar", "label": "Sidebar" }, { "value": "drawer", "label": "Drawer" } ],
+      "default": "sidebar"
+    },
+    { "type": "range", "id": "sticky_top", "label": "Sidebar sticky offset", "info": "Set to your sticky header's height.", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 100 },
+    { "type": "range", "id": "open_facets", "label": "Filter groups open by default", "min": 0, "max": 6, "step": 1, "default": 3 },
+    { "type": "checkbox", "id": "enable_sorting", "label": "Enable sorting", "default": true },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "button_bg", "label": "Button background", "default": "#121212" },
+    { "type": "color", "id": "button_text", "label": "Button text", "default": "#ffffff" },
+    { "type": "color", "id": "sale_color", "label": "Sale color", "default": "#c0392b" },
+    { "type": "color", "id": "drawer_bg", "label": "Filter drawer background", "default": "#ffffff" },
+    { "type": "color", "id": "drawer_text", "label": "Filter drawer text", "default": "#121212" }
+  ]
+}
+{% endschema %}
