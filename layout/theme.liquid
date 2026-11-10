@@ -27,6 +27,7 @@
     {%- endcapture -%}
     {{ 'critical.css' | asset_url | stylesheet_tag }}
     {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'section-footer.css' | asset_url | stylesheet_tag }}
 
     <script>
       document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
