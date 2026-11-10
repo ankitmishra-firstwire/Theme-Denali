@@ -311,7 +311,7 @@
             "image": "shopify://shop_images/coffee-and-cake.jpg",
             "title": "Confidence",
             "discipline": "Dress bold. Feel unstoppable",
-            "year": "2026",
+            "year": "",
             "alt": "",
             "link": "",
             "link_label": "View details"
@@ -321,9 +321,9 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/gourmet-pasta-in-white-bowl.jpg",
-            "title": "After the Dunes",
-            "discipline": "Landscape",
-            "year": "2025",
+            "title": "Comfort",
+            "discipline": "Made to move with you.",
+            "year": "",
             "alt": "",
             "link": "",
             "link_label": "View details"
@@ -333,9 +333,9 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/sliced-pumpkin-pie.jpg",
-            "title": "Open Arches",
-            "discipline": "Architecture",
-            "year": "2026",
+            "title": "Simplicity",
+            "discipline": "Less noise. More style.",
+            "year": "",
             "alt": "",
             "link": "",
             "link_label": "View details"
@@ -357,9 +357,9 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/breakfast-from-above.jpg",
-            "title": "Still Water",
-            "discipline": "Landscape",
-            "year": "2026",
+            "title": "Versatility",
+            "discipline": "One wardrobe. Endless possibilities.",
+            "year": "",
             "alt": "",
             "link": "",
             "link_label": "View details"
