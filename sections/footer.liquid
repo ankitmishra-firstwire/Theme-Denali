@@ -182,23 +182,6 @@
 
 <footer class="site-footer color-{{ section.settings.color_scheme }}">
 
-  {% comment %} Footer Logo {% endcomment %}
-  {%- if section.settings.footer_logo != blank -%}
-    <div class="page-width site-footer__logo">
-      <a href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
-        {{
-          section.settings.footer_logo
-          | image_url: width: 600
-          | image_tag:
-            class: 'site-footer__logo-image',
-            loading: 'lazy',
-            widths: '150, 250, 350, 500, 600',
-            alt: shop.name
-        }}
-      </a>
-    </div>
-  {%- endif -%}
-
   {% comment %} Footer Content Blocks {% endcomment %}
   {%- if section.blocks.size > 0 -%}
     <div class="page-width site-footer__blocks">
@@ -211,16 +194,45 @@
 
           {%- case block.type -%}
 
-            {% when 'link_list' %}
-              {% if block.settings.heading != blank %}
+            {% comment %} Footer Logo Block {% endcomment %}
+            {%- when 'logo' -%}
+              <div class="site-footer__logo-block">
+
+                {%- if block.settings.logo != blank -%}
+                  <a href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+                    {{
+                      block.settings.logo
+                      | image_url: width: 600
+                      | image_tag:
+                        class: 'site-footer__logo-image',
+                        loading: 'lazy',
+                        widths: '150, 250, 350, 500, 600',
+                        alt: shop.name,
+                        style: 'width: ' | append: block.settings.logo_width | append: 'px;'
+                    }}
+                  </a>
+                {%- endif -%}
+
+                {%- if block.settings.text != blank -%}
+                  <div class="rte site-footer__logo-description">
+                    {{ block.settings.text }}
+                  </div>
+                {%- endif -%}
+
+              </div>
+
+            {% comment %} Navigation Menu Block {% endcomment %}
+            {%- when 'link_list' -%}
+
+              {%- if block.settings.heading != blank -%}
                 <h2 class="site-footer__heading">
                   {{ block.settings.heading | escape }}
                 </h2>
-              {% endif %}
+              {%- endif -%}
 
-              {% if block.settings.menu != blank %}
+              {%- if block.settings.menu != blank -%}
                 <ul class="site-footer__menu list-unstyled" role="list">
-                  {% for link in block.settings.menu.links %}
+                  {%- for link in block.settings.menu.links -%}
                     <li>
                       <a
                         class="link-subtle"
@@ -230,33 +242,37 @@
                         {{ link.title | escape }}
                       </a>
                     </li>
-                  {% endfor %}
+                  {%- endfor -%}
                 </ul>
-              {% endif %}
+              {%- endif -%}
 
-            {% when 'text' %}
-              {% if block.settings.heading != blank %}
+            {% comment %} Text / About Us Block {% endcomment %}
+            {%- when 'text' -%}
+
+              {%- if block.settings.heading != blank -%}
                 <h2 class="site-footer__heading">
                   {{ block.settings.heading | escape }}
                 </h2>
-              {% endif %}
+              {%- endif -%}
 
               <div class="rte">
                 {{ block.settings.text }}
               </div>
 
-            {% when 'newsletter' %}
-              {% if block.settings.heading != blank %}
+            {% comment %} Newsletter Block {% endcomment %}
+            {%- when 'newsletter' -%}
+
+              {%- if block.settings.heading != blank -%}
                 <h2 class="site-footer__heading">
                   {{ block.settings.heading | escape }}
                 </h2>
-              {% endif %}
+              {%- endif -%}
 
-              {% if block.settings.text != blank %}
+              {%- if block.settings.text != blank -%}
                 <div class="rte">
                   {{ block.settings.text }}
                 </div>
-              {% endif %}
+              {%- endif -%}
 
               {% render 'newsletter-form', form_id: block.id %}
 
@@ -271,15 +287,15 @@
   {% comment %} Footer Utilities {% endcomment %}
   <div class="page-width site-footer__utilities">
 
-    {% if section.settings.show_social %}
+    {%- if section.settings.show_social -%}
       {% render 'social-icons' %}
-    {% endif %}
+    {%- endif -%}
 
-    {% if section.settings.enable_follow_on_shop and shop.features.follow_on_shop? %}
+    {%- if section.settings.enable_follow_on_shop and shop.features.follow_on_shop? -%}
       <div class="site-footer__follow-on-shop">
         {{ shop | login_button: action: 'follow' }}
       </div>
-    {% endif %}
+    {%- endif -%}
 
     {% render 'localization-form',
       show_country: section.settings.enable_country_selector,
@@ -299,14 +315,14 @@
         {{ shop.name | link_to: routes.root_url }}
       </small>
 
-      {% if section.settings.show_powered_by %}
+      {%- if section.settings.show_powered_by -%}
         <small>{{ powered_by_link }}</small>
-      {% endif %}
+      {%- endif -%}
 
-      {% if section.settings.show_policies %}
+      {%- if section.settings.show_policies -%}
         <ul class="site-footer__policies list-unstyled" role="list">
-          {% for policy in shop.policies %}
-            {% if policy != blank %}
+          {%- for policy in shop.policies -%}
+            {%- if policy != blank -%}
               <li>
                 <small>
                   <a class="link-subtle" href="{{ policy.url }}">
@@ -314,14 +330,14 @@
                   </a>
                 </small>
               </li>
-            {% endif %}
-          {% endfor %}
+            {%- endif -%}
+          {%- endfor -%}
         </ul>
-      {% endif %}
+      {%- endif -%}
 
     </div>
 
-    {% if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 %}
+    {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
       <div class="site-footer__payment">
 
         <span class="visually-hidden">
@@ -329,15 +345,15 @@
         </span>
 
         <ul class="payment-icons list-unstyled" role="list">
-          {% for type in shop.enabled_payment_types %}
+          {%- for type in shop.enabled_payment_types -%}
             <li>
               {{ type | payment_type_svg_tag: class: 'payment-icon' }}
             </li>
-          {% endfor %}
+          {%- endfor -%}
         </ul>
 
       </div>
-    {% endif %}
+    {%- endif -%}
 
   </div>
 
@@ -351,32 +367,13 @@
   "enabled_on": {
     "groups": ["footer"]
   },
-  "max_blocks": 5,
+  "max_blocks": 6,
   "settings": [
     {
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "Color scheme",
       "default": "scheme-4"
-    },
-    {
-      "type": "header",
-      "content": "Footer logo"
-    },
-    {
-      "type": "image_picker",
-      "id": "footer_logo",
-      "label": "Footer logo"
-    },
-    {
-      "type": "range",
-      "id": "footer_logo_width",
-      "label": "Logo width",
-      "min": 50,
-      "max": 300,
-      "step": 10,
-      "default": 150,
-      "unit": "px"
     },
     {
       "type": "checkbox",
@@ -402,6 +399,7 @@
       "type": "checkbox",
       "id": "show_policies",
       "label": "Show policy links",
+      "info": "Add policies in Settings > Policies.",
       "default": true
     },
     {
@@ -430,6 +428,33 @@
     }
   ],
   "blocks": [
+    {
+      "type": "logo",
+      "name": "Footer logo",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Select logo"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "label": "Logo width",
+          "min": 50,
+          "max": 300,
+          "step": 10,
+          "default": 150,
+          "unit": "px"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Description",
+          "default": "<p>Add your brand description here.</p>"
+        }
+      ]
+    },
     {
       "type": "link_list",
       "name": "Menu",
