@@ -19,13 +19,6 @@
           "settings": {
             "logo": "shopify://shop_images/Denali_Mountain_Wordmark_Logo.png",
             "logo_width": 200,
-            "text": "<p>Add your brand description here.</p>"
-          }
-        },
-        "text": {
-          "type": "text",
-          "settings": {
-            "heading": "About us",
             "text": "<p>Share a short description of your brand with customers.</p>"
           }
         },
@@ -53,7 +46,6 @@
       },
       "block_order": [
         "logo_79gBjy",
-        "text",
         "link_list_K7expF",
         "menu",
         "newsletter"
