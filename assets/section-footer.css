@@ -27,12 +27,6 @@
   gap: 15px;
 }
 
-.site-footer__logo-block a {
-  display: inline-block;
-  line-height: 0;
-  max-width: 100%;
-}
-
 .site-footer__logo-image {
   display: block;
   max-width: 100%;
@@ -40,11 +34,11 @@
   object-fit: contain;
 }
 
-.site-footer__logo-description {
-  font-size: 14px;
-  line-height: 1.7;
+.site-footer__logo-block a {
+  display: inline-block;
+  line-height: 0;
+  font-size: 0;
 }
-
 /* =====================================
    FOOTER HEADINGS
 ===================================== */
