@@ -14,18 +14,18 @@
     "footer": {
       "type": "footer",
       "blocks": {
-        "link_list_K7expF": {
-          "type": "link_list",
-          "settings": {
-            "heading": "Collections",
-            "menu": "collections"
-          }
-        },
         "text": {
           "type": "text",
           "settings": {
             "heading": "About us",
             "text": "<p>Share a short description of your brand with customers.</p>"
+          }
+        },
+        "link_list_K7expF": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Collections",
+            "menu": "collections"
           }
         },
         "menu": {
@@ -44,8 +44,8 @@
         }
       },
       "block_order": [
-        "link_list_K7expF",
         "text",
+        "link_list_K7expF",
         "menu",
         "newsletter"
       ],
