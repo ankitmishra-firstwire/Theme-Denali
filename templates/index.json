@@ -1374,103 +1374,6 @@
         "mobile_side_space": 16
       }
     },
-    "integration_grid_dMmDKJ": {
-      "type": "integration-grid",
-      "blocks": {
-        "integration_ThNPUn": {
-          "type": "integration",
-          "settings": {
-            "icon_svg": "",
-            "title": "Google Gemini",
-            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente.",
-            "link": "",
-            "new_tab": false
-          }
-        },
-        "integration_RX6FUq": {
-          "type": "integration",
-          "settings": {
-            "icon_svg": "",
-            "title": "Replit",
-            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente.",
-            "link": "",
-            "new_tab": false
-          }
-        },
-        "integration_CHjMBp": {
-          "type": "integration",
-          "settings": {
-            "icon_svg": "",
-            "title": "Magic UI",
-            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente.",
-            "link": "",
-            "new_tab": false
-          }
-        },
-        "integration_HwTKgp": {
-          "type": "integration",
-          "settings": {
-            "icon_svg": "",
-            "title": "VSCodium",
-            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente.",
-            "link": "",
-            "new_tab": false
-          }
-        },
-        "integration_Rfp4NG": {
-          "type": "integration",
-          "settings": {
-            "icon_svg": "",
-            "title": "MediaWiki",
-            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente.",
-            "link": "",
-            "new_tab": false
-          }
-        },
-        "integration_HnngLc": {
-          "type": "integration",
-          "settings": {
-            "icon_svg": "",
-            "title": "Google PaLM",
-            "description": "Amet praesentium deserunt ex commodi tempore fuga voluptatem. Sit, sapiente.",
-            "link": "",
-            "new_tab": false
-          }
-        }
-      },
-      "block_order": [
-        "integration_ThNPUn",
-        "integration_RX6FUq",
-        "integration_CHjMBp",
-        "integration_HwTKgp",
-        "integration_Rfp4NG",
-        "integration_HnngLc"
-      ],
-      "name": "Integrations grid",
-      "settings": {
-        "heading": "Integrate with your favorite tools",
-        "heading_size": "large",
-        "subheading": "<p>Connect seamlessly with popular platforms and services to enhance your workflow.</p>",
-        "text_alignment": "left",
-        "full_width": false,
-        "content_width": 1000,
-        "side_padding": 24,
-        "columns_desktop": 3,
-        "columns_mobile": "1",
-        "card_style": "outline",
-        "card_radius": 16,
-        "icon_size": 40,
-        "description_lines": 2,
-        "enable_reveal": true,
-        "color_background": "#ffffff",
-        "color_text": "#18181b",
-        "color_muted": "#71717a",
-        "color_card": "#f4f4f5",
-        "color_card_border": "#e4e4e7",
-        "padding_top": 80,
-        "padding_bottom": 48
-      }
-    },
     "scroll_expand_lookbook_hCCxWy": {
       "type": "scroll-expand-lookbook",
       "blocks": {
@@ -1739,7 +1642,6 @@
     "fashion_hover_reveal_KT6XNt",
     "collection_product_scroll_iXcUpD",
     "image_with_overlap_card_i4MYrd",
-    "integration_grid_dMmDKJ",
     "scroll_expand_lookbook_hCCxWy",
     "testimonial_autoscroll_iJ4ch6",
     "newsletter"
