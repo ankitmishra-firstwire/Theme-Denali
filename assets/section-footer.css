@@ -1,0 +1,140 @@
+
+/* Footer Logo */
+.site-footer__logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.site-footer__logo a {
+  display: inline-block;
+  line-height: 0;
+}
+
+.site-footer__logo-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Footer Blocks */
+.site-footer__blocks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 35px;
+  padding-top: 30px;
+  padding-bottom: 35px;
+}
+
+.site-footer__heading {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+
+.site-footer__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.site-footer__menu a {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.site-footer__menu a:hover {
+  opacity: 0.65;
+}
+
+/* Footer Utilities */
+.site-footer__utilities {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Footer Bottom */
+.site-footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.site-footer__legal {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.site-footer__policies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+}
+
+.site-footer__payment .payment-icons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.payment-icon {
+  width: 38px;
+  height: auto;
+}
+
+/* Tablet */
+@media screen and (max-width: 989px) {
+  .site-footer__blocks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 30px;
+  }
+}
+
+/* Mobile */
+@media screen and (max-width: 749px) {
+  .site-footer__logo {
+    margin-bottom: 20px;
+  }
+
+  .site-footer__blocks {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding-top: 20px;
+    padding-bottom: 25px;
+  }
+
+  .site-footer__utilities,
+  .site-footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-footer__legal {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-footer__policies {
+    gap: 10px;
+  }
+}
