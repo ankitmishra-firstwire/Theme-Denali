@@ -196,30 +196,29 @@
 
             {% comment %} Footer Logo Block {% endcomment %}
             {%- when 'logo' -%}
-              <div class="site-footer__logo-block">
+  <div class="site-footer__logo-block">
 
-                {%- if block.settings.logo != blank -%}
-                  <a href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
-                    {{
-                      block.settings.logo
-                      | image_url: width: 600
-                      | image_tag:
-                        class: 'site-footer__logo-image',
-                        loading: 'lazy',
-                        widths: '150, 250, 350, 500, 600',
-                        alt: shop.name,
-                        style: 'width: ' | append: block.settings.logo_width | append: 'px;'
-                    }}
-                  </a>
-                {%- endif -%}
+    {%- if block.settings.logo != blank -%}
+      <a href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+        <img
+          src="{{ block.settings.logo | image_url: width: 600 }}"
+          alt="{{ shop.name | escape }}"
+          class="site-footer__logo-image"
+          style="width: {{ block.settings.logo_width }}px;"
+          loading="lazy"
+          width="{{ block.settings.logo.width }}"
+          height="{{ block.settings.logo.height }}"
+        >
+      </a>
+    {%- endif -%}
 
-                {%- if block.settings.text != blank -%}
-                  <div class="rte site-footer__logo-description">
-                    {{ block.settings.text }}
-                  </div>
-                {%- endif -%}
+    {%- if block.settings.text != blank -%}
+      <div class="rte site-footer__logo-description">
+        {{ block.settings.text }}
+      </div>
+    {%- endif -%}
 
-              </div>
+  </div>
 
             {% comment %} Navigation Menu Block {% endcomment %}
             {%- when 'link_list' -%}
