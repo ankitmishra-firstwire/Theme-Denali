@@ -696,49 +696,55 @@
         "feature_aKGXpE": {
           "type": "feature",
           "settings": {
-            "icon": "zap",
-            "title": "Faaast",
-            "description": "It supports an entire helping developers and innovate."
+            "icon": "truck",
+            "image": "shopify://shop_images/truck.gif",
+            "title": "Express Delivery",
+            "description": "Fast, tracked shipping with same-day dispatch on everyday essentials."
           }
         },
         "feature_hgMDGQ": {
           "type": "feature",
           "settings": {
             "icon": "cpu",
-            "title": "Powerful",
-            "description": "It supports an entire helping developers and businesses."
+            "image": "shopify://shop_images/spool.gif",
+            "title": "Premium Fabrics",
+            "description": "Pre-shrunk, breathable cottons and durable blends made to hold shape wash after wash."
           }
         },
         "feature_PtwhfQ": {
           "type": "feature",
           "settings": {
             "icon": "fingerprint",
-            "title": "Security",
-            "description": "It supports an helping developers businesses."
+            "image": "shopify://shop_images/return-of-investment.gif",
+            "title": "Seamless Returns",
+            "description": "7-day hassle-free doorstep exchange and return policy for total peace of mind."
           }
         },
         "feature_e3KXPY": {
           "type": "feature",
           "settings": {
             "icon": "pencil",
-            "title": "Customization",
-            "description": "It supports helping developers and businesses innovate."
+            "image": "shopify://shop_images/problem-solving.gif",
+            "title": "Tailored Fits",
+            "description": "Structured cuts engineered to flatter all silhouettes across men’s and women’s lines."
           }
         },
         "feature_ditBKc": {
           "type": "feature",
           "settings": {
             "icon": "settings",
-            "title": "Control",
-            "description": "It supports helping developers and businesses innovate."
+            "image": "shopify://shop_images/high-quality.gif",
+            "title": "Ethically Made",
+            "description": "Responsible sourcing and durable construction built against fast-fashion waste."
           }
         },
         "feature_3Vx3AX": {
           "type": "feature",
           "settings": {
             "icon": "sparkles",
-            "title": "Built for AI",
-            "description": "It supports helping developers and businesses innovate."
+            "image": "shopify://shop_images/shield.gif",
+            "title": "Secure Checkout",
+            "description": "Safe, encrypted UPI, card, and cash-on-delivery payment options."
           }
         }
       },
@@ -753,8 +759,8 @@
       "name": "Grid Feature Cards",
       "settings": {
         "badge_text": "",
-        "heading": "Power. Speed. Control.",
-        "subheading": "Everything you need to build fast, secure, scalable apps.",
+        "heading": "The Modern Wardrobe, Perfected.",
+        "subheading": "From everyday heavyweight tees to tailored outerwear, crafted without compromise.",
         "bg_color": "#ffffff",
         "heading_color": "#111111",
         "subheading_color": "#6b6b6b",
@@ -785,8 +791,8 @@
         "border_style": "dashed",
         "grid_radius": 0,
         "card_padding": 24,
-        "icon_box_size": 24,
-        "icon_size": 24,
+        "icon_box_size": 96,
+        "icon_size": 78,
         "icon_stroke": 1,
         "icon_box_radius": 0,
         "title_top_space": 40,
