@@ -296,7 +296,7 @@
         "slide_ha39jn": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/knife-slices-a-zucchini-in-half.jpg",
+            "image": "shopify://shop_images/pexels-gabby-k-5841955.jpg",
             "title": "Individuality",
             "discipline": "Wear what feels like you.",
             "year": "",
@@ -308,7 +308,7 @@
         "slide_G9HtJf": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/coffee-and-cake.jpg",
+            "image": "shopify://shop_images/pexels-umudicreative-31868676.jpg",
             "title": "Confidence",
             "discipline": "Dress bold. Feel unstoppable",
             "year": "",
@@ -320,7 +320,7 @@
         "slide_3z7xjL": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/gourmet-pasta-in-white-bowl.jpg",
+            "image": "shopify://shop_images/pexels-danikprihodko-15759592.jpg",
             "title": "Comfort",
             "discipline": "Made to move with you.",
             "year": "",
@@ -332,7 +332,7 @@
         "slide_yffpRy": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/sliced-pumpkin-pie.jpg",
+            "image": "shopify://shop_images/pexels-thirdman-8053683.jpg",
             "title": "Simplicity",
             "discipline": "Less noise. More style.",
             "year": "",
@@ -341,22 +341,10 @@
             "link_label": "View details"
           }
         },
-        "slide_yFGkra": {
-          "type": "slide",
-          "settings": {
-            "image": "shopify://shop_images/hand-holds-rainbow-carrots.jpg",
-            "title": "Contour Fields",
-            "discipline": "Landscape",
-            "year": "2025",
-            "alt": "",
-            "link": "",
-            "link_label": "View details"
-          }
-        },
         "slide_EHNibj": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/breakfast-from-above.jpg",
+            "image": "shopify://shop_images/pexels-yuliya-galceva-373676135-14584458.jpg",
             "title": "Versatility",
             "discipline": "One wardrobe. Endless possibilities.",
             "year": "",
@@ -371,7 +359,6 @@
         "slide_G9HtJf",
         "slide_3z7xjL",
         "slide_yffpRy",
-        "slide_yFGkra",
         "slide_EHNibj"
       ],
       "name": "Ferris wheel gallery",
