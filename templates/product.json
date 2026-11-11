@@ -55,14 +55,16 @@
           "type": "collapsible_tab",
           "settings": {
             "heading": "Shipping & returns",
-            "content": "<p>Add your shipping and returns information here, or choose a page in the block settings.</p>"
+            "content": "<p>Add your shipping and returns information here, or choose a page in the block settings.</p>",
+            "page": ""
           }
         },
         "tab_care": {
           "type": "collapsible_tab",
           "settings": {
             "heading": "Care instructions",
-            "content": "<p>Add care instructions for your products here.</p>"
+            "content": "<p>Add care instructions for your products here.</p>",
+            "page": ""
           }
         },
         "share": {
@@ -96,10 +98,24 @@
         "columns_desktop": 4,
         "color_scheme": "scheme-1"
       }
+    },
+    "featured_collection_fdHwLr": {
+      "type": "featured-collection",
+      "name": "Featured collection",
+      "settings": {
+        "subheading": "",
+        "heading": "Featured products",
+        "collection": "dresses",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true,
+        "color_scheme": ""
+      }
     }
   },
   "order": [
     "main",
-    "recommendations"
+    "recommendations",
+    "featured_collection_fdHwLr"
   ]
 }
