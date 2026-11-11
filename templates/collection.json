@@ -26,7 +26,125 @@
         "enable_sorting": true,
         "color_scheme": "scheme-1"
       }
+    },
+    "fashion_hover_reveal_cCrFtx": {
+      "type": "fashion-hover-reveal",
+      "blocks": {
+        "item_LDQVxD": {
+          "type": "item",
+          "settings": {
+            "title": "Dresses",
+            "tag": "",
+            "image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress.png",
+            "link": "shopify://collections/dresses"
+          }
+        },
+        "item_JwxpyL": {
+          "type": "item",
+          "settings": {
+            "title": "Jackets",
+            "tag": "24 pieces",
+            "image": "shopify://shop_images/womens-burgundy-puffer-jacket_9dae85e3-ca25-4570-9a82-7c7228995f1e.png",
+            "link": "shopify://collections/jackets"
+          }
+        },
+        "item_jjyMcw": {
+          "type": "item",
+          "settings": {
+            "title": "Shirts",
+            "tag": "Bestseller",
+            "image": "shopify://shop_images/brushed-flannel-shirt.png",
+            "link": "shopify://collections/shirts"
+          }
+        },
+        "item_7tUjJM": {
+          "type": "item",
+          "settings": {
+            "title": "T Shirts",
+            "tag": "New",
+            "image": "shopify://shop_images/model-wearing-faded-washed-black-t-shirt.png",
+            "link": "shopify://collections/t-shirts"
+          }
+        },
+        "item_FNQgpq": {
+          "type": "item",
+          "settings": {
+            "title": "Hoodie",
+            "tag": "Gifts",
+            "image": "shopify://shop_images/washed-charcoal-pullover-hoodie.png",
+            "link": "shopify://collections/hoodies-sweatshirts"
+          }
+        }
+      },
+      "block_order": [
+        "item_LDQVxD",
+        "item_JwxpyL",
+        "item_jjyMcw",
+        "item_7tUjJM",
+        "item_FNQgpq"
+      ],
+      "name": "Fashion hover reveal",
+      "settings": {
+        "eyebrow": "The Edit",
+        "heading": "Dressed for <em>every</em> season",
+        "description": "Hover over a collection to preview the look. New pieces arrive every week.",
+        "view_all_label": "View all collections",
+        "view_all_link": "",
+        "header_layout": "split",
+        "heading_size": 56,
+        "title_size_desktop": 88,
+        "title_size_mobile": 34,
+        "title_weight": "400",
+        "title_tightening": 2,
+        "title_uppercase": false,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "show_numbers": true,
+        "show_tags": true,
+        "show_arrow": true,
+        "show_dividers": true,
+        "row_padding": 22,
+        "hover_style": "fill",
+        "dim_opacity": 25,
+        "reveal_on_scroll": true,
+        "animation_speed": 800,
+        "preview_width": 300,
+        "preview_ratio": "3 / 4",
+        "preview_radius": 4,
+        "preview_layer": "behind",
+        "follow_smoothness": 5,
+        "preview_tilt": true,
+        "preview_shadow": true,
+        "mobile_image": "thumb",
+        "thumb_size": 72,
+        "show_marquee": true,
+        "marquee_text": "New season|Free shipping over $150|Shop the lookbook|Made to last",
+        "marquee_separator": "✦",
+        "marquee_position": "bottom",
+        "marquee_direction": "left",
+        "marquee_speed": 30,
+        "marquee_size": 16,
+        "marquee_padding": 14,
+        "marquee_tilt": false,
+        "marquee_pause": true,
+        "marquee_use_font": false,
+        "marquee_bg": "#141414",
+        "marquee_text_color": "#f5f1ea",
+        "background": "#f5f1ea",
+        "text_color": "#141414",
+        "muted_color": "#7a7368",
+        "accent_color": "#a8432c",
+        "divider_color": "#d9d1c4",
+        "full_width": true,
+        "side_padding": 48,
+        "padding_top": 96,
+        "padding_bottom": 0
+      }
     }
   },
-  "order": ["banner", "product-grid"]
+  "order": [
+    "banner",
+    "product-grid",
+    "fashion_hover_reveal_cCrFtx"
+  ]
 }
