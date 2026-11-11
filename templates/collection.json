@@ -140,11 +140,21 @@
         "padding_top": 96,
         "padding_bottom": 0
       }
+    },
+    "newsletter_yQyhF4": {
+      "type": "newsletter",
+      "name": "Email signup",
+      "settings": {
+        "heading": "Stay in the loop",
+        "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
+        "color_scheme": ""
+      }
     }
   },
   "order": [
     "banner",
     "product-grid",
-    "fashion_hover_reveal_cCrFtx"
+    "fashion_hover_reveal_cCrFtx",
+    "newsletter_yQyhF4"
   ]
 }
