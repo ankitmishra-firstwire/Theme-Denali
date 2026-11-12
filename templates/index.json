@@ -1532,6 +1532,136 @@
         "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
         "color_scheme": "scheme-2"
       }
+    },
+    "lumina_slideshow_YjrF9Y": {
+      "type": "lumina-slideshow",
+      "blocks": {
+        "slide_yG6Rya": {
+          "type": "slide",
+          "settings": {
+            "image_url": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=2000&q=80&auto=format&fit=crop",
+            "image_alt": "Clothing store with folded shirts and jackets on display",
+            "title": "The New Season Edit",
+            "description": "Relaxed tailoring, soft layers and easy colour for the months ahead.",
+            "nav_label": "New season",
+            "button_label": "Shop new arrivals",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide_M3jD4j": {
+          "type": "slide",
+          "settings": {
+            "image_url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=2000&q=80&auto=format&fit=crop",
+            "image_alt": "Woman wearing a light jacket and relaxed trousers",
+            "title": "Women’s Collection",
+            "description": "Fluid dresses, sharp outerwear and knits you’ll reach for every day.",
+            "nav_label": "Women",
+            "button_label": "Shop women",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide_ra4EMV": {
+          "type": "slide",
+          "settings": {
+            "image_url": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=2000&q=80&auto=format&fit=crop",
+            "image_alt": "Man buttoning a tailored suit jacket",
+            "title": "Men’s Essentials",
+            "description": "Clean lines and honest fabrics in fits that work from Monday to Sunday.",
+            "nav_label": "Men",
+            "button_label": "Shop men",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide_FJTdme": {
+          "type": "slide",
+          "settings": {
+            "image_url": "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=2000&q=80&auto=format&fit=crop",
+            "image_alt": "Neutral-toned shirts and jackets hanging on a rail",
+            "title": "Weekend Layers",
+            "description": "Overshirts, light jackets and soft sweats made for slow mornings.",
+            "nav_label": "Layers",
+            "button_label": "Shop layers",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide_WHjV6T": {
+          "type": "slide",
+          "settings": {
+            "image_url": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=2000&q=80&auto=format&fit=crop",
+            "image_alt": "Rail of new season clothing",
+            "title": "Just Landed",
+            "description": "Fresh drops every week. Find your size before it’s gone.",
+            "nav_label": "Just landed",
+            "button_label": "See what’s new",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide_CBt8H9": {
+          "type": "slide",
+          "settings": {
+            "image_url": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=2000&q=80&auto=format&fit=crop",
+            "image_alt": "Woman carrying shopping bags",
+            "title": "Gift Something Good",
+            "description": "Easy picks for him and her, wrapped and ready to go.",
+            "nav_label": "Gifts",
+            "button_label": "Shop gifts",
+            "button_link": "/collections/all"
+          }
+        }
+      },
+      "block_order": [
+        "slide_yG6Rya",
+        "slide_M3jD4j",
+        "slide_ra4EMV",
+        "slide_FJTdme",
+        "slide_WHjV6T",
+        "slide_CBt8H9"
+      ],
+      "name": "Lumina slideshow",
+      "settings": {
+        "accessible_label": "Featured collections",
+        "height_desktop": 100,
+        "height_mobile": 85,
+        "content_position": "bottom-left",
+        "content_width": 640,
+        "padding_x": 48,
+        "padding_x_mobile": 20,
+        "padding_y": 40,
+        "padding_y_mobile": 24,
+        "title_tag": "h2",
+        "title_size": 72,
+        "title_size_mobile": 40,
+        "title_line_height": 100,
+        "title_letter_spacing": 0,
+        "text_animation": "varied",
+        "description_size": 18,
+        "description_size_mobile": 15,
+        "description_opacity": 75,
+        "content_spacing": 16,
+        "button_style": "solid",
+        "button_size": 14,
+        "button_radius": 0,
+        "show_navigation": true,
+        "show_counter": true,
+        "nav_size": 12,
+        "autoplay": true,
+        "slide_duration": 5,
+        "pause_on_hover": false,
+        "effect": "glass",
+        "glass_preset": "default",
+        "effect_intensity": 100,
+        "transition_duration": 2.5,
+        "reduced_motion_mode": "simplify",
+        "overlay_style": "gradient-bottom",
+        "overlay_color": "#000000",
+        "overlay_opacity": 55,
+        "background": "#0a0a0a",
+        "text_color": "#ffffff",
+        "nav_color": "#ffffff",
+        "progress_color": "#ffffff",
+        "button_background": "#ffffff",
+        "button_text": "#0a0a0a"
+      }
     }
   },
   "order": [
@@ -1552,6 +1682,7 @@
     "image_with_overlap_card_i4MYrd",
     "scroll_expand_lookbook_hCCxWy",
     "testimonial_autoscroll_iJ4ch6",
-    "newsletter"
+    "newsletter",
+    "lumina_slideshow_YjrF9Y"
   ]
 }
