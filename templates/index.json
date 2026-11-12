@@ -8,6 +8,1642 @@
  * ------------------------------------------------------------
  */
 {
-  "sections": {},
-  "order": []
+  "sections": {
+    "parallex_strip_slider_L334YC": {
+      "type": "parallex-strip-slider",
+      "blocks": {
+        "slide_XiD7hG": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/Autumn_Editorial_Walk_Through_the_Marsh.png",
+            "image_mobile": "shopify://shop_images/Autumn_Editorial_Walk_Through_the_Marsh.png",
+            "alt": "",
+            "chapter": "Collection 01",
+            "title": "Effortless Elegance",
+            "description": "<p>Discover timeless styles and modern essentials designed to make every moment a statement.</p>",
+            "button_label": "Shop now",
+            "button_link": "#",
+            "button_label_2": "",
+            "button_link_2": "",
+            "position_desktop": "middle-center",
+            "position_mobile": "default"
+          }
+        },
+        "slide_WyUK3D": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/Dreamy_Meadow_Fashion_Editorial.png",
+            "image_mobile": "shopify://shop_images/Dreamy_Meadow_Fashion_Editorial.png",
+            "alt": "",
+            "chapter": "Collection 03",
+            "title": "New Season, New Style",
+            "description": "<p>Refresh your wardrobe with the latest trends, effortless silhouettes, and must-have styles.</p>",
+            "button_label": "Shop now",
+            "button_link": "",
+            "button_label_2": "",
+            "button_link_2": "",
+            "position_desktop": "default",
+            "position_mobile": "default"
+          }
+        },
+        "slide_CEfzyA": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
+            "image_mobile": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
+            "alt": "",
+            "chapter": "Collection 02",
+            "title": "Style Your Story",
+            "description": "<p>Express your individuality with beautiful pieces that bring confidence to every look.</p>",
+            "button_label": "Explore now",
+            "button_link": "#",
+            "button_label_2": "",
+            "button_link_2": "",
+            "position_desktop": "middle-left",
+            "position_mobile": "default"
+          }
+        }
+      },
+      "block_order": [
+        "slide_XiD7hG",
+        "slide_WyUK3D",
+        "slide_CEfzyA"
+      ],
+      "name": "Parallax strip slider",
+      "settings": {
+        "label": "Featured collections",
+        "full_width": true,
+        "height_desktop": 90,
+        "height_mobile": 80,
+        "corner_radius": 0,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "position_desktop": "bottom-left",
+        "position_mobile": "bottom-left",
+        "content_width_desktop": 55,
+        "content_width_mobile": 100,
+        "text_shadow": false,
+        "title_font": "instrument",
+        "title_tag": "h2",
+        "title_size_desktop": 96,
+        "title_size_mobile": 60,
+        "show_chapter": true,
+        "chapter_position": "corner",
+        "description_size": 16,
+        "hide_description_mobile": false,
+        "button_style_primary": "solid",
+        "button_style_secondary": "link",
+        "button_radius": 0,
+        "full_width_buttons_mobile": false,
+        "strip_count": 10,
+        "reveal_duration": 500,
+        "strip_stagger": 40,
+        "zoom_from": 120,
+        "zoom_duration": 900,
+        "autoplay": true,
+        "autoplay_interval": 3,
+        "show_progress": true,
+        "show_counter": true,
+        "show_cursor": true,
+        "color_accent": "#ffffff",
+        "color_cursor_icon": "#000000",
+        "color_button_bg": "#ffffff",
+        "color_button_text": "#000000",
+        "color_background": "#000000",
+        "color_overlay": "#000000",
+        "overlay_style": "edges",
+        "overlay_opacity": 35
+      }
+    },
+    "clothing_rail_rule_npfJ73": {
+      "type": "clothing-rail-rule",
+      "blocks": {
+        "garment_HtznF9": {
+          "type": "garment",
+          "settings": {
+            "product": "classic-crew-neck-cotton-tee",
+            "title": "Classic Crew Neck Cotton Tee",
+            "tag": "$36",
+            "description": "A men's regular-fit crew neck t-shirt in a stone beige tone, made from 100% combed cotton jersey. The fit sits close to the body without being tight, with straight side seams, a set-in sleeve construction, and short sleeves that end at the mid-bicep.",
+            "details": "",
+            "link": "",
+            "image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt.png",
+            "side_image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_438fcd30-b143-4d43-8376-509767e9ae67.png"
+          }
+        },
+        "garment_QtMW3f": {
+          "type": "garment",
+          "settings": {
+            "product": "essential-heavyweight-oversized-tee",
+            "title": "Vintage Wash Graphic Tee",
+            "tag": "$44",
+            "description": "A unisex relaxed-fit t-shirt in a faded washed black, made from mid-weight cotton jersey with an enzyme-washed vintage finish that softens the fabric surface and slightly mutes the base color.",
+            "details": "220 gsm, Boat neck, Long sleeve",
+            "link": "",
+            "image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_8feacab9-623c-4985-921c-0c094035cde6.png",
+            "side_image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_48e83125-c2c4-43cc-a7d7-58750596b84f.png"
+          }
+        },
+        "garment_7VP6EV": {
+          "type": "garment",
+          "settings": {
+            "product": "ribbed-fitted-crop-tee",
+            "title": "Ribbed Fitted Crop Tee",
+            "tag": "$38",
+            "description": "A women's fitted crop t-shirt in cream ivory, constructed from a stretch ribbed cotton-elastane blend. The silhouette is slim and body-skimming with a cropped hem that sits at the natural waist, narrow set-in short sleeves, and a fitted, high crew neckline with a narrow ribbed trim.",
+            "details": "240 gsm, Regular fit, Screen print",
+            "link": "",
+            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_3fce5b10-c7aa-416a-ad8f-c567249626ec.png",
+            "side_image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_19f3d5e0-cc44-490c-aeec-946ec2697a7c.png"
+          }
+        },
+        "garment_DPrtka": {
+          "type": "garment",
+          "settings": {
+            "product": "quilted-puffer-jacket",
+            "title": "Quilted Puffer Jacket",
+            "tag": "$168",
+            "description": "A women's regular-fit puffer jacket in burgundy, made from a matte nylon shell with synthetic down-alternative fill. The silhouette is structured with a fitted waist and slightly puffed body from horizontal box-quilted channels running evenly across the front, back, and sleeves.",
+            "details": "Oxford cotton, Button-down collar, Chest pocket",
+            "link": "",
+            "image": "shopify://shop_images/womens-burgundy-puffer-jacket_9dae85e3-ca25-4570-9a82-7c7228995f1e.png",
+            "side_image": "shopify://shop_images/womens-burgundy-puffer-jacket_701e0dfb-898f-436f-a690-42c6d68bcf9a.png"
+          }
+        },
+        "garment_tdArkj": {
+          "type": "garment",
+          "settings": {
+            "product": "wool-blend-overcoat",
+            "title": "Wool Blend Overcoat",
+            "tag": "$188",
+            "description": "A men's tailored-fit overcoat in camel stone beige, made from a heavyweight wool-polyester blend. The silhouette is structured and knee-length with a notched lapel collar, a single-breasted front closing with three matte horn-style buttons, and set-in sleeves finished with a clean, unbuttoned cuff.",
+            "details": "Lambswool, Wooden buttons, V-neck",
+            "link": "",
+            "image": "shopify://shop_images/mens-camel-wool-blend-overcoat_57ff3188-25d0-4f3b-9c51-fbf7c5004cda.png",
+            "side_image": "shopify://shop_images/mens-camel-wool-blend-overcoat_b07deb6b-3150-4f90-a0d9-cd50c2c3f847.png"
+          }
+        },
+        "garment_7AmaF7": {
+          "type": "garment",
+          "settings": {
+            "product": "vintage-wash-denim-trucker-jacket",
+            "title": "Vintage Wash Denim Trucker Jacket",
+            "tag": "$125",
+            "description": "A unisex regular-fit trucker jacket in washed indigo blue, made from heavyweight cotton denim. The silhouette is structured and slightly boxy with a straight hem hitting at the hip, a pointed collar, and full-length sleeves finished with a button cuff.",
+            "details": "400 gsm fleece, Kangaroo pocket, Chest print",
+            "link": "",
+            "image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_32c09642-f4f8-4a04-b3f5-045b25768b10.png",
+            "side_image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_76129440-a7e8-4ab7-9911-f477e36d0fd4.png"
+          }
+        },
+        "garment_zPirrd": {
+          "type": "garment",
+          "settings": {
+            "product": "ribbed-knit-bodycon-midi-dress",
+            "title": "Ribbed Knit Bodycon Midi Dress",
+            "tag": "$76",
+            "description": "A women's fitted midi dress in chocolate brown, made from a stretch ribbed knit fabric. The silhouette is slim and body-hugging throughout, with a square neckline, thin fixed shoulder straps, and a straight midi hem ending just below the knee.",
+            "details": "400 gsm fleece, Ribbed trims, Puff print",
+            "link": "",
+            "image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_fd6bf210-764a-4cb7-99e5-dbcf8731fdd9.png",
+            "side_image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_95ade49c-f9bc-494f-a146-4e6a6d6117fc.png"
+          }
+        },
+        "garment_RXefE9": {
+          "type": "garment",
+          "settings": {
+            "product": "poplin-shirt-dress",
+            "title": "Poplin Shirt Dress",
+            "tag": "$82",
+            "description": "A women's shirt-style midi dress in cream ivory with a thin tonal beige pinstripe, made from crisp cotton poplin. The silhouette is relaxed through the bodice with a classic collared neckline, full-length sleeves finished with a button cuff, and a self-fabric tie belt at the waist that gathers...",
+            "details": "Piqué knit, Two-button placket, Embroidered",
+            "link": "",
+            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
+            "side_image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_582ed9b6-ad7c-425d-8c9b-cad9590d45c4.png"
+          }
+        },
+        "garment_ayCL9d": {
+          "type": "garment",
+          "settings": {
+            "product": "classic-oxford-button-down",
+            "title": "Classic Oxford Button-Down",
+            "tag": "$74",
+            "description": "A men's tailored-fit long-sleeve shirt in white with a subtle light blue pinstripe, made from 100% cotton oxford weave. The fit is trim through the waist with a structured, slightly tapered silhouette, a button-down collar with visible top-stitched points, and a single back yoke with a center...",
+            "details": "Piqué knit, Two-button placket, Embroidered",
+            "link": "",
+            "image": "shopify://shop_images/mens-tailored-oxford-dress-shirt_b79e89d2-58bc-43fa-9b54-f73e1f840976.png",
+            "side_image": "shopify://shop_images/mens-tailored-oxford-dress-shirt_b0714635-4c39-4a60-b832-c8317c4cabc9.png"
+          }
+        },
+        "garment_QiJUj8": {
+          "type": "garment",
+          "settings": {
+            "product": "oversized-fleece-crewneck-sweatshirt",
+            "title": "Relaxed Linen Resort Shirt",
+            "tag": "$68",
+            "description": "A men's relaxed-fit short-sleeve shirt in sage green, made from a lightweight linen-cotton blend. The silhouette is loose and boxy through the body with a straight hem designed to be worn untucked, a camp collar that lies flat and open, and short sleeves with a single-button cuff.",
+            "details": "Piqué knit, Two-button placket, Embroidered",
+            "link": "",
+            "image": "shopify://shop_images/mens-sage-green-camp-collar-linen-shirt_93c6cfa8-c15a-40a0-b5f7-85c8b7ec2be2.png",
+            "side_image": "shopify://shop_images/mens-sage-green-camp-collar-linen-shirt_ba838ee7-5c59-4f08-af4d-742e6d32a17e.png"
+          }
+        }
+      },
+      "block_order": [
+        "garment_HtznF9",
+        "garment_QtMW3f",
+        "garment_7VP6EV",
+        "garment_DPrtka",
+        "garment_tdArkj",
+        "garment_7AmaF7",
+        "garment_zPirrd",
+        "garment_RXefE9",
+        "garment_ayCL9d",
+        "garment_QiJUj8"
+      ],
+      "name": "Clothing rail hero",
+      "settings": {
+        "eyebrow": "Most Loved - Customer Favorite - THE MUST-HAVES",
+        "heading": "Our Best Sellers",
+        "caption": "Explore the styles everyone loves. Discover customer favorites, timeless essentials, and must-have pieces worth adding to your wardrobe.",
+        "button_label": "",
+        "button_link": "",
+        "hanger": "none",
+        "autoplay": true,
+        "interval": 2500,
+        "max_height": 400,
+        "max_width": 1600,
+        "show_price": true,
+        "label_front": "Front",
+        "label_back": "Back",
+        "label_close": "Close",
+        "label_view": "View product",
+        "label_show": "Show",
+        "color_bg": "#ffffff",
+        "color_text": "#0a0a0a",
+        "color_muted": "#737373",
+        "color_rail": "#8a8a8a",
+        "color_tag_bg": "#ffffff",
+        "color_button_bg": "#0a0a0a",
+        "color_button_text": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "ferris_wheel_gallery_DfdeLM": {
+      "type": "ferris-wheel-gallery",
+      "blocks": {
+        "slide_ha39jn": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/pexels-gabby-k-5841955.jpg",
+            "title": "Individuality",
+            "discipline": "Wear what feels like you.",
+            "year": "",
+            "alt": "A men's tailored-fit long-sleeve shirt in white with a subtle light blue pinstripe, made from 100% cotton oxford weave. The fit is trim through the waist with a structured, slightly tapered silhouette, a button-down collar with visible top-stitched points, and a single back yoke with a center...",
+            "link": "",
+            "link_label": "View details"
+          }
+        },
+        "slide_G9HtJf": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/pexels-umudicreative-31868676.jpg",
+            "title": "Confidence",
+            "discipline": "Dress bold. Feel unstoppable",
+            "year": "",
+            "alt": "",
+            "link": "",
+            "link_label": "View details"
+          }
+        },
+        "slide_3z7xjL": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/pexels-danikprihodko-15759592.jpg",
+            "title": "Comfort",
+            "discipline": "Made to move with you.",
+            "year": "",
+            "alt": "",
+            "link": "",
+            "link_label": "View details"
+          }
+        },
+        "slide_yffpRy": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/pexels-thirdman-8053683.jpg",
+            "title": "Simplicity",
+            "discipline": "Less noise. More style.",
+            "year": "",
+            "alt": "",
+            "link": "",
+            "link_label": "View details"
+          }
+        },
+        "slide_EHNibj": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/pexels-yuliya-galceva-373676135-14584458.jpg",
+            "title": "Versatility",
+            "discipline": "One wardrobe. Endless possibilities.",
+            "year": "",
+            "alt": "",
+            "link": "",
+            "link_label": "View details"
+          }
+        }
+      },
+      "block_order": [
+        "slide_ha39jn",
+        "slide_G9HtJf",
+        "slide_3z7xjL",
+        "slide_yffpRy",
+        "slide_EHNibj"
+      ],
+      "name": "Ferris wheel gallery",
+      "settings": {
+        "show_header": true,
+        "eyebrow": "MORE THAN JUST FASHION",
+        "heading": "It's a way of being.",
+        "badge": "",
+        "direction": "cw",
+        "top_label": "",
+        "hub_label": "ELEMENTS OF STYLE",
+        "help_text": "Drag to explore / Scroll",
+        "enable_scroll": true,
+        "autoplay": false,
+        "interval": 2.5,
+        "caption_prefix": "STYLE",
+        "show_footer": true,
+        "footer_text": "The way you wear it. The way you own it.",
+        "color_background": "#ffffff",
+        "color_text": "#18181b",
+        "color_accent": "#0d9488",
+        "color_card": "#ffffff",
+        "color_muted_bg": "#f4f4f5",
+        "color_button_bg": "#18181b",
+        "color_button_text": "#ffffff",
+        "max_width": 1400,
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "titled_grid_hero_hRJjVk": {
+      "type": "titled-grid-hero",
+      "blocks": {
+        "image_33JC8W": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-johndetochka-11494773.jpg",
+            "image_url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_exR3wG": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-esra-salturk-1165434438-38356287.jpg",
+            "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_rjDjkf": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-cozy-ajans-2157466415-34833582.jpg",
+            "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_EzxqGC": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-mikhail-nilov-9476367.jpg",
+            "image_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_mVPY37": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-bertellifotografia-16029813.jpg",
+            "image_url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_brhKbE": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-michael-obstoj-1772571864-33549627.jpg",
+            "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_JQQ7DT": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-yasharmag-21352760.jpg",
+            "image_url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&q=80&auto=format&fit=crop"
+          }
+        }
+      },
+      "block_order": [
+        "image_33JC8W",
+        "image_exR3wG",
+        "image_rjDjkf",
+        "image_EzxqGC",
+        "image_mVPY37",
+        "image_brhKbE",
+        "image_JQQ7DT"
+      ],
+      "name": "Tilted grid hero",
+      "settings": {
+        "heading": "Every look, a story worth telling.",
+        "heading_tag": "h1",
+        "heading_class": "",
+        "text": "<p>Fashion is more than what you wear. It's how you express yourself, how you move, and how you make every moment your own. Discover a world where individuality meets effortless style.</p>",
+        "text_class": "",
+        "button_label": "",
+        "button_link": "",
+        "button_class": "button",
+        "content_layout": "split",
+        "text_align": "center",
+        "content_max_width": 560,
+        "content_padding": 48,
+        "speed": 4,
+        "direction": "rtl",
+        "tile_height": 26,
+        "aspect_ratio": "1.7778",
+        "gap": 6,
+        "axis": 56,
+        "curve": 80,
+        "fade": 12,
+        "tile_radius": 8,
+        "pause_on_hover": false,
+        "height_desktop": 560,
+        "height_mobile": 460,
+        "full_width": true,
+        "max_width": 1200,
+        "radius": 8,
+        "bg_color": "",
+        "text_color": "",
+        "subtext_color": "",
+        "tile_bg": "",
+        "show_border": true,
+        "border_color": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "scroll_morph_hero_3prAnb": {
+      "type": "scroll-morph-hero",
+      "blocks": {
+        "card_mcdDXa": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/This_Is_the_One_Dress_Brand_Every_Editor_Wants_to_Own.jpg",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_zx7bQG": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/2.jpg",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_xWJkTE": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/1.jpg",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_ac7fPU": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/3.jpg",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_tP9agM": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/6.jpg",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_kmKpwJ": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/dce189eac47ae14c7e35d2aa3b29f58c.jpg",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_DAfBaR": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/7.jpg",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_eRWcww": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_LbTzhk": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_32c09642-f4f8-4a04-b3f5-045b25768b10.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_B4zmHp": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/womens-burgundy-puffer-jacket_9dae85e3-ca25-4570-9a82-7c7228995f1e.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_wWmncB": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/faded-washed-black-relaxed-fit-t-shirt.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_VQJ68U": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_5b9774d9-b7c0-48ca-bb7a-bcef36185a41.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_MeXiXx": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/mens-camel-wool-blend-overcoat_57ff3188-25d0-4f3b-9c51-fbf7c5004cda.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_NXitXJ": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/mens-tailored-oxford-dress-shirt_b79e89d2-58bc-43fa-9b54-f73e1f840976.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_byUFzE": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_fd6bf210-764a-4cb7-99e5-dbcf8731fdd9.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        },
+        "card_mBWKyt": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_3fce5b10-c7aa-416a-ad8f-c567249626ec.png",
+            "link": "",
+            "back_label": "View",
+            "back_title": "Details"
+          }
+        }
+      },
+      "block_order": [
+        "card_mcdDXa",
+        "card_zx7bQG",
+        "card_xWJkTE",
+        "card_ac7fPU",
+        "card_tP9agM",
+        "card_kmKpwJ",
+        "card_DAfBaR",
+        "card_eRWcww",
+        "card_LbTzhk",
+        "card_B4zmHp",
+        "card_wWmncB",
+        "card_VQJ68U",
+        "card_MeXiXx",
+        "card_NXitXJ",
+        "card_byUFzE",
+        "card_mBWKyt"
+      ],
+      "name": "Scroll morph hero",
+      "settings": {
+        "intro_heading": "New Way to Dress",
+        "intro_subtext": "SCROLL TO EXPLORE",
+        "arc_heading": "Your Style. Your Rules",
+        "arc_text": "<p>For those who don't follow trends, but create their own. Those who see fashion as more than just clothing, embracing individuality, expressing confidence, and turning everyday moments into their own statement. Because true style isn't about fitting in; it's about standing out, being unapologetically yourself, and wearing every look with confidence.</p>",
+        "arc_reveal": "shuffle",
+        "bg_image": "shopify://shop_images/pexels-rachel-claire-5490975.jpg",
+        "bg_reveal": "wipe",
+        "bg_duration": 1600,
+        "bg_overlay_color": "#000000",
+        "bg_overlay_opacity": 20,
+        "full_screen": false,
+        "height_desktop": 800,
+        "height_mobile": 640,
+        "card_width": 95,
+        "border_radius": 6,
+        "scroll_length": 1000,
+        "lock_page": true,
+        "enable_parallax": true,
+        "color_bg": "#fafafa",
+        "color_intro_heading": "#1f2937",
+        "color_intro_sub": "#6b7280",
+        "color_arc_heading": "#ffffff",
+        "color_arc_text": "#ffffff",
+        "color_arc_accent": "#60a5fa",
+        "color_back_bg": "#111827",
+        "color_back_border": "#374151",
+        "color_back_label": "#60a5fa",
+        "color_back_title": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "grid_features_card_gY4nYg": {
+      "type": "grid-features-card",
+      "blocks": {
+        "feature_aKGXpE": {
+          "type": "feature",
+          "settings": {
+            "icon": "truck",
+            "image": "shopify://shop_images/truck.gif",
+            "title": "Express Delivery",
+            "description": "Fast, tracked shipping with same-day dispatch on everyday essentials."
+          }
+        },
+        "feature_hgMDGQ": {
+          "type": "feature",
+          "settings": {
+            "icon": "cpu",
+            "image": "shopify://shop_images/spool.gif",
+            "title": "Premium Fabrics",
+            "description": "Pre-shrunk, breathable cottons and durable blends made to hold shape wash after wash."
+          }
+        },
+        "feature_PtwhfQ": {
+          "type": "feature",
+          "settings": {
+            "icon": "fingerprint",
+            "image": "shopify://shop_images/return-of-investment.gif",
+            "title": "Seamless Returns",
+            "description": "7-day hassle-free doorstep exchange and return policy for total peace of mind."
+          }
+        },
+        "feature_e3KXPY": {
+          "type": "feature",
+          "settings": {
+            "icon": "pencil",
+            "image": "shopify://shop_images/problem-solving.gif",
+            "title": "Tailored Fits",
+            "description": "Structured cuts engineered to flatter all silhouettes across men’s and women’s lines."
+          }
+        },
+        "feature_ditBKc": {
+          "type": "feature",
+          "settings": {
+            "icon": "settings",
+            "image": "shopify://shop_images/high-quality.gif",
+            "title": "Ethically Made",
+            "description": "Responsible sourcing and durable construction built against fast-fashion waste."
+          }
+        },
+        "feature_3Vx3AX": {
+          "type": "feature",
+          "settings": {
+            "icon": "sparkles",
+            "image": "shopify://shop_images/shield.gif",
+            "title": "Secure Checkout",
+            "description": "Safe, encrypted UPI, card, and cash-on-delivery payment options."
+          }
+        }
+      },
+      "block_order": [
+        "feature_aKGXpE",
+        "feature_hgMDGQ",
+        "feature_PtwhfQ",
+        "feature_e3KXPY",
+        "feature_ditBKc",
+        "feature_3Vx3AX"
+      ],
+      "name": "Grid Feature Cards",
+      "settings": {
+        "badge_text": "",
+        "heading": "The Modern Wardrobe, Perfected.",
+        "subheading": "From everyday heavyweight tees to tailored outerwear, crafted without compromise.",
+        "bg_color": "#ffffff",
+        "heading_color": "#111111",
+        "subheading_color": "#6b6b6b",
+        "badge_text_color": "#111111",
+        "badge_bg_color": "#ffffff",
+        "badge_border_color": "#e5e5e5",
+        "border_color": "#d4d4d4",
+        "card_bg_color": "#ffffff",
+        "card_hover_bg_color": "#f7f7f7",
+        "title_color": "#111111",
+        "description_color": "#6b6b6b",
+        "icon_color": "#111111",
+        "icon_bg_color": "rgba(0,0,0,0)",
+        "show_pattern": true,
+        "pattern_color": "#00000014",
+        "pattern_size": 24,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "container_width": 1000,
+        "header_width": 720,
+        "header_gap": 16,
+        "header_bottom_space": 32,
+        "badge_radius": 8,
+        "columns_desktop": 3,
+        "columns_tablet": 2,
+        "columns_mobile": 1,
+        "border_width": 1,
+        "border_style": "dashed",
+        "grid_radius": 0,
+        "card_padding": 24,
+        "icon_box_size": 96,
+        "icon_size": 78,
+        "icon_stroke": 1,
+        "icon_box_radius": 0,
+        "title_top_space": 40,
+        "description_top_space": 12,
+        "animation_duration": 0.8,
+        "grid_delay": 0.4,
+        "animation_blur": 4,
+        "animation_shift": 8
+      }
+    },
+    "slideshow": {
+      "type": "layered-slideshow",
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "desktop_image": "shopify://shop_images/Modern_Neutral-Tone_Fashion_Campaign.png",
+            "subheading": "New season",
+            "heading": "Bring the outdoors in",
+            "description": "<p>Plants, planters and care essentials chosen for real homes.</p>",
+            "button_label": "Shop all plants",
+            "button_link": "shopify://collections/all",
+            "content_position": "middle-left",
+            "text_alignment": "left"
+          }
+        },
+        "slide_2": {
+          "type": "slide",
+          "settings": {
+            "desktop_image": "shopify://shop_images/Contemporary_Archway_Fashion_Duo.png",
+            "subheading": "Care made simple",
+            "heading": "Grow with confidence",
+            "description": "<p>Every plant ships with a care card and lifetime advice from our growers.</p>",
+            "button_label": "Learn more",
+            "button_link": "shopify://collections/all",
+            "content_position": "middle-left",
+            "text_alignment": "left"
+          }
+        }
+      },
+      "block_order": [
+        "slide_1",
+        "slide_2"
+      ],
+      "settings": {
+        "desktop_height": 650,
+        "mobile_height": 500,
+        "overlay_opacity": 25,
+        "autoplay": true,
+        "slide_interval": 6,
+        "color_scheme": "scheme-3"
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "subheading": "Bestsellers",
+        "heading": "Customer favourites",
+        "collection": "all",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true,
+        "color_scheme": ""
+      }
+    },
+    "collection_bento": {
+      "type": "collection-bento",
+      "blocks": {
+        "card_1": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "t-shirts",
+            "title": "T Shirts",
+            "link": "",
+            "card_size": "large",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_2": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "dresses",
+            "title": "Dresses",
+            "link": "",
+            "card_size": "normal",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_3": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "shirts",
+            "title": "Shirts",
+            "link": "",
+            "card_size": "normal",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_4": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "jackets",
+            "title": "Jackets",
+            "link": "",
+            "card_size": "wide",
+            "text_position": "bottom-left"
+          }
+        }
+      },
+      "block_order": [
+        "card_1",
+        "card_2",
+        "card_3",
+        "card_4"
+      ],
+      "settings": {
+        "heading": "Shop by collection",
+        "description": "<p>Explore our collections and find your favorites.</p>",
+        "layout": "classic",
+        "columns": 4,
+        "gap": 16,
+        "show_overlay": true,
+        "show_product_count": false,
+        "show_arrow": true,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "color_scheme": ""
+      }
+    },
+    "featured_product": {
+      "type": "featured-product",
+      "custom_css": [
+        ".shopify-payment-button__button--unbranded {background-color: #000;}"
+      ],
+      "settings": {
+        "product": "linen-wrap-maxi-dress",
+        "subheading": "Featured product",
+        "show_vendor": false,
+        "show_description": true,
+        "show_dynamic_checkout": true,
+        "color_scheme": "scheme-4"
+      }
+    },
+    "hotspots": {
+      "type": "product-hotspots",
+      "blocks": {
+        "hotspot_1": {
+          "type": "hotspot",
+          "settings": {
+            "product": "corduroy-chore-jacket",
+            "horizontal_position": 30,
+            "vertical_position": 55
+          }
+        },
+        "hotspot_2": {
+          "type": "hotspot",
+          "settings": {
+            "product": "classic-crew-neck-cotton-tee",
+            "horizontal_position": 68,
+            "vertical_position": 40
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_1",
+        "hotspot_2"
+      ],
+      "settings": {
+        "heading": "Shop the look",
+        "description": "<p>Discover the products featured in this image.</p>",
+        "image": "shopify://shop_images/Premium_Olive_Bomber_and_Cream_Tee_Display.png",
+        "link_label": "View product",
+        "color_scheme": "scheme-4"
+      }
+    },
+    "collection_carousel_fVVH8k": {
+      "type": "collection-carousel",
+      "blocks": {
+        "collection_FF9rJe": {
+          "type": "collection",
+          "settings": {
+            "collection": "jackets",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_MFgjAg": {
+          "type": "collection",
+          "settings": {
+            "collection": "shirts",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_xUGPWW": {
+          "type": "collection",
+          "settings": {
+            "collection": "t-shirts",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_dpG6WP": {
+          "type": "collection",
+          "settings": {
+            "collection": "hoodies-sweatshirts",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_X9GbRr": {
+          "type": "collection",
+          "settings": {
+            "collection": "dresses",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_FF9rJe",
+        "collection_MFgjAg",
+        "collection_xUGPWW",
+        "collection_dpG6WP",
+        "collection_X9GbRr"
+      ],
+      "name": "Collection carousel",
+      "settings": {
+        "heading": "Shop by collection",
+        "subheading": "Browse our latest collections, picked for the season.",
+        "heading_alignment": "center",
+        "heading_size": 40,
+        "heading_color": "#000000",
+        "subheading_color": "#5c5c5c",
+        "background": "#ffffff",
+        "full_width": true,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "card_ratio": "height",
+        "border_radius": 16,
+        "center_scale": 106,
+        "side_scale": 84,
+        "side_opacity": 70,
+        "card_shadow": true,
+        "card_bg": "#f4f4f4",
+        "card_width_desktop": 440,
+        "card_height_desktop": 520,
+        "gap_desktop": 24,
+        "card_width_tablet": 360,
+        "card_height_tablet": 440,
+        "gap_tablet": 20,
+        "card_width_mobile": 76,
+        "card_height_mobile": 400,
+        "gap_mobile": 12,
+        "overlay_color": "#000000",
+        "overlay_style": "gradient",
+        "overlay_opacity": 55,
+        "text_position": "overlay-bottom",
+        "text_alignment": "left",
+        "text_color": "#ffffff",
+        "show_title": true,
+        "show_description": true,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "title_size": 26,
+        "title_weight": "600",
+        "title_letter_spacing": 0,
+        "title_uppercase": false,
+        "description_size": 15,
+        "show_button": true,
+        "button_text": "Shop collection",
+        "button_bg": "#ffffff",
+        "button_color": "#1a1a1a",
+        "button_radius": 50,
+        "autoplay": false,
+        "autoplay_interval": 5,
+        "transition_speed": 600,
+        "side_click": "center",
+        "show_arrows": true,
+        "arrow_position": "edges",
+        "arrow_style": "circle",
+        "arrow_size": 48,
+        "arrow_bg": "#ffffff",
+        "arrow_color": "#1a1a1a",
+        "hide_arrows_mobile": true,
+        "show_dots": true,
+        "dot_style": "dots",
+        "dot_color": "#c8c8c8",
+        "dot_active_color": "#1a1a1a"
+      }
+    },
+    "fashion_hover_reveal_KT6XNt": {
+      "type": "fashion-hover-reveal",
+      "blocks": {
+        "item_taLjM8": {
+          "type": "item",
+          "settings": {
+            "title": "Dresses",
+            "tag": "dresses",
+            "image": "shopify://shop_images/womens-stone-beige-wrap-dress.png",
+            "link": "shopify://collections/dresses"
+          }
+        },
+        "item_thbDGn": {
+          "type": "item",
+          "settings": {
+            "title": "T-Shirts",
+            "tag": "T-Shirts",
+            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt.png",
+            "link": "shopify://collections/t-shirts"
+          }
+        },
+        "item_YKMgie": {
+          "type": "item",
+          "settings": {
+            "title": "Jackets",
+            "tag": "Jackets",
+            "image": "shopify://shop_images/mens-deep-navy-full-zip-hoodie.png",
+            "link": "shopify://collections/jackets"
+          }
+        },
+        "item_9E3kcK": {
+          "type": "item",
+          "settings": {
+            "title": "Hoodie",
+            "tag": "Hoodie",
+            "image": "shopify://shop_images/washed-charcoal-pullover-hoodie.png",
+            "link": "shopify://collections/hoodies-sweatshirts"
+          }
+        }
+      },
+      "block_order": [
+        "item_taLjM8",
+        "item_thbDGn",
+        "item_YKMgie",
+        "item_9E3kcK"
+      ],
+      "name": "Fashion hover reveal",
+      "settings": {
+        "eyebrow": "The Edit",
+        "heading": "Dressed for <em>every</em> season",
+        "description": "Hover over a collection to preview the look. New pieces arrive every week.",
+        "view_all_label": "View all collections",
+        "view_all_link": "shopify://collections",
+        "header_layout": "split",
+        "heading_size": 56,
+        "title_size_desktop": 88,
+        "title_size_mobile": 34,
+        "title_weight": "400",
+        "title_tightening": 2,
+        "title_uppercase": false,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "show_numbers": true,
+        "show_tags": true,
+        "show_arrow": true,
+        "show_dividers": true,
+        "row_padding": 22,
+        "hover_style": "fill",
+        "dim_opacity": 25,
+        "reveal_on_scroll": true,
+        "animation_speed": 800,
+        "preview_width": 300,
+        "preview_ratio": "3 / 4",
+        "preview_radius": 4,
+        "preview_layer": "behind",
+        "follow_smoothness": 5,
+        "preview_tilt": true,
+        "preview_shadow": true,
+        "mobile_image": "thumb",
+        "thumb_size": 72,
+        "show_marquee": true,
+        "marquee_text": "New season|Free shipping over $150|Shop the lookbook|Made to last",
+        "marquee_separator": "✦",
+        "marquee_position": "bottom",
+        "marquee_direction": "left",
+        "marquee_speed": 54,
+        "marquee_size": 16,
+        "marquee_padding": 14,
+        "marquee_tilt": false,
+        "marquee_pause": true,
+        "marquee_use_font": false,
+        "marquee_bg": "#141414",
+        "marquee_text_color": "#f5f1ea",
+        "background": "#f5f1ea",
+        "text_color": "#141414",
+        "muted_color": "#7a7368",
+        "accent_color": "#a8432c",
+        "divider_color": "#d9d1c4",
+        "full_width": true,
+        "side_padding": 48,
+        "padding_top": 96,
+        "padding_bottom": 0
+      }
+    },
+    "collection_product_scroll_iXcUpD": {
+      "type": "collection-product-scroll",
+      "blocks": {
+        "collection_MtWD4R": {
+          "type": "collection",
+          "settings": {
+            "collection": "dresses",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_37QWdg": {
+          "type": "collection",
+          "settings": {
+            "collection": "jackets",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_zWNyde": {
+          "type": "collection",
+          "settings": {
+            "collection": "t-shirts",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_MtWD4R",
+        "collection_37QWdg",
+        "collection_zWNyde"
+      ],
+      "name": "Collection product scroll",
+      "settings": {
+        "heading": "Shop by collection",
+        "subheading": "",
+        "heading_alignment": "left",
+        "heading_size": 36,
+        "media_position": "left",
+        "media_width": 45,
+        "media_width_tablet": 40,
+        "height_desktop": 85,
+        "height_tablet": 75,
+        "media_height_mobile": 300,
+        "scroll_height_mobile": 70,
+        "layout_gap": 40,
+        "full_width": false,
+        "side_padding": 32,
+        "padding_top": 60,
+        "padding_bottom": 60,
+        "background": "#ffffff",
+        "text_color": "#000000",
+        "muted_color": "#6b6b6b",
+        "accent_color": "#1c1c1c",
+        "image_bg": "#f2f2f2",
+        "media_radius": 12,
+        "overlay_color": "#000000",
+        "overlay_opacity": 35,
+        "text_position": "bottom",
+        "text_alignment": "left",
+        "media_text_color": "#ffffff",
+        "show_media_title": true,
+        "show_media_description": true,
+        "use_collection_description": false,
+        "use_custom_font": true,
+        "title_font": "assistant_n4",
+        "title_weight": "600",
+        "title_uppercase": false,
+        "media_title_size": 36,
+        "media_description_size": 16,
+        "product_title_size": 15,
+        "price_size": 14,
+        "show_media_button": true,
+        "button_text": "Shop collection",
+        "button_bg": "#ffffff",
+        "button_color": "#000000",
+        "button_radius": 50,
+        "products_limit": 12,
+        "grid_column_gap": 16,
+        "grid_row_gap": 28,
+        "grid_column_gap_mobile": 10,
+        "grid_row_gap_mobile": 18,
+        "show_view_all": true,
+        "view_all_text": "View all",
+        "product_ratio": "4 / 5",
+        "image_fit": "cover",
+        "card_text_alignment": "left",
+        "card_bg": "#ffffff",
+        "card_border_color": "#e6e6e6",
+        "card_border_width": 0,
+        "card_radius": 8,
+        "card_padding": 0,
+        "card_shadow": false,
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_compare_price": true,
+        "show_sale_badge": true,
+        "show_sold_out_badge": true,
+        "price_color": "#1c1c1c",
+        "sale_color": "#b42318",
+        "badge_bg": "#1c1c1c",
+        "badge_text": "#ffffff",
+        "switch_on_scroll": true,
+        "scroll_sensitivity": "medium",
+        "loop": false,
+        "show_tabs": true,
+        "tab_style": "pills",
+        "tab_active_bg": "#1c1c1c",
+        "tab_active_text": "#ffffff",
+        "show_arrows": true,
+        "show_counter": true,
+        "show_progress": true,
+        "transition_style": "slide",
+        "transition_speed": 500
+      }
+    },
+    "image_with_overlap_card_i4MYrd": {
+      "type": "image-with-overlap-card",
+      "name": "Image with overlap card",
+      "settings": {
+        "image": "shopify://shop_images/about-sec.webp",
+        "image_position": "right",
+        "image_width": 62,
+        "image_height": "custom",
+        "image_height_desktop": 490,
+        "image_height_mobile": 320,
+        "image_focus": "default",
+        "image_radius": 0,
+        "overlay_color": "#000000",
+        "overlay_opacity": 0,
+        "eyebrow": "",
+        "heading": "Forged in Cali",
+        "heading_tag": "h2",
+        "body": "<p>Born in a small, Southern California, blue-collar beach town, graced with world class point breaks and seaside racetracks, where ghosts of a once towering oil industry still linger.</p>",
+        "text_alignment": "left",
+        "show_accent": true,
+        "accent_color": "#e0a23b",
+        "accent_width": 30,
+        "accent_thickness": 2,
+        "accent_spacing": 14,
+        "card_bg": "#ffffff",
+        "card_width": 510,
+        "card_overlap": 80,
+        "edge_space": 26,
+        "card_vertical": "center",
+        "card_vertical_space": 40,
+        "card_padding": 48,
+        "card_padding_mobile": 24,
+        "card_radius": 6,
+        "card_shadow": false,
+        "card_border": false,
+        "card_border_color": "#e5e5e5",
+        "use_custom_font": false,
+        "heading_font": "assistant_n4",
+        "heading_size": 22,
+        "heading_weight": "500",
+        "body_size": 13,
+        "body_line_height": 19,
+        "background": "#f2f2f2",
+        "eyebrow_color": "#e0a23b",
+        "heading_color": "#000000",
+        "body_color": "#3a3a3a",
+        "button_label": "",
+        "button_link": "",
+        "button_style": "solid",
+        "button_bg": "#1a1a1a",
+        "button_text_color": "#ffffff",
+        "button_radius": 4,
+        "full_width": true,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "animate": true,
+        "mobile_layout": "stack",
+        "mobile_overlap": 40,
+        "mobile_side_space": 16
+      }
+    },
+    "scroll_expand_lookbook_hCCxWy": {
+      "type": "scroll-expand-lookbook",
+      "blocks": {
+        "hotspot_AWVeeT": {
+          "type": "hotspot",
+          "settings": {
+            "product": "quilted-puffer-jacket",
+            "label": "",
+            "x": 44,
+            "y": 38,
+            "x_mobile": 40,
+            "y_mobile": 34
+          }
+        },
+        "hotspot_UDVDQW": {
+          "type": "hotspot",
+          "settings": {
+            "product": "wool-blend-overcoat",
+            "label": "",
+            "x": 62,
+            "y": 58,
+            "x_mobile": 62,
+            "y_mobile": 52
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_AWVeeT",
+        "hotspot_UDVDQW"
+      ],
+      "name": "Scroll expand lookbook",
+      "settings": {
+        "image": "shopify://shop_images/chocolate-brown-corduroy-chore-jacket_b215c5c3-ffeb-4988-94ea-cad9fa42cef5.png",
+        "image_focus": "center",
+        "overlay_color": "#0e0d0b",
+        "overlay_opacity": 55,
+        "start_shape": "rounded",
+        "start_radius": 8,
+        "start_width": 26,
+        "start_height": 58,
+        "start_width_mobile": 58,
+        "start_height_mobile": 40,
+        "end_inset": 0,
+        "end_radius": 0,
+        "enable_scroll_animation": true,
+        "scroll_length": 160,
+        "scroll_length_mobile": 120,
+        "static_height": 90,
+        "sticky_offset": 0,
+        "eyebrow": "Autumn / Winter 2026",
+        "word_left": "Quiet",
+        "word_right": "Luxury",
+        "italic_second_word": true,
+        "headline_uppercase": false,
+        "headline_size": 148,
+        "headline_size_mobile": 56,
+        "headline_weight": "400",
+        "split_distance": 40,
+        "headline_blend": false,
+        "show_hint": true,
+        "hint_text": "Scroll",
+        "use_custom_font": false,
+        "headline_font": "assistant_n4",
+        "caption_eyebrow": "The new collection",
+        "caption_heading": "Crafted to be <em>worn for years</em>",
+        "caption_text": "Cashmere, wool and silk in a softened palette. Pieces made slowly, in small runs.",
+        "caption_position": "bottom-left",
+        "caption_align_mobile": "left",
+        "caption_heading_size": 48,
+        "button_label": "Explore the collection",
+        "button_link": "shopify://collections/jackets",
+        "magnetic_button": true,
+        "button_bg": "#f4efe7",
+        "button_text_color": "#14120f",
+        "button_radius": 50,
+        "show_badge": true,
+        "badge_text": "New season • Shop the edit •",
+        "badge_link": "",
+        "badge_position": "top-right",
+        "badge_size": 132,
+        "badge_speed": 16,
+        "badge_color": "#f4efe7",
+        "hotspot_size": 24,
+        "hotspot_pulse": true,
+        "hotspot_color": "#f4efe7",
+        "hotspot_icon_color": "#14120f",
+        "popover_width": 260,
+        "popover_bg": "#ffffff",
+        "popover_text": "#14120f",
+        "popover_link_text": "View product",
+        "background": "#f4efe7",
+        "headline_color": "#14120f",
+        "muted_color": "#7d7468",
+        "caption_color": "#f4efe7",
+        "accent_color": "#c9a27a"
+      }
+    },
+    "testimonial_autoscroll_iJ4ch6": {
+      "type": "testimonial-autoscroll",
+      "blocks": {
+        "testimonial_WzqJTe": {
+          "type": "testimonial",
+          "settings": {
+            "text": "This ERP revolutionized our operations, streamlining finance and inventory. The cloud-based platform keeps us productive, even remotely.",
+            "name": "Briana Patton",
+            "role": "Operations Manager"
+          }
+        },
+        "testimonial_mWmftx": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Implementing this ERP was smooth and quick. The customizable, user-friendly interface made team training effortless.",
+            "name": "Bilal Ahmed",
+            "role": "IT Manager"
+          }
+        },
+        "testimonial_HxztqP": {
+          "type": "testimonial",
+          "settings": {
+            "text": "The support team is exceptional, guiding us through setup and providing ongoing assistance, ensuring our satisfaction.",
+            "name": "Saman Malik",
+            "role": "Customer Support Lead"
+          }
+        },
+        "testimonial_VCdV33": {
+          "type": "testimonial",
+          "settings": {
+            "text": "This ERP's seamless integration enhanced our business operations and efficiency. Highly recommend for its intuitive interface.",
+            "name": "Omar Raza",
+            "role": "CEO"
+          }
+        },
+        "testimonial_JdkfFV": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Its robust features and quick support have transformed our workflow, making us significantly more efficient.",
+            "name": "Zainab Hussain",
+            "role": "Project Manager"
+          }
+        },
+        "testimonial_RG8MhD": {
+          "type": "testimonial",
+          "settings": {
+            "text": "The smooth implementation exceeded expectations. It streamlined processes, improving overall business performance.",
+            "name": "Aliza Khan",
+            "role": "Business Analyst"
+          }
+        },
+        "testimonial_XYmKkU": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Our business functions improved with a user-friendly design and positive customer feedback.",
+            "name": "Farhan Siddiqui",
+            "role": "Marketing Director"
+          }
+        },
+        "testimonial_CbWXcf": {
+          "type": "testimonial",
+          "settings": {
+            "text": "They delivered a solution that exceeded expectations, understanding our needs and enhancing our operations.",
+            "name": "Sana Sheikh",
+            "role": "Sales Manager"
+          }
+        },
+        "testimonial_MCADWw": {
+          "type": "testimonial",
+          "settings": {
+            "text": "Using this ERP, our online presence and conversions significantly improved, boosting business performance.",
+            "name": "Hassan Ali",
+            "role": "E-commerce Manager"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_WzqJTe",
+        "testimonial_mWmftx",
+        "testimonial_HxztqP",
+        "testimonial_VCdV33",
+        "testimonial_JdkfFV",
+        "testimonial_RG8MhD",
+        "testimonial_XYmKkU",
+        "testimonial_CbWXcf",
+        "testimonial_MCADWw"
+      ],
+      "name": "Testimonials Columns",
+      "settings": {
+        "badge_text": "Testimonials",
+        "heading": "What our users say",
+        "subheading": "See what our customers have to say about us.",
+        "bg_color": "#ffffff",
+        "badge_text_color": "#111111",
+        "badge_bg_color": "#ffffff",
+        "badge_border_color": "#e5e5e5",
+        "heading_color": "#111111",
+        "subheading_color": "#111111",
+        "subheading_opacity": 75,
+        "card_bg_color": "#ffffff",
+        "card_border_color": "#e5e5e5",
+        "card_text_color": "#333333",
+        "name_color": "#111111",
+        "role_color": "#6b6b6b",
+        "avatar_bg_color": "#e5e5e5",
+        "avatar_text_color": "#111111",
+        "shadow_color": "#0000001a",
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "margin_top": 0,
+        "margin_bottom": 0,
+        "container_width": 1920,
+        "mobile_side_padding": 16,
+        "header_width": 540,
+        "header_gap": 16,
+        "header_bottom_space": 40,
+        "badge_radius": 8,
+        "badge_padding_x": 16,
+        "badge_padding_y": 4,
+        "badge_border_width": 1,
+        "max_height": 800,
+        "column_gap": 0,
+        "card_gap": 24,
+        "card_max_width": 600,
+        "card_padding": 40,
+        "card_radius": 24,
+        "card_border_width": 1,
+        "text_gap": 20,
+        "avatar_size": 40,
+        "avatar_radius": 50,
+        "author_gap": 8,
+        "shadow_x": 0,
+        "shadow_y": 10,
+        "shadow_blur": 30,
+        "shadow_spread": 0,
+        "duration_col_1": 15,
+        "duration_col_2": 19,
+        "duration_col_3": 17,
+        "reverse_middle": true,
+        "pause_on_hover": true,
+        "enable_fade": true,
+        "fade_size": 25,
+        "hide_third_on_tablet": true,
+        "hide_second_on_mobile": true
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Stay in the loop",
+        "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
+        "color_scheme": "scheme-2"
+      }
+    }
+  },
+  "order": [
+    "parallex_strip_slider_L334YC",
+    "clothing_rail_rule_npfJ73",
+    "ferris_wheel_gallery_DfdeLM",
+    "titled_grid_hero_hRJjVk",
+    "scroll_morph_hero_3prAnb",
+    "grid_features_card_gY4nYg",
+    "slideshow",
+    "featured_collection",
+    "collection_bento",
+    "featured_product",
+    "hotspots",
+    "collection_carousel_fVVH8k",
+    "fashion_hover_reveal_KT6XNt",
+    "collection_product_scroll_iXcUpD",
+    "image_with_overlap_card_i4MYrd",
+    "scroll_expand_lookbook_hCCxWy",
+    "testimonial_autoscroll_iJ4ch6",
+    "newsletter"
+  ]
 }
