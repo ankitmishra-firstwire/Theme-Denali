@@ -1,0 +1,937 @@
+{%- comment -%}
+  Link Preview section
+  ---------------------------------------------------------------------------
+  Port of the React/Next.js <LinkPreview /> component (Radix HoverCard +
+  Framer Motion) to a self-contained Shopify section.
+
+  - Inline links that show a floating screenshot card on hover.
+  - "Live" previews use the Microlink screenshot API (same params as the
+    original component). "Static" previews use a picked image or an image URL.
+  - Cursor-following spring on the card (stiffness 100, damping 15).
+  - Spring pop-in animation, flips below the link if there is no room above.
+  - Keyboard focus support, Escape to close, prefers-reduced-motion respected.
+  - Touch devices: no hover card, the link simply navigates.
+
+  File: sections/link-preview.liquid
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign preview_w = section.settings.preview_width
+  assign preview_h = section.settings.preview_height
+  assign shot_w = preview_w | times: 3
+  assign shot_h = preview_h | times: 3
+  assign img_w = preview_w | times: 2
+-%}
+
+{% style %}
+  .lp-section--{{ sid }} {
+    --lp-max-width: {{ section.settings.max_width }}px;
+    --lp-align: {{ section.settings.alignment }};
+    --lp-fs: {{ section.settings.font_size }}px;
+    --lp-fs-mobile: {{ section.settings.font_size_mobile }}px;
+    --lp-pt: {{ section.settings.padding_top }}px;
+    --lp-pb: {{ section.settings.padding_bottom }}px;
+    --lp-text: {{ section.settings.text_color }};
+    --lp-link: {{ section.settings.link_color }};
+    --lp-from: {{ section.settings.gradient_from }};
+    --lp-to: {{ section.settings.gradient_to }};
+    {%- if section.settings.background != blank %}
+    --lp-bg: {{ section.settings.background }};
+    {%- endif %}
+  }
+
+  .lp-card--{{ sid }} {
+    --lp-w: {{ preview_w }}px;
+    --lp-ratio: {{ preview_w }} / {{ preview_h }};
+    --lp-card-bg: {{ section.settings.card_background }};
+    --lp-card-border-hover: {{ section.settings.card_border_hover }};
+  }
+{% endstyle %}
+
+<div class="lp-section lp-section--{{ sid }}">
+  <div class="lp-section__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="lp-section__heading">{{ section.settings.heading | escape }}</h2>
+    {%- endif -%}
+
+    <p class="lp-paragraph">
+      {%- assign need_space = false -%}
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+
+          {%- when 'paragraph_break' -%}
+            </p><p class="lp-paragraph" {{ block.shopify_attributes }}>
+            {%- assign need_space = false -%}
+
+          {%- when 'text' -%}
+            {%- if block.settings.text != blank -%}
+              {%- if need_space -%}{%- unless block.settings.attach_to_previous -%}{{ ' ' }}{%- endunless -%}{%- endif -%}
+              <span {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</span>
+              {%- assign need_space = true -%}
+            {%- endif -%}
+
+          {%- when 'link' -%}
+            {%- liquid
+              assign label = block.settings.label | default: 'Link'
+              assign href = block.settings.link | default: '/'
+
+              comment
+                Microlink needs an absolute URL; Shopify returns internal links as paths.
+              endcomment
+              assign first_char = href | slice: 0
+              if first_char == '/'
+                assign absolute_url = request.origin | append: href
+              else
+                assign absolute_url = href
+              endif
+
+              assign use_static = false
+              assign static_src = ''
+              if block.settings.source == 'static'
+                if block.settings.image != blank
+                  assign static_src = block.settings.image | image_url: width: img_w
+                  assign use_static = true
+                elsif block.settings.image_url != blank
+                  assign static_src = block.settings.image_url
+                  assign use_static = true
+                endif
+              endif
+
+              assign alt = block.settings.image_alt | default: block.settings.image.alt | default: label
+
+              assign trigger_classes = 'lp-trigger'
+              if block.settings.style == 'gradient'
+                assign trigger_classes = trigger_classes | append: ' lp-trigger--gradient'
+              endif
+              if block.settings.bold
+                assign trigger_classes = trigger_classes | append: ' lp-trigger--bold'
+              endif
+            -%}
+
+            {%- capture preview_src -%}
+              {%- if use_static -%}
+                {{- static_src -}}
+              {%- else -%}
+                https://api.microlink.io/?url={{ absolute_url | url_encode }}&screenshot=true&meta=false&embed=screenshot.url&colorScheme={{ section.settings.screenshot_scheme }}&viewport.isMobile=true&viewport.deviceScaleFactor=1&viewport.width={{ shot_w }}&viewport.height={{ shot_h }}
+              {%- endif -%}
+            {%- endcapture -%}
+
+            {%- if need_space -%}{{ ' ' }}{%- endif -%}
+            {%- comment -%} Everything here is inline <span>s: a <div> inside <p> would break the paragraph. Tags are kept adjacent so no stray spaces appear around the link. {%- endcomment -%}
+            <hover-link-preview class="lp" data-open-delay="50" data-close-delay="100" {{ block.shopify_attributes }}><a href="{{ href }}" class="{{ trigger_classes }}"{% if block.settings.new_tab %} target="_blank" rel="noopener"{% endif %}>{{ label | escape }}</a><span class="lp-card lp-card--{{ sid }}" hidden aria-hidden="true">
+                <span class="lp-card__spring">
+                  <span class="lp-card__pop">
+                    <a href="{{ href }}" class="lp-card__link" tabindex="-1"{% if block.settings.new_tab %} target="_blank" rel="noopener"{% endif %}>
+                      <span class="lp-card__media">
+                        <img
+                          data-src="{{ preview_src | strip | escape }}"
+                          alt="{{ alt | escape }}"
+                          width="{{ preview_w }}"
+                          height="{{ preview_h }}"
+                          decoding="async"
+                        >
+                        <span class="lp-card__fallback">Preview unavailable</span>
+                      </span>
+                    </a>
+                  </span>
+                </span>
+              </span></hover-link-preview>
+            {%- assign need_space = true -%}
+
+        {%- endcase -%}
+      {%- endfor -%}
+    </p>
+  </div>
+</div>
+
+{% stylesheet %}
+  .lp-section {
+    background: var(--lp-bg, transparent);
+    padding: var(--lp-pt) 1.25rem var(--lp-pb);
+  }
+
+  .lp-section__inner {
+    max-width: var(--lp-max-width);
+    margin: 0 auto;
+  }
+
+  .lp-section__heading {
+    margin: 0 0 0.75em;
+    text-align: var(--lp-align);
+  }
+
+  .lp-paragraph {
+    margin: 0 0 1.25em;
+    font-size: var(--lp-fs-mobile);
+    line-height: 1.4;
+    color: var(--lp-text);
+    text-align: var(--lp-align);
+  }
+
+  .lp-paragraph:last-child {
+    margin-bottom: 0;
+  }
+
+  .lp-paragraph:empty {
+    display: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .lp-paragraph {
+      font-size: var(--lp-fs);
+    }
+  }
+
+  hover-link-preview {
+    display: inline;
+  }
+
+  .lp-trigger {
+    color: var(--lp-link);
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .lp-trigger--bold {
+    font-weight: 700;
+  }
+
+  .lp-trigger--gradient {
+    background-image: linear-gradient(to bottom right, var(--lp-from), var(--lp-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .lp-trigger:focus-visible {
+    outline: 2px solid var(--lp-link);
+    outline-offset: 3px;
+  }
+
+  .lp-trigger--gradient:focus-visible {
+    outline-color: var(--lp-from);
+  }
+
+  /* Floating card (moved to <body> by JS so no parent can clip it) */
+  .lp-card {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    pointer-events: none;
+  }
+
+  .lp-card[hidden] {
+    display: none;
+  }
+
+  .lp-card.is-open {
+    pointer-events: auto;
+  }
+
+  .lp-card__spring {
+    display: block;
+    will-change: transform;
+  }
+
+  /* Closed state + exit transition */
+  .lp-card__pop {
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    transform: translateY(20px) scale(0.6);
+    transform-origin: 50% 100%;
+    transition: opacity 0.15s ease, transform 0.2s ease-in;
+  }
+
+  .lp-card[data-side='bottom'] .lp-card__pop {
+    transform: translateY(-20px) scale(0.6);
+    transform-origin: 50% 0;
+  }
+
+  /* Open state + springy entrance (approximates stiffness 260 / damping 20) */
+  .lp-card.is-open .lp-card__pop {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.2s ease-out, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .lp-card__link {
+    display: block;
+    padding: 4px;
+    background: var(--lp-card-bg);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    font-size: 0;
+    line-height: 0;
+    transition: border-color 0.2s ease;
+  }
+
+  .lp-card__link:hover {
+    border-color: var(--lp-card-border-hover);
+  }
+
+  .lp-card__media {
+    position: relative;
+    display: block;
+    width: min(var(--lp-w), calc(100vw - 32px));
+    aspect-ratio: var(--lp-ratio);
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(100deg, #ececec 30%, #f7f7f7 50%, #ececec 70%);
+    background-size: 300% 100%;
+    animation: lp-shimmer 1.4s linear infinite;
+  }
+
+  .lp-card.is-loaded .lp-card__media,
+  .lp-card.is-error .lp-card__media {
+    animation: none;
+  }
+
+  .lp-card__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .lp-card.is-loaded .lp-card__media img {
+    opacity: 1;
+  }
+
+  .lp-card__fallback {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    font: 500 12px/1.3 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #737373;
+    text-align: center;
+  }
+
+  .lp-card.is-error .lp-card__fallback {
+    display: flex;
+  }
+
+  @keyframes lp-shimmer {
+    from { background-position: 100% 0; }
+    to { background-position: 0 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-card__pop,
+    .lp-card[data-side='bottom'] .lp-card__pop,
+    .lp-card.is-open .lp-card__pop {
+      transform: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .lp-card__media {
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (() => {
+    if (customElements.get('hover-link-preview')) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    /* Small spring simulation, equivalent to framer-motion's useSpring */
+    class Spring {
+      constructor({ stiffness = 100, damping = 15, mass = 1 } = {}, onUpdate = () => {}) {
+        this.stiffness = stiffness;
+        this.damping = damping;
+        this.mass = mass;
+        this.onUpdate = onUpdate;
+        this.value = 0;
+        this.target = 0;
+        this.velocity = 0;
+        this.raf = null;
+        this.last = 0;
+      }
+
+      set(target) {
+        this.target = target;
+        if (reduceMotion.matches) {
+          this.jump(target);
+          return;
+        }
+        if (!this.raf) {
+          this.last = performance.now();
+          this.raf = requestAnimationFrame(this.tick);
+        }
+      }
+
+      jump(value) {
+        this.stop();
+        this.value = value;
+        this.target = value;
+        this.velocity = 0;
+        this.onUpdate(value);
+      }
+
+      stop() {
+        if (this.raf) cancelAnimationFrame(this.raf);
+        this.raf = null;
+      }
+
+      tick = (now) => {
+        let dt = Math.min((now - this.last) / 1000, 0.064);
+        this.last = now;
+        const step = 1 / 240;
+        while (dt > 0) {
+          const h = Math.min(step, dt);
+          const force = -this.stiffness * (this.value - this.target) - this.damping * this.velocity;
+          this.velocity += (force / this.mass) * h;
+          this.value += this.velocity * h;
+          dt -= h;
+        }
+        this.onUpdate(this.value);
+
+        if (Math.abs(this.velocity) < 0.01 && Math.abs(this.value - this.target) < 0.01) {
+          this.value = this.target;
+          this.velocity = 0;
+          this.onUpdate(this.value);
+          this.raf = null;
+          return;
+        }
+        this.raf = requestAnimationFrame(this.tick);
+      };
+    }
+
+    class HoverLinkPreview extends HTMLElement {
+      constructor() {
+        super();
+        this.isOpen = false;
+        this.loaded = false;
+        this.pointerY = null;
+        this.openTimer = null;
+        this.closeTimer = null;
+        this.hideTimer = null;
+      }
+
+      connectedCallback() {
+        if (!this.card) {
+          this.trigger = this.querySelector('.lp-trigger');
+          this.card = this.querySelector('.lp-card');
+          if (!this.trigger || !this.card) return;
+
+          this.img = this.card.querySelector('img');
+          this.springEl = this.card.querySelector('.lp-card__spring');
+          this.openDelay = Number(this.dataset.openDelay ?? 50);
+          this.closeDelay = Number(this.dataset.closeDelay ?? 100);
+          this.spring = new Spring({ stiffness: 100, damping: 15 }, (v) => {
+            this.springEl.style.transform = `translate3d(${v}px, 0, 0)`;
+          });
+
+          this.trigger.addEventListener('pointerenter', this.onEnter);
+          this.trigger.addEventListener('pointerleave', this.onLeave);
+          this.trigger.addEventListener('pointermove', this.onMove);
+          this.trigger.addEventListener('focus', this.onFocus);
+          this.trigger.addEventListener('blur', this.onBlur);
+          this.card.addEventListener('pointerenter', this.onEnter);
+          this.card.addEventListener('pointerleave', this.onLeave);
+
+          if (this.img) {
+            this.img.addEventListener('load', () => this.card.classList.add('is-loaded'));
+            this.img.addEventListener('error', () => this.card.classList.add('is-error'));
+          }
+        }
+
+        if (!this.card) return;
+
+        // Portal the card to <body> so overflow/transform on theme wrappers can't clip it
+        document.body.appendChild(this.card);
+
+        document.addEventListener('keydown', this.onKeydown);
+        document.addEventListener('shopify:block:select', this.onBlockSelect);
+        document.addEventListener('shopify:block:deselect', this.onBlockDeselect);
+        this.observePreload();
+      }
+
+      disconnectedCallback() {
+        if (!this.card) return;
+        clearTimeout(this.openTimer);
+        clearTimeout(this.closeTimer);
+        clearTimeout(this.hideTimer);
+        this.hide(true);
+        this.card.remove();
+        this.spring.stop();
+        this.observer?.disconnect();
+        document.removeEventListener('keydown', this.onKeydown);
+        document.removeEventListener('shopify:block:select', this.onBlockSelect);
+        document.removeEventListener('shopify:block:deselect', this.onBlockDeselect);
+      }
+
+      /* Preload the image when the link nears the viewport
+         (the original preloads on mount, which spends Microlink requests for links nobody sees) */
+      observePreload() {
+        if (this.loaded) return;
+        if (!('IntersectionObserver' in window)) {
+          this.load();
+          return;
+        }
+        this.observer?.disconnect();
+        this.observer = new IntersectionObserver(
+          (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+              this.load();
+              this.observer.disconnect();
+            }
+          },
+          { rootMargin: '200px' }
+        );
+        this.observer.observe(this);
+      }
+
+      load() {
+        if (this.loaded || !this.img) return;
+        this.loaded = true;
+        const src = this.img.dataset.src;
+        if (src) {
+          this.img.src = src;
+        } else {
+          this.card.classList.add('is-error');
+        }
+      }
+
+      onEnter = (event) => {
+        if (event.pointerType !== 'mouse') return;
+        this.pointerY = event.clientY;
+        clearTimeout(this.closeTimer);
+        if (this.isOpen) return;
+        clearTimeout(this.openTimer);
+        this.openTimer = setTimeout(() => this.show(), this.openDelay);
+      };
+
+      onLeave = (event) => {
+        if (event.pointerType !== 'mouse') return;
+        clearTimeout(this.openTimer);
+        clearTimeout(this.closeTimer);
+        this.closeTimer = setTimeout(() => this.hide(), this.closeDelay);
+      };
+
+      onMove = (event) => {
+        if (event.pointerType !== 'mouse') return;
+        this.pointerY = event.clientY;
+        const rect = this.activeRect();
+        const offsetFromCenter = (event.clientX - rect.left - rect.width / 2) / 2;
+        this.spring.set(offsetFromCenter);
+      };
+
+      onFocus = () => {
+        let keyboard = true;
+        try {
+          keyboard = this.trigger.matches(':focus-visible');
+        } catch (e) {}
+        if (!keyboard) return;
+        this.pointerY = null;
+        clearTimeout(this.closeTimer);
+        this.show();
+      };
+
+      onBlur = () => {
+        clearTimeout(this.openTimer);
+        this.hide();
+      };
+
+      onKeydown = (event) => {
+        if (event.key === 'Escape' && this.isOpen) this.hide();
+      };
+
+      onBlockSelect = (event) => {
+        if (event.target === this || this.contains(event.target)) this.show();
+      };
+
+      onBlockDeselect = (event) => {
+        if (event.target === this || this.contains(event.target)) this.hide();
+      };
+
+      /* For links that wrap onto two lines, use the line under the pointer */
+      activeRect() {
+        const rects = Array.from(this.trigger.getClientRects());
+        if (!rects.length) return this.trigger.getBoundingClientRect();
+        if (this.pointerY != null) {
+          const hit = rects.find((r) => this.pointerY >= r.top && this.pointerY <= r.bottom);
+          if (hit) return hit;
+        }
+        return rects[0];
+      }
+
+      position = () => {
+        if (this.card.hidden) return;
+        const rect = this.activeRect();
+        const cw = this.card.offsetWidth;
+        const ch = this.card.offsetHeight;
+        const vw = document.documentElement.clientWidth;
+        const vh = window.innerHeight;
+        const gap = 10;
+        const pad = 8;
+
+        let side = 'top';
+        let top = rect.top - ch - gap;
+        if (top < pad && rect.bottom + gap + ch <= vh - pad) {
+          side = 'bottom';
+          top = rect.bottom + gap;
+        }
+
+        let left = rect.left + rect.width / 2 - cw / 2;
+        left = Math.max(pad, Math.min(left, vw - cw - pad));
+
+        this.card.dataset.side = side;
+        this.card.style.transform = `translate3d(${Math.round(left)}px, ${Math.round(top)}px, 0)`;
+      };
+
+      show() {
+        clearTimeout(this.hideTimer);
+        if (this.isOpen) return;
+        this.isOpen = true;
+        this.load();
+
+        this.card.hidden = false;
+        this.position();
+        void this.card.offsetWidth; // commit the closed state so the entrance animates
+        this.card.classList.add('is-open');
+
+        window.addEventListener('scroll', this.position, { passive: true, capture: true });
+        window.addEventListener('resize', this.position, { passive: true });
+      }
+
+      hide(immediate = false) {
+        clearTimeout(this.openTimer);
+        clearTimeout(this.closeTimer);
+        if (!this.isOpen && this.card.hidden) return;
+
+        this.isOpen = false;
+        this.card.classList.remove('is-open');
+        window.removeEventListener('scroll', this.position, { capture: true });
+        window.removeEventListener('resize', this.position);
+
+        clearTimeout(this.hideTimer);
+        this.hideTimer = setTimeout(
+          () => {
+            if (this.isOpen) return;
+            this.card.hidden = true;
+            this.pointerY = null;
+            this.spring.jump(0);
+          },
+          immediate ? 0 : 220
+        );
+      }
+    }
+
+    customElements.define('hover-link-preview', HoverLinkPreview);
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Link preview",
+  "tag": "section",
+  "class": "section-link-preview",
+  "max_blocks": 40,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 480,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "label": "Max text width",
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 16,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size on desktop",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size on mobile",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "info": "Leave empty for a transparent background."
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#737373"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "gradient_from",
+      "label": "Gradient link start",
+      "default": "#a855f7"
+    },
+    {
+      "type": "color",
+      "id": "gradient_to",
+      "label": "Gradient link end",
+      "default": "#ec4899"
+    },
+    {
+      "type": "header",
+      "content": "Preview card"
+    },
+    {
+      "type": "range",
+      "id": "preview_width",
+      "min": 120,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "label": "Preview width",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "preview_height",
+      "min": 80,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "label": "Preview height",
+      "default": 125
+    },
+    {
+      "type": "select",
+      "id": "screenshot_scheme",
+      "label": "Live screenshot color scheme",
+      "options": [
+        { "value": "dark", "label": "Dark" },
+        { "value": "light", "label": "Light" }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_hover",
+      "label": "Card border on hover",
+      "default": "#e5e5e5"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Some text"
+        },
+        {
+          "type": "checkbox",
+          "id": "attach_to_previous",
+          "label": "No space before",
+          "info": "Turn on when the text starts with punctuation right after a link, like a comma.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "link",
+      "name": "Link with preview",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Link text",
+          "default": "this link"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "new_tab",
+          "label": "Open in a new tab",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Link style",
+          "options": [
+            { "value": "solid", "label": "Solid color" },
+            { "value": "gradient", "label": "Gradient" }
+          ],
+          "default": "solid"
+        },
+        {
+          "type": "checkbox",
+          "id": "bold",
+          "label": "Bold",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Preview"
+        },
+        {
+          "type": "select",
+          "id": "source",
+          "label": "Preview source",
+          "options": [
+            { "value": "live", "label": "Live screenshot of the link" },
+            { "value": "static", "label": "Image" }
+          ],
+          "default": "live",
+          "info": "Live screenshots come from Microlink and only work for public pages."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "image_url",
+          "label": "Image URL",
+          "info": "Used when no image is picked above."
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Image alt text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph_break",
+      "name": "Paragraph break",
+      "settings": []
+    }
+  ],
+  "presets": [
+    {
+      "name": "Link preview",
+      "blocks": [
+        { "type": "text", "settings": { "text": "Browse" } },
+        {
+          "type": "link",
+          "settings": {
+            "label": "the full catalog",
+            "link": "/collections/all",
+            "style": "gradient",
+            "source": "live"
+          }
+        },
+        { "type": "text", "settings": { "text": "for everything new this season." } },
+        { "type": "paragraph_break" },
+        { "type": "text", "settings": { "text": "I listen to" } },
+        {
+          "type": "link",
+          "settings": {
+            "label": "this playlist",
+            "link": "/collections/all",
+            "source": "static",
+            "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=60&auto=format&fit=crop",
+            "image_alt": "Headphones on a plain background"
+          }
+        },
+        { "type": "text", "settings": { "text": "and I watch" } },
+        {
+          "type": "link",
+          "settings": {
+            "label": "this movie",
+            "link": "/collections/all",
+            "source": "static",
+            "image_url": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=60&auto=format&fit=crop",
+            "image_alt": "Rows of red cinema seats"
+          }
+        },
+        { "type": "text", "settings": { "text": "twice a day." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
