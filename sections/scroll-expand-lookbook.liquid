@@ -1,0 +1,1659 @@
+{%- comment -%}
+  Scroll Expand Lookbook — single-file Shopify OS 2.0 section
+  As the visitor scrolls, a small framed image (arch, oval or rounded) grows to fill
+  the screen while a two-word headline splits apart around it. When fully open, a
+  caption, a rotating badge and shoppable product hotspots appear.
+  Markup, scoped CSS and vanilla JS are all in this file. No libraries.
+{%- endcomment -%}
+
+{%- liquid
+  assign s = section.settings
+  assign sid = 'SER-' | append: section.id
+
+  assign x0 = 100 | minus: s.start_width | divided_by: 2.0
+  assign y0 = 100 | minus: s.start_height | divided_by: 2.0
+  assign mx0 = 100 | minus: s.start_width_mobile | divided_by: 2.0
+  assign my0 = 100 | minus: s.start_height_mobile | divided_by: 2.0
+
+  case s.start_shape
+    when 'arch'
+      assign r_top = 999
+      assign r_bottom = s.start_radius
+    when 'oval'
+      assign r_top = 999
+      assign r_bottom = 999
+    else
+      assign r_top = s.start_radius
+      assign r_bottom = s.start_radius
+  endcase
+
+  assign overlay = s.overlay_opacity | divided_by: 100.0
+  assign headline_vw = s.headline_size | times: 100.0 | divided_by: 1440 | round: 2
+  assign caption_vw = s.caption_heading_size | times: 100.0 | divided_by: 1440 | round: 2
+
+  assign img_loading = 'lazy'
+  if section.index != nil and section.index <= 2
+    assign img_loading = 'eager'
+  endif
+
+  case s.caption_position
+    when 'bottom-center'
+      assign cap_align = 'center'
+    when 'bottom-right'
+      assign cap_align = 'right'
+    else
+      assign cap_align = 'left'
+  endcase
+-%}
+
+{%- if s.use_custom_font -%}
+  {%- style -%}
+    {{ s.headline_font | font_face: font_display: 'swap' }}
+    {%- assign headline_font_italic = s.headline_font | font_modify: 'style', 'italic' -%}
+    {%- if headline_font_italic -%}
+      {{ headline_font_italic | font_face: font_display: 'swap' }}
+    {%- endif -%}
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  #{{ sid }} {
+    --e: 0;
+    --er: 0;
+    --r: 0;
+    --ser-bg: {{ s.background }};
+    --ser-headline: {{ s.headline_color }};
+    --ser-muted: {{ s.muted_color }};
+    --ser-accent: {{ s.accent_color }};
+    --ser-caption: {{ s.caption_color }};
+    --ser-len: {{ s.scroll_length }}vh;
+    --ser-top: {{ s.sticky_offset }}px;
+    --ser-w0: {{ s.start_width }}%;
+    --ser-h0: {{ s.start_height }}%;
+    --ser-x0: {{ x0 }}%;
+    --ser-y0: {{ y0 }}%;
+    --ser-rt: {{ r_top }}px;
+    --ser-rb: {{ r_bottom }}px;
+    --ser-m: {{ s.end_inset }}px;
+    --ser-re: {{ s.end_radius }}px;
+    --ser-split: {{ s.split_distance }}vw;
+    --ser-ov: {{ overlay }};
+    --ser-headline-size: clamp({{ s.headline_size_mobile }}px, {{ headline_vw }}vw, {{ s.headline_size }}px);
+    --ser-caption-size: clamp({{ s.caption_heading_size | times: 0.62 | round }}px, {{ caption_vw }}vw, {{ s.caption_heading_size }}px);
+    --ser-dot: {{ s.hotspot_size }}px;
+    --ser-dot-bg: {{ s.hotspot_color }};
+    --ser-dot-icon: {{ s.hotspot_icon_color }};
+    --ser-pop-w: {{ s.popover_width }}px;
+    --ser-pop-bg: {{ s.popover_bg }};
+    --ser-pop-text: {{ s.popover_text }};
+    --ser-badge: {{ s.badge_size }}px;
+    --ser-badge-speed: {{ s.badge_speed }}s;
+    --ser-btn-bg: {{ s.button_bg }};
+    --ser-btn-text: {{ s.button_text_color }};
+    --ser-btn-radius: {{ s.button_radius }}px;
+    {%- if s.use_custom_font %}
+    --ser-font: {{ s.headline_font.family }}, {{ s.headline_font.fallback_families }};
+    {%- endif %}
+
+    position: relative;
+    display: block;
+    height: calc(var(--ser-len) + 100vh);
+    background: var(--ser-bg);
+    color: var(--ser-headline);
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ sid }} {
+      --ser-len: {{ s.scroll_length_mobile }}vh;
+      --ser-w0: {{ s.start_width_mobile }}%;
+      --ser-h0: {{ s.start_height_mobile }}%;
+      --ser-x0: {{ mx0 }}%;
+      --ser-y0: {{ my0 }}%;
+      --ser-split: {{ s.split_distance | times: 0.5 | round }}vh;
+      --ser-m: {{ s.end_inset | divided_by: 2 }}px;
+      --ser-badge: {{ s.badge_size | times: 0.7 | round }}px;
+    }
+  }
+
+  #{{ sid }}.is-static { height: auto; }
+  #{{ sid }}.is-forced { --e: 1 !important; --er: 1 !important; --r: 1 !important; }
+
+  #{{ sid }} *,
+  #{{ sid }} *::before,
+  #{{ sid }} *::after { box-sizing: border-box; }
+
+  /* ---------- Sticky stage ---------- */
+  #{{ sid }} .ser__stage {
+    position: sticky;
+    top: var(--ser-top);
+    height: calc(100vh - var(--ser-top));
+    height: calc(100svh - var(--ser-top));
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  #{{ sid }}.is-static .ser__stage {
+    position: relative;
+    top: 0;
+    height: {{ s.static_height }}vh;
+    min-height: 480px;
+  }
+
+  /* ---------- Expanding image ---------- */
+  #{{ sid }} .ser__frame {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    clip-path: inset(
+      calc(var(--ser-y0) * (1 - var(--e)) + var(--ser-m) * var(--e))
+      calc(var(--ser-x0) * (1 - var(--e)) + var(--ser-m) * var(--e))
+      round
+      calc(var(--ser-rt) * (1 - var(--er)) + var(--ser-re) * var(--er))
+      calc(var(--ser-rt) * (1 - var(--er)) + var(--ser-re) * var(--er))
+      calc(var(--ser-rb) * (1 - var(--er)) + var(--ser-re) * var(--er))
+      calc(var(--ser-rb) * (1 - var(--er)) + var(--ser-re) * var(--er))
+    );
+    will-change: clip-path;
+  }
+
+  #{{ sid }} .ser__media {
+    position: absolute;
+    inset: 0;
+    transform: scale(calc(1.3 - 0.3 * var(--e)));
+    will-change: transform;
+  }
+
+  #{{ sid }} .ser__media img,
+  #{{ sid }} .ser__media svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ s.image_focus }};
+  }
+
+  #{{ sid }} .ser__placeholder {
+    background: color-mix(in srgb, var(--ser-headline) 12%, var(--ser-bg));
+    fill: color-mix(in srgb, var(--ser-headline) 35%, transparent);
+  }
+
+  {%- if s.image_mobile != blank %}
+  #{{ sid }} .ser__img--mobile { display: none !important; }
+  @media screen and (max-width: 749px) {
+    #{{ sid }} .ser__img--desktop { display: none !important; }
+    #{{ sid }} .ser__img--mobile { display: block !important; }
+  }
+  {%- endif %}
+
+  #{{ sid }} .ser__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to top, {{ s.overlay_color }} 0%, color-mix(in srgb, {{ s.overlay_color }} 40%, transparent) 55%, transparent 100%);
+    opacity: calc(var(--ser-ov) * var(--r));
+  }
+
+  /* ---------- Split headline ---------- */
+  #{{ sid }} .ser__headline {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--ser-w0) minmax(0, 1fr);
+    align-items: center;
+    pointer-events: none;
+    {%- if s.headline_blend %}
+    mix-blend-mode: difference;
+    {%- endif %}
+  }
+
+  #{{ sid }} .ser__word {
+    display: block;
+    margin: 0;
+    padding-inline: clamp(0.75rem, 2vw, 2rem);
+    font-family: var(--ser-font, inherit);
+    font-size: var(--ser-headline-size);
+    font-weight: {{ s.headline_weight }};
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    color: {% if s.headline_blend %}#ffffff{% else %}var(--ser-headline){% endif %};
+    opacity: calc(1 - var(--e) * 1.5);
+    will-change: transform, opacity;
+    {%- if s.headline_uppercase %}
+    text-transform: uppercase;
+    {%- endif %}
+  }
+
+  #{{ sid }} .ser__word--left {
+    grid-column: 1;
+    justify-self: end;
+    transform: translateX(calc(var(--ser-split) * var(--e) * -1));
+  }
+
+  #{{ sid }} .ser__word--right {
+    grid-column: 3;
+    justify-self: start;
+    transform: translateX(calc(var(--ser-split) * var(--e)));
+    {%- if s.italic_second_word %}
+    font-style: italic;
+    {%- endif %}
+  }
+
+  #{{ sid }} .ser__eyebrow,
+  #{{ sid }} .ser__hint {
+    position: absolute;
+    left: 50%;
+    z-index: 3;
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ser-muted);
+    white-space: nowrap;
+    transform: translateX(-50%);
+    opacity: calc(1 - var(--e) * 3);
+    pointer-events: none;
+  }
+
+  #{{ sid }} .ser__eyebrow { top: calc(var(--ser-y0) / 2); transform: translate(-50%, -50%); }
+
+  #{{ sid }} .ser__hint {
+    bottom: calc(var(--ser-y0) / 2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    transform: translate(-50%, 50%);
+  }
+
+  #{{ sid }} .ser__hint-line {
+    position: relative;
+    display: block;
+    width: 1px;
+    height: 36px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--ser-muted) 30%, transparent);
+  }
+
+  #{{ sid }} .ser__hint-line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ser-headline);
+    animation: ser-hint 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  @keyframes ser-hint {
+    0% { transform: translateY(-100%); }
+    60%, 100% { transform: translateY(100%); }
+  }
+
+  /* ---------- Caption ---------- */
+  #{{ sid }} .ser__caption {
+    position: absolute;
+    z-index: 4;
+    bottom: clamp(1.5rem, 6vh, 4.5rem);
+    max-width: 34rem;
+    padding-inline: clamp(1.25rem, 5vw, 4.5rem);
+    color: var(--ser-caption);
+    text-align: {{ cap_align }};
+    opacity: var(--r);
+    transform: translateY(calc((1 - var(--r)) * 40px));
+    pointer-events: none;
+    {%- case s.caption_position -%}
+      {%- when 'bottom-center' %}
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, calc((1 - var(--r)) * 40px));
+      {%- when 'bottom-right' %}
+    right: 0;
+      {%- else %}
+    left: 0;
+    {%- endcase %}
+  }
+
+  #{{ sid }}.is-expanded .ser__caption { pointer-events: auto; }
+
+  {%- if s.caption_position == 'bottom-center' %}
+  #{{ sid }} .ser__caption > * { margin-inline: auto; }
+  {%- elsif s.caption_position == 'bottom-right' %}
+  #{{ sid }} .ser__caption > * { margin-left: auto; }
+  {%- endif %}
+
+  #{{ sid }} .ser__cap-eyebrow {
+    margin: 0 0 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  #{{ sid }} .ser__cap-heading {
+    margin: 0;
+    font-family: var(--ser-font, inherit);
+    font-size: var(--ser-caption-size);
+    font-weight: {{ s.headline_weight }};
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ser-caption);
+  }
+
+  #{{ sid }} .ser__cap-heading em,
+  #{{ sid }} .ser__cap-heading i { font-style: italic; color: var(--ser-accent); }
+
+  #{{ sid }} .ser__cap-text {
+    margin: 1rem 0 0;
+    max-width: 30rem;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    opacity: 0.88;
+  }
+
+  #{{ sid }} .ser__actions { margin-top: 1.75rem; }
+
+  #{{ sid }} .ser__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 1.05em 1.9em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ser-btn-text);
+    background: var(--ser-btn-bg);
+    border-radius: var(--ser-btn-radius);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease;
+    will-change: transform;
+  }
+
+  #{{ sid }} .ser__btn svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.35s ease;
+  }
+
+  #{{ sid }} .ser__btn:hover svg { transform: translateX(4px); }
+
+  #{{ sid }} .ser__btn:focus-visible,
+  #{{ sid }} .ser__dot:focus-visible,
+  #{{ sid }} .ser__badge:focus-visible {
+    outline: 2px solid var(--ser-accent);
+    outline-offset: 4px;
+  }
+
+  /* ---------- Rotating badge ---------- */
+  #{{ sid }} .ser__badge {
+    position: absolute;
+    z-index: 5;
+    width: var(--ser-badge);
+    height: var(--ser-badge);
+    display: grid;
+    place-items: center;
+    color: {{ s.badge_color }};
+    text-decoration: none;
+    opacity: var(--r);
+    transform: scale(calc(0.6 + 0.4 * var(--r))) rotate(calc((1 - var(--r)) * -90deg));
+    pointer-events: none;
+    {%- case s.badge_position -%}
+      {%- when 'top-left' %}
+    top: clamp(1rem, 5vh, 3rem); left: clamp(1rem, 4vw, 3rem);
+      {%- when 'bottom-right' %}
+    bottom: clamp(1rem, 5vh, 3rem); right: clamp(1rem, 4vw, 3rem);
+      {%- else %}
+    top: clamp(1rem, 5vh, 3rem); right: clamp(1rem, 4vw, 3rem);
+    {%- endcase %}
+  }
+
+  #{{ sid }}.is-expanded .ser__badge { pointer-events: auto; }
+
+  #{{ sid }} .ser__badge-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    animation: ser-spin var(--ser-badge-speed) linear infinite;
+  }
+
+  #{{ sid }} .ser__badge-ring text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    fill: currentColor;
+  }
+
+  #{{ sid }} .ser__badge-core {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 38%;
+    height: 38%;
+    border-radius: 50%;
+    background: var(--ser-accent);
+    color: #ffffff;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #{{ sid }} .ser__badge:hover .ser__badge-core { transform: scale(1.12) rotate(45deg); }
+  #{{ sid }} .ser__badge-core svg { width: 40%; height: 40%; }
+
+  @keyframes ser-spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Hotspots ---------- */
+  #{{ sid }} .ser__spots {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    opacity: var(--r);
+  }
+
+  #{{ sid }} .ser__spot {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    transform: translate(-50%, -50%);
+  }
+
+  #{{ sid }}.is-expanded .ser__spot { pointer-events: auto; }
+
+  #{{ sid }} .ser__dot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--ser-dot);
+    height: var(--ser-dot);
+    padding: 0;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    background: var(--ser-dot-bg);
+    color: var(--ser-dot-icon);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  #{{ sid }} .ser__dot::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 2px solid var(--ser-dot-bg);
+    {%- if s.hotspot_pulse %}
+    animation: ser-pulse 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    {%- endif %}
+  }
+
+  #{{ sid }} .ser__dot svg {
+    width: 45%;
+    height: 45%;
+    transition: transform 0.35s ease;
+  }
+
+  #{{ sid }} .ser__dot:hover { transform: scale(1.12); }
+  #{{ sid }} .ser__spot.is-open .ser__dot svg { transform: rotate(45deg); }
+
+  @keyframes ser-pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  #{{ sid }} .ser__pop {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 14px);
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: center;
+    gap: 0.85rem;
+    width: var(--ser-pop-w);
+    padding: 0.7rem;
+    color: var(--ser-pop-text);
+    background: var(--ser-pop-bg);
+    border-radius: 10px;
+    box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.45);
+    text-decoration: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%) scale(0.94);
+    transform-origin: left center;
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.35s;
+  }
+
+  #{{ sid }} .ser__spot--flip .ser__pop {
+    left: auto;
+    right: calc(100% + 14px);
+    transform-origin: right center;
+  }
+
+  #{{ sid }} .ser__spot.is-open .ser__pop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) scale(1);
+    transition-delay: 0s;
+  }
+
+  #{{ sid }} .ser__pop-img {
+    width: 64px;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--ser-pop-text) 8%, transparent);
+  }
+
+  #{{ sid }} .ser__pop-img img,
+  #{{ sid }} .ser__pop-img svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  #{{ sid }} .ser__pop-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #{{ sid }} .ser__pop-price {
+    display: block;
+    margin: 0.3rem 0 0;
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  #{{ sid }} .ser__pop-price s { margin-right: 0.4em; opacity: 0.6; }
+
+  #{{ sid }} .ser__pop-link {
+    display: inline-block;
+    margin-top: 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ser-pop-text);
+    text-underline-offset: 3px;
+  }
+
+  #{{ sid }} .ser__sr {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- Mobile ---------- */
+  @media screen and (max-width: 749px) {
+    #{{ sid }} .ser__headline {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr) var(--ser-h0) minmax(0, 1fr);
+      justify-items: center;
+    }
+
+    #{{ sid }} .ser__word { padding-block: 0.6rem; }
+
+    #{{ sid }} .ser__word--left {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: end;
+      justify-self: center;
+      transform: translateY(calc(var(--ser-split) * var(--e) * -1));
+    }
+
+    #{{ sid }} .ser__word--right {
+      grid-column: 1;
+      grid-row: 3;
+      align-self: start;
+      justify-self: center;
+      transform: translateY(calc(var(--ser-split) * var(--e)));
+    }
+
+    #{{ sid }} .ser__eyebrow { top: 1.5rem; transform: translateX(-50%); }
+    #{{ sid }} .ser__hint { display: none; }
+
+    #{{ sid }} .ser__caption,
+    #{{ sid }} .ser__caption[class] {
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-width: none;
+      padding-inline: 1.25rem;
+      text-align: {{ s.caption_align_mobile }};
+      transform: translateY(calc((1 - var(--r)) * 30px));
+    }
+
+    #{{ sid }} .ser__caption > * {
+      margin-inline: {% if s.caption_align_mobile == 'center' %}auto{% else %}0{% endif %};
+    }
+
+    #{{ sid }} .ser__spot { left: var(--mx); top: var(--my); }
+
+    #{{ sid }} .ser__spot .ser__pop {
+      left: calc(100% + 10px);
+      right: auto;
+      transform-origin: left center;
+    }
+
+    #{{ sid }} .ser__spot--mflip .ser__pop {
+      left: auto;
+      right: calc(100% + 10px);
+      transform-origin: right center;
+    }
+
+    #{{ sid }} .ser__pop { width: min(var(--ser-pop-w), 68vw); }
+  }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    #{{ sid }} .ser__badge-ring,
+    #{{ sid }} .ser__dot::before,
+    #{{ sid }} .ser__hint-line::after { animation: none !important; }
+    #{{ sid }} .ser__btn { transition: none !important; }
+  }
+{%- endstyle -%}
+
+<scroll-expand-lookbook
+  id="{{ sid }}"
+  class="ser"
+  data-section-id="{{ section.id }}"
+  data-animate="{{ s.enable_scroll_animation }}"
+  data-magnetic="{{ s.magnetic_button }}"
+>
+  <div class="ser__stage" data-ser-stage>
+    {%- comment -%} Expanding image {%- endcomment -%}
+    <div class="ser__frame">
+      <div class="ser__media">
+        {%- if s.image != blank -%}
+          {%- assign img_alt = s.image.alt | default: s.caption_heading | strip_html | escape -%}
+          {{
+            s.image
+            | image_url: width: 3000
+            | image_tag:
+              widths: '750, 1100, 1500, 2000, 2500, 3000',
+              sizes: '100vw',
+              loading: img_loading,
+              alt: img_alt,
+              class: 'ser__img--desktop'
+          }}
+        {%- else -%}
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'ser__placeholder ser__img--desktop' }}
+        {%- endif -%}
+        {%- if s.image_mobile != blank -%}
+          {%- assign img_m_alt = s.image_mobile.alt | default: s.caption_heading | strip_html | escape -%}
+          {{
+            s.image_mobile
+            | image_url: width: 1500
+            | image_tag:
+              widths: '500, 750, 1000, 1250, 1500',
+              sizes: '100vw',
+              loading: img_loading,
+              alt: img_m_alt,
+              class: 'ser__img--mobile'
+          }}
+        {%- endif -%}
+      </div>
+      <span class="ser__overlay" aria-hidden="true"></span>
+    </div>
+
+    {%- comment -%} Split headline + intro {%- endcomment -%}
+    {%- if s.eyebrow != blank -%}
+      <p class="ser__eyebrow" aria-hidden="true">{{ s.eyebrow | escape }}</p>
+    {%- endif -%}
+
+    <div class="ser__headline" aria-hidden="true">
+      {%- if s.word_left != blank -%}
+        <span class="ser__word ser__word--left">{{ s.word_left | escape }}</span>
+      {%- endif -%}
+      {%- if s.word_right != blank -%}
+        <span class="ser__word ser__word--right">{{ s.word_right | escape }}</span>
+      {%- endif -%}
+    </div>
+    <h2 class="ser__sr">{{ s.word_left | escape }} {{ s.word_right | escape }}</h2>
+
+    {%- if s.show_hint and s.hint_text != blank -%}
+      <div class="ser__hint" aria-hidden="true">
+        <span>{{ s.hint_text | escape }}</span>
+        <span class="ser__hint-line"></span>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Caption {%- endcomment -%}
+    {%- if s.caption_eyebrow != blank or s.caption_heading != blank or s.caption_text != blank or s.button_label != blank -%}
+      <div class="ser__caption">
+        {%- if s.caption_eyebrow != blank -%}
+          <p class="ser__cap-eyebrow">{{ s.caption_eyebrow | escape }}</p>
+        {%- endif -%}
+        {%- if s.caption_heading != blank -%}
+          <h3 class="ser__cap-heading">{{ s.caption_heading }}</h3>
+        {%- endif -%}
+        {%- if s.caption_text != blank -%}
+          <p class="ser__cap-text">{{ s.caption_text | escape }}</p>
+        {%- endif -%}
+        {%- if s.button_label != blank -%}
+          <div class="ser__actions">
+            <a class="ser__btn" href="{{ s.button_link | default: routes.all_products_collection_url }}" data-ser-magnetic>
+              <span>{{ s.button_label | escape }}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Rotating badge {%- endcomment -%}
+    {%- if s.show_badge and s.badge_text != blank -%}
+      {%- capture badge_inner -%}
+        <svg class="ser__badge-ring" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+          <defs>
+            <path id="{{ sid }}-ring" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/>
+          </defs>
+          <text><textPath href="#{{ sid }}-ring" textLength="486" lengthAdjust="spacingAndGlyphs">{{ s.badge_text | escape }}</textPath></text>
+        </svg>
+        <span class="ser__badge-core" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </span>
+      {%- endcapture -%}
+      {%- if s.badge_link != blank -%}
+        <a class="ser__badge" href="{{ s.badge_link }}" aria-label="{{ s.badge_text | escape }}">{{ badge_inner }}</a>
+      {%- else -%}
+        <div class="ser__badge" aria-hidden="true">{{ badge_inner }}</div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%} Shoppable hotspots {%- endcomment -%}
+    {%- if section.blocks.size > 0 -%}
+      <div class="ser__spots">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign b = block.settings
+            assign product = b.product
+            assign p_title = b.label | default: product.title | default: 'Product name'
+            assign spot_class = ''
+            if b.x > 55
+              assign spot_class = spot_class | append: ' ser__spot--flip'
+            endif
+            if b.x_mobile > 50
+              assign spot_class = spot_class | append: ' ser__spot--mflip'
+            endif
+            assign pop_id = sid | append: '-pop-' | append: forloop.index
+          -%}
+          <div
+            class="ser__spot{{ spot_class }}"
+            style="--x: {{ b.x }}%; --y: {{ b.y }}%; --mx: {{ b.x_mobile }}%; --my: {{ b.y_mobile }}%;"
+            data-ser-spot
+            data-block-id="{{ block.id }}"
+            {{ block.shopify_attributes }}
+          >
+            <button
+              type="button"
+              class="ser__dot"
+              data-ser-dot
+              aria-expanded="false"
+              aria-controls="{{ pop_id }}"
+              aria-label="Show {{ p_title | escape }}"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+
+            <a class="ser__pop" id="{{ pop_id }}" href="{{ product.url | default: '#' }}">
+              <span class="ser__pop-img">
+                {%- if product.featured_media != blank -%}
+                  {{
+                    product.featured_media
+                    | image_url: width: 240
+                    | image_tag: widths: '120, 180, 240', sizes: '64px', loading: 'lazy', alt: ''
+                  }}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag }}
+                {%- endif -%}
+              </span>
+              <span>
+                <span class="ser__pop-title">{{ p_title | escape }}</span>
+                <span class="ser__pop-price">
+                  {%- if product -%}
+                    {%- if product.compare_at_price > product.price -%}
+                      <s>{{ product.compare_at_price | money }}</s>
+                    {%- endif -%}
+                    {{ product.price | money }}
+                  {%- else -%}
+                    {{ 4900 | money }}
+                  {%- endif -%}
+                </span>
+                <span class="ser__pop-link">{{ s.popover_link_text | escape }}</span>
+              </span>
+            </a>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</scroll-expand-lookbook>
+
+<script>
+  (function () {
+    if (window.customElements.get('scroll-expand-lookbook')) return;
+
+    const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+    const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+    const EXPAND_END = 0.72; // share of the scroll used to open the image
+    const REVEAL_LEN = 0.2;  // share used to bring in caption, badge and hotspots
+
+    class ScrollExpandLookbook extends HTMLElement {
+      connectedCallback() {
+        if (this._init) return;
+        this._init = true;
+
+        this.stage = this.querySelector('[data-ser-stage]');
+        this.spots = Array.from(this.querySelectorAll('[data-ser-spot]'));
+        this.magnet = this.querySelector('[data-ser-magnetic]');
+        this.reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        this.fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+        this.expanded = false;
+        this.ticking = false;
+
+        this.ac = new AbortController();
+        const signal = this.ac.signal;
+
+        this.isStatic = this.reduce || this.dataset.animate === 'false';
+        if (this.isStatic) {
+          this.classList.add('is-static');
+          this.setProgress(1, 1, 1);
+        } else {
+          this.bindScroll(signal);
+        }
+
+        this.bindHotspots(signal);
+        if (this.magnet && this.dataset.magnetic === 'true' && !this.reduce) this.bindMagnet(signal);
+        this.bindEditor(signal);
+      }
+
+      disconnectedCallback() {
+        this._init = false;
+        if (this.ac) this.ac.abort();
+        if (this.io) this.io.disconnect();
+        clearTimeout(this.closeTimer);
+      }
+
+      /* ---------- Scroll-driven expansion ---------- */
+      bindScroll(signal) {
+        const onScroll = () => {
+          if (!this.near || this.ticking) return;
+          this.ticking = true;
+          requestAnimationFrame(() => {
+            this.ticking = false;
+            this.update();
+          });
+        };
+
+        if ('IntersectionObserver' in window) {
+          this.io = new IntersectionObserver((entries) => {
+            this.near = entries.some((e) => e.isIntersecting);
+            if (this.near) this.update();
+          }, { rootMargin: '200px 0px' });
+          this.io.observe(this);
+        } else {
+          this.near = true;
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true, signal });
+        window.addEventListener('resize', () => this.update(), { signal });
+        this.update();
+      }
+
+      update() {
+        const rect = this.getBoundingClientRect();
+        const stageH = this.stage.offsetHeight;
+        const top = parseFloat(getComputedStyle(this.stage).top) || 0;
+        const total = Math.max(1, this.offsetHeight - stageH);
+        const p = clamp((top - rect.top) / total, 0, 1);
+
+        const e = easeInOut(clamp(p / EXPAND_END, 0, 1));
+        const er = 1 - Math.pow(1 - e, 3);
+        const r = easeOut(clamp((p - EXPAND_END) / REVEAL_LEN, 0, 1));
+        this.setProgress(e, er, r);
+      }
+
+      setProgress(e, er, r) {
+        this.style.setProperty('--e', e.toFixed(4));
+        this.style.setProperty('--er', er.toFixed(4));
+        this.style.setProperty('--r', r.toFixed(4));
+        const expanded = r > 0.5 || this.classList.contains('is-forced');
+        if (expanded !== this.expanded) {
+          this.expanded = expanded;
+          this.classList.toggle('is-expanded', expanded);
+          if (!expanded) this.closeAll();
+        }
+      }
+
+      /* ---------- Hotspots ---------- */
+      bindHotspots(signal) {
+        this.spots.forEach((spot) => {
+          const dot = spot.querySelector('[data-ser-dot]');
+          if (!dot) return;
+
+          dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            spot.classList.contains('is-open') ? this.close(spot) : this.open(spot);
+          }, { signal });
+
+          spot.addEventListener('pointerenter', (e) => {
+            if (e.pointerType !== 'mouse' || !this.fine.matches || !this.expanded) return;
+            clearTimeout(this.closeTimer);
+            this.open(spot);
+          }, { signal });
+
+          spot.addEventListener('pointerleave', (e) => {
+            if (e.pointerType !== 'mouse' || !this.fine.matches) return;
+            this.closeTimer = setTimeout(() => this.close(spot), 220);
+          }, { signal });
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest || !e.target.closest('[data-ser-spot]')) this.closeAll();
+        }, { signal });
+
+        this.addEventListener('keydown', (e) => {
+          if (e.key !== 'Escape') return;
+          const open = this.spots.find((s) => s.classList.contains('is-open'));
+          if (open) {
+            this.close(open);
+            const dot = open.querySelector('[data-ser-dot]');
+            if (dot) dot.focus();
+          }
+        }, { signal });
+      }
+
+      open(spot) {
+        this.spots.forEach((s) => { if (s !== spot) this.close(s); });
+        spot.classList.add('is-open');
+        const dot = spot.querySelector('[data-ser-dot]');
+        if (dot) dot.setAttribute('aria-expanded', 'true');
+      }
+
+      close(spot) {
+        spot.classList.remove('is-open');
+        const dot = spot.querySelector('[data-ser-dot]');
+        if (dot) dot.setAttribute('aria-expanded', 'false');
+      }
+
+      closeAll() {
+        this.spots.forEach((s) => this.close(s));
+      }
+
+      /* ---------- Magnetic button ---------- */
+      bindMagnet(signal) {
+        const btn = this.magnet;
+        btn.addEventListener('pointermove', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          const r = btn.getBoundingClientRect();
+          const dx = e.clientX - (r.left + r.width / 2);
+          const dy = e.clientY - (r.top + r.height / 2);
+          btn.style.transform = 'translate(' + (dx * 0.25).toFixed(1) + 'px,' + (dy * 0.35).toFixed(1) + 'px)';
+        }, { signal });
+        btn.addEventListener('pointerleave', () => { btn.style.transform = ''; }, { signal });
+      }
+
+      /* ---------- Shopify Theme Editor ---------- */
+      bindEditor(signal) {
+        const mine = (e) => e.detail && e.detail.sectionId === this.dataset.sectionId;
+
+        document.addEventListener('shopify:block:select', (e) => {
+          if (!mine(e)) return;
+          this.classList.add('is-forced');
+          this.setProgress(1, 1, 1);
+          const spot = this.spots.find((s) => s.dataset.blockId === e.detail.blockId);
+          if (spot) this.open(spot);
+        }, { signal });
+
+        document.addEventListener('shopify:block:deselect', (e) => {
+          if (!mine(e)) return;
+          this.classList.remove('is-forced');
+          this.closeAll();
+          if (!this.isStatic) this.update();
+        }, { signal });
+      }
+    }
+
+    window.customElements.define('scroll-expand-lookbook', ScrollExpandLookbook);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Scroll expand lookbook",
+  "tag": "section",
+  "class": "section-scroll-expand-lookbook",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 6,
+  "settings": [
+    { "type": "header", "content": "Image" },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "A wide, high-resolution photo works best (2400px+)."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image (optional)",
+      "info": "A portrait photo for phones."
+    },
+    {
+      "type": "select",
+      "id": "image_focus",
+      "label": "Image focus",
+      "options": [
+        { "value": "center", "label": "Center" },
+        { "value": "top", "label": "Top" },
+        { "value": "bottom", "label": "Bottom" },
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#0e0d0b"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity when open",
+      "info": "Helps the caption stay readable.",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 55
+    },
+
+    { "type": "header", "content": "Starting frame" },
+    {
+      "type": "select",
+      "id": "start_shape",
+      "label": "Frame shape",
+      "options": [
+        { "value": "arch", "label": "Arch" },
+        { "value": "oval", "label": "Oval" },
+        { "value": "rounded", "label": "Rounded rectangle" }
+      ],
+      "default": "arch"
+    },
+    {
+      "type": "range",
+      "id": "start_radius",
+      "label": "Corner radius",
+      "info": "Used by the rectangle and by the bottom corners of the arch.",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "start_width",
+      "label": "Frame width (desktop)",
+      "min": 15,
+      "max": 70,
+      "step": 1,
+      "unit": "%",
+      "default": 26
+    },
+    {
+      "type": "range",
+      "id": "start_height",
+      "label": "Frame height (desktop)",
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "start_width_mobile",
+      "label": "Frame width (mobile)",
+      "min": 30,
+      "max": 90,
+      "step": 1,
+      "unit": "%",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "start_height_mobile",
+      "label": "Frame height (mobile)",
+      "min": 20,
+      "max": 70,
+      "step": 1,
+      "unit": "%",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "end_inset",
+      "label": "Space around image when open",
+      "info": "0 fills the whole screen.",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "end_radius",
+      "label": "Corner radius when open",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+
+    { "type": "header", "content": "Scroll animation" },
+    {
+      "type": "checkbox",
+      "id": "enable_scroll_animation",
+      "label": "Enable scroll animation",
+      "info": "When off, the section shows the fully open image. It's also off for visitors who prefer reduced motion.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "scroll_length",
+      "label": "Scroll distance (desktop)",
+      "info": "How far visitors scroll to fully open the image. Longer feels slower.",
+      "min": 80,
+      "max": 300,
+      "step": 10,
+      "unit": "vh",
+      "default": 160
+    },
+    {
+      "type": "range",
+      "id": "scroll_length_mobile",
+      "label": "Scroll distance (mobile)",
+      "min": 60,
+      "max": 240,
+      "step": 10,
+      "unit": "vh",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "static_height",
+      "label": "Section height when animation is off",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "sticky_offset",
+      "label": "Sticky header offset",
+      "info": "Set to your sticky header's height so it doesn't cover the image.",
+      "min": 0,
+      "max": 150,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+
+    { "type": "header", "content": "Split headline" },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Small text above",
+      "default": "Autumn / Winter 2026"
+    },
+    {
+      "type": "text",
+      "id": "word_left",
+      "label": "Left word (top on mobile)",
+      "default": "Quiet"
+    },
+    {
+      "type": "text",
+      "id": "word_right",
+      "label": "Right word (bottom on mobile)",
+      "default": "Luxury"
+    },
+    {
+      "type": "checkbox",
+      "id": "italic_second_word",
+      "label": "Italic second word",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "headline_uppercase",
+      "label": "Uppercase headline",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "headline_size",
+      "label": "Headline size (desktop)",
+      "min": 40,
+      "max": 220,
+      "step": 4,
+      "unit": "px",
+      "default": 148
+    },
+    {
+      "type": "range",
+      "id": "headline_size_mobile",
+      "label": "Headline size (mobile)",
+      "min": 28,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "select",
+      "id": "headline_weight",
+      "label": "Headline weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "split_distance",
+      "label": "Split distance",
+      "info": "How far the words travel apart as the image opens.",
+      "min": 10,
+      "max": 80,
+      "step": 2,
+      "unit": "vw",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "headline_blend",
+      "label": "Inverted headline over image",
+      "info": "Words invert their color where they cross the image.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_hint",
+      "label": "Show scroll hint",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "hint_text",
+      "label": "Scroll hint text",
+      "default": "Scroll"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_font",
+      "label": "Use custom font",
+      "info": "Off uses your theme's heading font. Elegant serifs such as Cormorant, Playfair Display or Bodoni Moda look premium here.",
+      "default": false
+    },
+    {
+      "type": "font_picker",
+      "id": "headline_font",
+      "label": "Font",
+      "default": "assistant_n4"
+    },
+
+    { "type": "header", "content": "Caption (appears when open)" },
+    {
+      "type": "text",
+      "id": "caption_eyebrow",
+      "label": "Small text",
+      "default": "The new collection"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "caption_heading",
+      "label": "Heading",
+      "info": "Italic words use the accent color.",
+      "default": "Crafted to be <em>worn for years</em>"
+    },
+    {
+      "type": "textarea",
+      "id": "caption_text",
+      "label": "Text",
+      "default": "Cashmere, wool and silk in a softened palette. Pieces made slowly, in small runs."
+    },
+    {
+      "type": "select",
+      "id": "caption_position",
+      "label": "Position",
+      "options": [
+        { "value": "bottom-left", "label": "Bottom left" },
+        { "value": "bottom-center", "label": "Bottom center" },
+        { "value": "bottom-right", "label": "Bottom right" }
+      ],
+      "default": "bottom-left"
+    },
+    {
+      "type": "select",
+      "id": "caption_align_mobile",
+      "label": "Mobile alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "caption_heading_size",
+      "label": "Heading size",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Explore the collection"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "checkbox",
+      "id": "magnetic_button",
+      "label": "Magnetic button effect",
+      "info": "The button gently follows the cursor on desktop.",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background",
+      "default": "#f4efe7"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#14120f"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button corner radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 50
+    },
+
+    { "type": "header", "content": "Rotating badge" },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "info": "Short text with separators reads best, e.g. NEW IN • SHOP NOW •",
+      "default": "New season • Shop the edit • "
+    },
+    {
+      "type": "url",
+      "id": "badge_link",
+      "label": "Badge link"
+    },
+    {
+      "type": "select",
+      "id": "badge_position",
+      "label": "Position",
+      "options": [
+        { "value": "top-right", "label": "Top right" },
+        { "value": "top-left", "label": "Top left" },
+        { "value": "bottom-right", "label": "Bottom right" }
+      ],
+      "default": "top-right"
+    },
+    {
+      "type": "range",
+      "id": "badge_size",
+      "label": "Size",
+      "min": 80,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 132
+    },
+    {
+      "type": "range",
+      "id": "badge_speed",
+      "label": "Rotation time",
+      "info": "Seconds per turn. Lower is faster.",
+      "min": 6,
+      "max": 40,
+      "step": 1,
+      "unit": "s",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge text color",
+      "default": "#f4efe7"
+    },
+
+    { "type": "header", "content": "Product hotspots" },
+    {
+      "type": "paragraph",
+      "content": "Add Hotspot blocks to tag products on the image. Hotspots appear once the image is fully open."
+    },
+    {
+      "type": "range",
+      "id": "hotspot_size",
+      "label": "Dot size",
+      "min": 14,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "hotspot_pulse",
+      "label": "Pulsing ring",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Dot color",
+      "default": "#f4efe7"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_icon_color",
+      "label": "Dot icon color",
+      "default": "#14120f"
+    },
+    {
+      "type": "range",
+      "id": "popover_width",
+      "label": "Product card width",
+      "min": 200,
+      "max": 320,
+      "step": 10,
+      "unit": "px",
+      "default": 260
+    },
+    {
+      "type": "color",
+      "id": "popover_bg",
+      "label": "Product card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "popover_text",
+      "label": "Product card text",
+      "default": "#14120f"
+    },
+    {
+      "type": "text",
+      "id": "popover_link_text",
+      "label": "Product card link text",
+      "default": "View product"
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#f4efe7"
+    },
+    {
+      "type": "color",
+      "id": "headline_color",
+      "label": "Headline",
+      "default": "#14120f"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Small text",
+      "default": "#7d7468"
+    },
+    {
+      "type": "color",
+      "id": "caption_color",
+      "label": "Caption text",
+      "default": "#f4efe7"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#c9a27a"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "hotspot",
+      "name": "Hotspot",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Custom title",
+          "info": "Leave empty to use the product name."
+        },
+        {
+          "type": "header",
+          "content": "Desktop position"
+        },
+        {
+          "type": "range",
+          "id": "x",
+          "label": "Horizontal",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y",
+          "label": "Vertical",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "Mobile position"
+        },
+        {
+          "type": "range",
+          "id": "x_mobile",
+          "label": "Horizontal",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y_mobile",
+          "label": "Vertical",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scroll expand lookbook",
+      "blocks": [
+        {
+          "type": "hotspot",
+          "settings": { "x": 44, "y": 38, "x_mobile": 40, "y_mobile": 34 }
+        },
+        {
+          "type": "hotspot",
+          "settings": { "x": 62, "y": 58, "x_mobile": 62, "y_mobile": 52 }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
