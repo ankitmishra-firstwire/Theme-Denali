@@ -4,13 +4,9 @@
   Port of the React/Next.js <LinkPreview /> component (Radix HoverCard +
   Framer Motion) to a self-contained Shopify section.
 
-  - Inline links that show a floating screenshot card on hover.
-  - "Live" previews use the Microlink screenshot API (same params as the
-    original component). "Static" previews use a picked image or an image URL.
-  - Cursor-following spring on the card (stiffness 100, damping 15).
-  - Spring pop-in animation, flips below the link if there is no room above.
-  - Keyboard focus support, Escape to close, prefers-reduced-motion respected.
-  - Touch devices: no hover card, the link simply navigates.
+  Typography: no font-family, font-style or font-weight is defined here.
+  Everything inherits the theme fonts (Theme settings > Typography).
+  Sizes, spacing and colors are all controlled from the section settings.
 
   File: sections/link-preview.liquid
 {%- endcomment -%}
@@ -22,30 +18,89 @@
   assign shot_w = preview_w | times: 3
   assign shot_h = preview_h | times: 3
   assign img_w = preview_w | times: 2
+
+  assign line_height = section.settings.line_height | divided_by: 100.0
+  assign letter_spacing = section.settings.letter_spacing | divided_by: 100.0
+
+  case section.settings.link_underline
+    when 'always'
+      assign ul = 'underline'
+      assign ul_hover = 'underline'
+    when 'hover'
+      assign ul = 'none'
+      assign ul_hover = 'underline'
+    else
+      assign ul = 'none'
+      assign ul_hover = 'none'
+  endcase
+
+  assign media_radius = section.settings.card_radius | minus: section.settings.card_padding | minus: section.settings.card_border_width | at_least: 0
 -%}
 
 {% style %}
   .lp-section--{{ sid }} {
     --lp-max-width: {{ section.settings.max_width }}px;
     --lp-align: {{ section.settings.alignment }};
-    --lp-fs: {{ section.settings.font_size }}px;
-    --lp-fs-mobile: {{ section.settings.font_size_mobile }}px;
+    --lp-pad-x: {{ section.settings.padding_x }}px;
     --lp-pt: {{ section.settings.padding_top }}px;
     --lp-pb: {{ section.settings.padding_bottom }}px;
+    --lp-pt-mobile: {{ section.settings.padding_top_mobile }}px;
+    --lp-pb-mobile: {{ section.settings.padding_bottom_mobile }}px;
+
+    --lp-fs: {{ section.settings.font_size }}px;
+    --lp-fs-mobile: {{ section.settings.font_size_mobile }}px;
+    --lp-lh: {{ line_height }};
+    --lp-ls: {{ letter_spacing }}em;
+    --lp-p-gap: {{ section.settings.paragraph_spacing }}px;
+    --lp-heading-gap: {{ section.settings.heading_spacing }}px;
+
     --lp-text: {{ section.settings.text_color }};
     --lp-link: {{ section.settings.link_color }};
+    --lp-link-hover: {{ section.settings.link_hover_color }};
     --lp-from: {{ section.settings.gradient_from }};
     --lp-to: {{ section.settings.gradient_to }};
+    --lp-link-weight: {{ section.settings.link_weight }};
+    --lp-ul: {{ ul }};
+    --lp-ul-hover: {{ ul_hover }};
+    --lp-ul-thickness: {{ section.settings.underline_thickness }}px;
+    --lp-ul-offset: {{ section.settings.underline_offset }}px;
+    {%- if section.settings.heading_color != blank %}
+    --lp-heading-color: {{ section.settings.heading_color }};
+    {%- endif %}
     {%- if section.settings.background != blank %}
     --lp-bg: {{ section.settings.background }};
     {%- endif %}
   }
 
+  {%- if section.settings.custom_heading_size %}
+  .lp-section--{{ sid }} .lp-section__heading {
+    font-size: {{ section.settings.heading_size_mobile }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .lp-section--{{ sid }} .lp-section__heading {
+      font-size: {{ section.settings.heading_size }}px;
+    }
+  }
+  {%- endif %}
+
   .lp-card--{{ sid }} {
     --lp-w: {{ preview_w }}px;
     --lp-ratio: {{ preview_w }} / {{ preview_h }};
     --lp-card-bg: {{ section.settings.card_background }};
+    --lp-card-fg: {{ section.settings.card_text }};
     --lp-card-border-hover: {{ section.settings.card_border_hover }};
+    --lp-skeleton: {{ section.settings.skeleton_color }};
+    --lp-card-radius: {{ section.settings.card_radius }}px;
+    --lp-card-pad: {{ section.settings.card_padding }}px;
+    --lp-card-border: {{ section.settings.card_border_width }}px;
+    --lp-media-radius: {{ media_radius }}px;
+    {%- if section.settings.card_shadow %}
+    --lp-card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.12);
+    --lp-card-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    {%- else %}
+    --lp-card-shadow: none;
+    --lp-card-shadow-sm: none;
+    {%- endif %}
   }
 {% endstyle %}
 
@@ -104,9 +159,6 @@
               if block.settings.style == 'gradient'
                 assign trigger_classes = trigger_classes | append: ' lp-trigger--gradient'
               endif
-              if block.settings.bold
-                assign trigger_classes = trigger_classes | append: ' lp-trigger--bold'
-              endif
             -%}
 
             {%- capture preview_src -%}
@@ -118,8 +170,8 @@
             {%- endcapture -%}
 
             {%- if need_space -%}{{ ' ' }}{%- endif -%}
-            {%- comment -%} Everything here is inline <span>s: a <div> inside <p> would break the paragraph. Tags are kept adjacent so no stray spaces appear around the link. {%- endcomment -%}
-            <hover-link-preview class="lp" data-open-delay="50" data-close-delay="100" {{ block.shopify_attributes }}><a href="{{ href }}" class="{{ trigger_classes }}"{% if block.settings.new_tab %} target="_blank" rel="noopener"{% endif %}>{{ label | escape }}</a><span class="lp-card lp-card--{{ sid }}" hidden aria-hidden="true">
+            {%- comment -%} Only inline <span>s here: a <div> inside <p> would break the paragraph. Tags stay adjacent so no stray spaces appear around the link. {%- endcomment -%}
+            <hover-link-preview class="lp" data-open-delay="{{ section.settings.open_delay }}" data-close-delay="{{ section.settings.close_delay }}" data-offset="{{ section.settings.card_offset }}" {{ block.shopify_attributes }}><a href="{{ href }}" class="{{ trigger_classes }}"{% if block.settings.new_tab %} target="_blank" rel="noopener"{% endif %}>{{ label | escape }}</a><span class="lp-card lp-card--{{ sid }}" hidden aria-hidden="true">
                 <span class="lp-card__spring">
                   <span class="lp-card__pop">
                     <a href="{{ href }}" class="lp-card__link" tabindex="-1"{% if block.settings.new_tab %} target="_blank" rel="noopener"{% endif %}>
@@ -146,9 +198,11 @@
 </div>
 
 {% stylesheet %}
+  /* No font-family, font-style or fixed font-weight anywhere: all typography inherits the theme. */
+
   .lp-section {
     background: var(--lp-bg, transparent);
-    padding: var(--lp-pt) 1.25rem var(--lp-pb);
+    padding: var(--lp-pt-mobile) var(--lp-pad-x) var(--lp-pb-mobile);
   }
 
   .lp-section__inner {
@@ -157,14 +211,16 @@
   }
 
   .lp-section__heading {
-    margin: 0 0 0.75em;
+    margin: 0 0 var(--lp-heading-gap);
+    color: var(--lp-heading-color, inherit);
     text-align: var(--lp-align);
   }
 
   .lp-paragraph {
-    margin: 0 0 1.25em;
+    margin: 0 0 var(--lp-p-gap);
     font-size: var(--lp-fs-mobile);
-    line-height: 1.4;
+    line-height: var(--lp-lh);
+    letter-spacing: var(--lp-ls);
     color: var(--lp-text);
     text-align: var(--lp-align);
   }
@@ -178,6 +234,11 @@
   }
 
   @media screen and (min-width: 750px) {
+    .lp-section {
+      padding-top: var(--lp-pt);
+      padding-bottom: var(--lp-pb);
+    }
+
     .lp-paragraph {
       font-size: var(--lp-fs);
     }
@@ -189,21 +250,29 @@
 
   .lp-trigger {
     color: var(--lp-link);
-    text-decoration: none;
+    font-weight: var(--lp-link-weight, inherit);
+    text-decoration-line: var(--lp-ul, none);
+    text-decoration-thickness: var(--lp-ul-thickness);
+    text-underline-offset: var(--lp-ul-offset);
+    text-decoration-color: currentColor;
     border-radius: 2px;
     cursor: pointer;
+    transition: color 0.2s ease;
   }
 
-  .lp-trigger--bold {
-    font-weight: 700;
+  .lp-trigger:hover {
+    color: var(--lp-link-hover);
+    text-decoration-line: var(--lp-ul-hover, none);
   }
 
-  .lp-trigger--gradient {
+  .lp-trigger--gradient,
+  .lp-trigger--gradient:hover {
     background-image: linear-gradient(to bottom right, var(--lp-from), var(--lp-to));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
+    text-decoration-color: var(--lp-from);
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
@@ -243,8 +312,8 @@
   /* Closed state + exit transition */
   .lp-card__pop {
     display: block;
-    border-radius: 12px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.12);
+    border-radius: var(--lp-card-radius);
+    box-shadow: var(--lp-card-shadow);
     opacity: 0;
     transform: translateY(20px) scale(0.6);
     transform-origin: 50% 100%;
@@ -265,11 +334,11 @@
 
   .lp-card__link {
     display: block;
-    padding: 4px;
+    padding: var(--lp-card-pad);
     background: var(--lp-card-bg);
-    border: 2px solid transparent;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    border: var(--lp-card-border) solid transparent;
+    border-radius: var(--lp-card-radius);
+    box-shadow: var(--lp-card-shadow-sm);
     font-size: 0;
     line-height: 0;
     transition: border-color 0.2s ease;
@@ -284,15 +353,22 @@
     display: block;
     width: min(var(--lp-w), calc(100vw - 32px));
     aspect-ratio: var(--lp-ratio);
-    border-radius: 8px;
+    border-radius: var(--lp-media-radius);
     overflow: hidden;
-    background: linear-gradient(100deg, #ececec 30%, #f7f7f7 50%, #ececec 70%);
+    background-color: var(--lp-skeleton);
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 70%
+    );
     background-size: 300% 100%;
     animation: lp-shimmer 1.4s linear infinite;
   }
 
   .lp-card.is-loaded .lp-card__media,
   .lp-card.is-error .lp-card__media {
+    background-image: none;
     animation: none;
   }
 
@@ -316,8 +392,9 @@
     align-items: center;
     justify-content: center;
     padding: 8px;
-    font: 500 12px/1.3 system-ui, -apple-system, 'Segoe UI', sans-serif;
-    color: #737373;
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--lp-card-fg);
     text-align: center;
   }
 
@@ -434,6 +511,7 @@
           this.springEl = this.card.querySelector('.lp-card__spring');
           this.openDelay = Number(this.dataset.openDelay ?? 50);
           this.closeDelay = Number(this.dataset.closeDelay ?? 100);
+          this.gap = Number(this.dataset.offset ?? 10);
           this.spring = new Spring({ stiffness: 100, damping: 15 }, (v) => {
             this.springEl.style.transform = `translate3d(${v}px, 0, 0)`;
           });
@@ -477,8 +555,7 @@
         document.removeEventListener('shopify:block:deselect', this.onBlockDeselect);
       }
 
-      /* Preload the image when the link nears the viewport
-         (the original preloads on mount, which spends Microlink requests for links nobody sees) */
+      /* Preload the image when the link nears the viewport */
       observePreload() {
         if (this.loaded) return;
         if (!('IntersectionObserver' in window)) {
@@ -579,7 +656,7 @@
         const ch = this.card.offsetHeight;
         const vw = document.documentElement.clientWidth;
         const vh = window.innerHeight;
-        const gap = 10;
+        const gap = this.gap;
         const pad = 8;
 
         let side = 'top';
@@ -646,13 +723,12 @@
   "max_blocks": 40,
   "settings": [
     {
-      "type": "header",
-      "content": "Layout"
+      "type": "paragraph",
+      "content": "Fonts come from your theme. Change them in Theme settings > Typography."
     },
     {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading"
+      "type": "header",
+      "content": "Layout"
     },
     {
       "type": "select",
@@ -660,7 +736,8 @@
       "label": "Text alignment",
       "options": [
         { "value": "left", "label": "Left" },
-        { "value": "center", "label": "Center" }
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
       ],
       "default": "left"
     },
@@ -671,27 +748,17 @@
       "max": 1400,
       "step": 20,
       "unit": "px",
-      "label": "Max text width",
+      "label": "Max content width",
       "default": 800
     },
     {
       "type": "range",
-      "id": "font_size",
-      "min": 16,
-      "max": 48,
-      "step": 1,
+      "id": "padding_x",
+      "min": 0,
+      "max": 80,
+      "step": 4,
       "unit": "px",
-      "label": "Font size on desktop",
-      "default": 30
-    },
-    {
-      "type": "range",
-      "id": "font_size_mobile",
-      "min": 14,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "label": "Font size on mobile",
+      "label": "Side padding",
       "default": 20
     },
     {
@@ -701,7 +768,7 @@
       "max": 160,
       "step": 4,
       "unit": "px",
-      "label": "Top padding",
+      "label": "Top padding on desktop",
       "default": 64
     },
     {
@@ -711,8 +778,178 @@
       "max": 160,
       "step": 4,
       "unit": "px",
-      "label": "Bottom padding",
+      "label": "Bottom padding on desktop",
       "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding on mobile",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding on mobile",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "custom_heading_size",
+      "label": "Use custom heading size",
+      "info": "When off, the heading uses your theme's heading size.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 16,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size on desktop",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 14,
+      "max": 56,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size on mobile",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Space below heading",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size on desktop",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 12,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size on mobile",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "line_height",
+      "min": 100,
+      "max": 200,
+      "step": 5,
+      "unit": "%",
+      "label": "Line height",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": -5,
+      "max": 20,
+      "step": 1,
+      "unit": "%",
+      "label": "Letter spacing",
+      "info": "Percent of the text size.",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "paragraph_spacing",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Space between paragraphs",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Links"
+    },
+    {
+      "type": "select",
+      "id": "link_weight",
+      "label": "Link weight",
+      "options": [
+        { "value": "inherit", "label": "Same as text" },
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "inherit",
+      "info": "Uses your theme font. Pick a weight your font includes."
+    },
+    {
+      "type": "select",
+      "id": "link_underline",
+      "label": "Underline",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "hover", "label": "On hover" },
+        { "value": "always", "label": "Always" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "underline_thickness",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Underline thickness",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "underline_offset",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Underline offset",
+      "default": 3
     },
     {
       "type": "header",
@@ -726,6 +963,12 @@
     },
     {
       "type": "color",
+      "id": "heading_color",
+      "label": "Heading",
+      "info": "Leave empty to use the theme color."
+    },
+    {
+      "type": "color",
       "id": "text_color",
       "label": "Text",
       "default": "#737373"
@@ -735,6 +978,12 @@
       "id": "link_color",
       "label": "Link",
       "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "link_hover_color",
+      "label": "Link on hover",
+      "default": "#404040"
     },
     {
       "type": "color",
@@ -759,7 +1008,8 @@
       "max": 400,
       "step": 10,
       "unit": "px",
-      "label": "Preview width",
+      "label": "Image width",
+      "info": "Shrinks automatically on small screens.",
       "default": 200
     },
     {
@@ -769,8 +1019,74 @@
       "max": 300,
       "step": 5,
       "unit": "px",
-      "label": "Preview height",
+      "label": "Image height",
       "default": 125
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Corner radius",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "card_border_width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Hover border width",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "card_offset",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Distance from link",
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "card_shadow",
+      "label": "Show shadow",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "open_delay",
+      "min": 0,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "label": "Open delay",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "close_delay",
+      "min": 0,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "label": "Close delay",
+      "default": 100
     },
     {
       "type": "select",
@@ -793,6 +1109,19 @@
       "id": "card_border_hover",
       "label": "Card border on hover",
       "default": "#e5e5e5"
+    },
+    {
+      "type": "color",
+      "id": "card_text",
+      "label": "Card message text",
+      "info": "Shown when a preview can't load.",
+      "default": "#737373"
+    },
+    {
+      "type": "color",
+      "id": "skeleton_color",
+      "label": "Loading placeholder",
+      "default": "#ececec"
     }
   ],
   "blocks": [
@@ -839,18 +1168,12 @@
         {
           "type": "select",
           "id": "style",
-          "label": "Link style",
+          "label": "Link color style",
           "options": [
             { "value": "solid", "label": "Solid color" },
             { "value": "gradient", "label": "Gradient" }
           ],
           "default": "solid"
-        },
-        {
-          "type": "checkbox",
-          "id": "bold",
-          "label": "Bold",
-          "default": true
         },
         {
           "type": "header",
