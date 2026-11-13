@@ -401,6 +401,70 @@
         "padding_bottom": 40
       }
     },
+    "collection_bento": {
+      "type": "collection-bento",
+      "blocks": {
+        "card_1": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "t-shirts",
+            "title": "T Shirts",
+            "link": "",
+            "card_size": "large",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_2": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "dresses",
+            "title": "Dresses",
+            "link": "",
+            "card_size": "normal",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_3": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "shirts",
+            "title": "Shirts",
+            "link": "",
+            "card_size": "normal",
+            "text_position": "bottom-left"
+          }
+        },
+        "card_4": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "jackets",
+            "title": "Jackets",
+            "link": "",
+            "card_size": "wide",
+            "text_position": "bottom-left"
+          }
+        }
+      },
+      "block_order": [
+        "card_1",
+        "card_2",
+        "card_3",
+        "card_4"
+      ],
+      "settings": {
+        "heading": "Shop by collection",
+        "description": "<p>Explore our collections and find your favorites.</p>",
+        "layout": "classic",
+        "columns": 4,
+        "gap": 16,
+        "show_overlay": true,
+        "show_product_count": false,
+        "show_arrow": true,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "color_scheme": ""
+      }
+    },
     "titled_grid_hero_hRJjVk": {
       "type": "titled-grid-hero",
       "blocks": {
@@ -856,70 +920,6 @@
         "autoplay": true,
         "slide_interval": 6,
         "color_scheme": "scheme-3"
-      }
-    },
-    "collection_bento": {
-      "type": "collection-bento",
-      "blocks": {
-        "card_1": {
-          "type": "collection_card",
-          "settings": {
-            "collection": "t-shirts",
-            "title": "T Shirts",
-            "link": "",
-            "card_size": "large",
-            "text_position": "bottom-left"
-          }
-        },
-        "card_2": {
-          "type": "collection_card",
-          "settings": {
-            "collection": "dresses",
-            "title": "Dresses",
-            "link": "",
-            "card_size": "normal",
-            "text_position": "bottom-left"
-          }
-        },
-        "card_3": {
-          "type": "collection_card",
-          "settings": {
-            "collection": "shirts",
-            "title": "Shirts",
-            "link": "",
-            "card_size": "normal",
-            "text_position": "bottom-left"
-          }
-        },
-        "card_4": {
-          "type": "collection_card",
-          "settings": {
-            "collection": "jackets",
-            "title": "Jackets",
-            "link": "",
-            "card_size": "wide",
-            "text_position": "bottom-left"
-          }
-        }
-      },
-      "block_order": [
-        "card_1",
-        "card_2",
-        "card_3",
-        "card_4"
-      ],
-      "settings": {
-        "heading": "Shop by collection",
-        "description": "<p>Explore our collections and find your favorites.</p>",
-        "layout": "classic",
-        "columns": 4,
-        "gap": 16,
-        "show_overlay": true,
-        "show_product_count": false,
-        "show_arrow": true,
-        "padding_top": 48,
-        "padding_bottom": 48,
-        "color_scheme": ""
       }
     },
     "featured_product": {
@@ -1670,10 +1670,10 @@
     "featured_collection",
     "ferris_wheel_gallery_DfdeLM",
     "titled_grid_hero_hRJjVk",
+    "collection_bento",
     "scroll_morph_hero_3prAnb",
     "grid_features_card_gY4nYg",
     "slideshow",
-    "collection_bento",
     "featured_product",
     "hotspots",
     "collection_carousel_fVVH8k",
