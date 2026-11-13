@@ -31,6 +31,7 @@
         "slide_WyUK3D": {
           "type": "slide",
           "settings": {
+            "image": "shopify://shop_images/banner2.jpg",
             "alt": "",
             "chapter": "Collection 03",
             "title": "New Season, New Style",
