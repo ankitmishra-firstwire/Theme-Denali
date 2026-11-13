@@ -15,8 +15,6 @@
         "slide_XiD7hG": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/Autumn_Editorial_Walk_Through_the_Marsh.png",
-            "image_mobile": "shopify://shop_images/Autumn_Editorial_Walk_Through_the_Marsh.png",
             "alt": "",
             "chapter": "Collection 01",
             "title": "Effortless Elegance",
@@ -32,8 +30,6 @@
         "slide_WyUK3D": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/Dreamy_Meadow_Fashion_Editorial.png",
-            "image_mobile": "shopify://shop_images/Dreamy_Meadow_Fashion_Editorial.png",
             "alt": "",
             "chapter": "Collection 03",
             "title": "New Season, New Style",
@@ -49,8 +45,6 @@
         "slide_CEfzyA": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
-            "image_mobile": "shopify://shop_images/Sunlit_Boho_Trio_Beneath_Blue_Skies.png",
             "alt": "",
             "chapter": "Collection 02",
             "title": "Style Your Story",
@@ -126,9 +120,7 @@
             "tag": "$36",
             "description": "A men's regular-fit crew neck t-shirt in a stone beige tone, made from 100% combed cotton jersey. The fit sits close to the body without being tight, with straight side seams, a set-in sleeve construction, and short sleeves that end at the mid-bicep.",
             "details": "",
-            "link": "",
-            "image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt.png",
-            "side_image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_438fcd30-b143-4d43-8376-509767e9ae67.png"
+            "link": ""
           }
         },
         "garment_QtMW3f": {
@@ -139,9 +131,7 @@
             "tag": "$44",
             "description": "A unisex relaxed-fit t-shirt in a faded washed black, made from mid-weight cotton jersey with an enzyme-washed vintage finish that softens the fabric surface and slightly mutes the base color.",
             "details": "220 gsm, Boat neck, Long sleeve",
-            "link": "",
-            "image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_8feacab9-623c-4985-921c-0c094035cde6.png",
-            "side_image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_48e83125-c2c4-43cc-a7d7-58750596b84f.png"
+            "link": ""
           }
         },
         "garment_7VP6EV": {
@@ -152,9 +142,7 @@
             "tag": "$38",
             "description": "A women's fitted crop t-shirt in cream ivory, constructed from a stretch ribbed cotton-elastane blend. The silhouette is slim and body-skimming with a cropped hem that sits at the natural waist, narrow set-in short sleeves, and a fitted, high crew neckline with a narrow ribbed trim.",
             "details": "240 gsm, Regular fit, Screen print",
-            "link": "",
-            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_3fce5b10-c7aa-416a-ad8f-c567249626ec.png",
-            "side_image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_19f3d5e0-cc44-490c-aeec-946ec2697a7c.png"
+            "link": ""
           }
         },
         "garment_DPrtka": {
@@ -165,9 +153,7 @@
             "tag": "$168",
             "description": "A women's regular-fit puffer jacket in burgundy, made from a matte nylon shell with synthetic down-alternative fill. The silhouette is structured with a fitted waist and slightly puffed body from horizontal box-quilted channels running evenly across the front, back, and sleeves.",
             "details": "Oxford cotton, Button-down collar, Chest pocket",
-            "link": "",
-            "image": "shopify://shop_images/womens-burgundy-puffer-jacket_9dae85e3-ca25-4570-9a82-7c7228995f1e.png",
-            "side_image": "shopify://shop_images/womens-burgundy-puffer-jacket_701e0dfb-898f-436f-a690-42c6d68bcf9a.png"
+            "link": ""
           }
         },
         "garment_tdArkj": {
@@ -178,9 +164,7 @@
             "tag": "$188",
             "description": "A men's tailored-fit overcoat in camel stone beige, made from a heavyweight wool-polyester blend. The silhouette is structured and knee-length with a notched lapel collar, a single-breasted front closing with three matte horn-style buttons, and set-in sleeves finished with a clean, unbuttoned cuff.",
             "details": "Lambswool, Wooden buttons, V-neck",
-            "link": "",
-            "image": "shopify://shop_images/mens-camel-wool-blend-overcoat_57ff3188-25d0-4f3b-9c51-fbf7c5004cda.png",
-            "side_image": "shopify://shop_images/mens-camel-wool-blend-overcoat_b07deb6b-3150-4f90-a0d9-cd50c2c3f847.png"
+            "link": ""
           }
         },
         "garment_7AmaF7": {
@@ -191,9 +175,7 @@
             "tag": "$125",
             "description": "A unisex regular-fit trucker jacket in washed indigo blue, made from heavyweight cotton denim. The silhouette is structured and slightly boxy with a straight hem hitting at the hip, a pointed collar, and full-length sleeves finished with a button cuff.",
             "details": "400 gsm fleece, Kangaroo pocket, Chest print",
-            "link": "",
-            "image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_32c09642-f4f8-4a04-b3f5-045b25768b10.png",
-            "side_image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_76129440-a7e8-4ab7-9911-f477e36d0fd4.png"
+            "link": ""
           }
         },
         "garment_zPirrd": {
@@ -204,9 +186,7 @@
             "tag": "$76",
             "description": "A women's fitted midi dress in chocolate brown, made from a stretch ribbed knit fabric. The silhouette is slim and body-hugging throughout, with a square neckline, thin fixed shoulder straps, and a straight midi hem ending just below the knee.",
             "details": "400 gsm fleece, Ribbed trims, Puff print",
-            "link": "",
-            "image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_fd6bf210-764a-4cb7-99e5-dbcf8731fdd9.png",
-            "side_image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_95ade49c-f9bc-494f-a146-4e6a6d6117fc.png"
+            "link": ""
           }
         },
         "garment_RXefE9": {
@@ -217,9 +197,7 @@
             "tag": "$82",
             "description": "A women's shirt-style midi dress in cream ivory with a thin tonal beige pinstripe, made from crisp cotton poplin. The silhouette is relaxed through the bodice with a classic collared neckline, full-length sleeves finished with a button cuff, and a self-fabric tie belt at the waist that gathers...",
             "details": "Piqué knit, Two-button placket, Embroidered",
-            "link": "",
-            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
-            "side_image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_582ed9b6-ad7c-425d-8c9b-cad9590d45c4.png"
+            "link": ""
           }
         },
         "garment_ayCL9d": {
@@ -230,9 +208,7 @@
             "tag": "$74",
             "description": "A men's tailored-fit long-sleeve shirt in white with a subtle light blue pinstripe, made from 100% cotton oxford weave. The fit is trim through the waist with a structured, slightly tapered silhouette, a button-down collar with visible top-stitched points, and a single back yoke with a center...",
             "details": "Piqué knit, Two-button placket, Embroidered",
-            "link": "",
-            "image": "shopify://shop_images/mens-tailored-oxford-dress-shirt_b79e89d2-58bc-43fa-9b54-f73e1f840976.png",
-            "side_image": "shopify://shop_images/mens-tailored-oxford-dress-shirt_b0714635-4c39-4a60-b832-c8317c4cabc9.png"
+            "link": ""
           }
         },
         "garment_QiJUj8": {
@@ -243,9 +219,7 @@
             "tag": "$68",
             "description": "A men's relaxed-fit short-sleeve shirt in sage green, made from a lightweight linen-cotton blend. The silhouette is loose and boxy through the body with a straight hem designed to be worn untucked, a camp collar that lies flat and open, and short sleeves with a single-button cuff.",
             "details": "Piqué knit, Two-button placket, Embroidered",
-            "link": "",
-            "image": "shopify://shop_images/mens-sage-green-camp-collar-linen-shirt_93c6cfa8-c15a-40a0-b5f7-85c8b7ec2be2.png",
-            "side_image": "shopify://shop_images/mens-sage-green-camp-collar-linen-shirt_ba838ee7-5c59-4f08-af4d-742e6d32a17e.png"
+            "link": ""
           }
         }
       },
@@ -296,7 +270,6 @@
         "slide_ha39jn": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/pexels-gabby-k-5841955.jpg",
             "title": "Individuality",
             "discipline": "Wear what feels like you.",
             "year": "",
@@ -308,7 +281,6 @@
         "slide_G9HtJf": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/pexels-umudicreative-31868676.jpg",
             "title": "Confidence",
             "discipline": "Dress bold. Feel unstoppable",
             "year": "",
@@ -320,7 +292,6 @@
         "slide_3z7xjL": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/pexels-danikprihodko-15759592.jpg",
             "title": "Comfort",
             "discipline": "Made to move with you.",
             "year": "",
@@ -332,7 +303,6 @@
         "slide_yffpRy": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/pexels-thirdman-8053683.jpg",
             "title": "Simplicity",
             "discipline": "Less noise. More style.",
             "year": "",
@@ -344,7 +314,6 @@
         "slide_EHNibj": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/pexels-yuliya-galceva-373676135-14584458.jpg",
             "title": "Versatility",
             "discipline": "One wardrobe. Endless possibilities.",
             "year": "",
@@ -395,49 +364,42 @@
         "image_33JC8W": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/pexels-johndetochka-11494773.jpg",
             "image_url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80&auto=format&fit=crop"
           }
         },
         "image_exR3wG": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/pexels-esra-salturk-1165434438-38356287.jpg",
             "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1400&q=80&auto=format&fit=crop"
           }
         },
         "image_rjDjkf": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/pexels-cozy-ajans-2157466415-34833582.jpg",
             "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=80&auto=format&fit=crop"
           }
         },
         "image_EzxqGC": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/pexels-mikhail-nilov-9476367.jpg",
             "image_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&q=80&auto=format&fit=crop"
           }
         },
         "image_mVPY37": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/pexels-bertellifotografia-16029813.jpg",
             "image_url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80&auto=format&fit=crop"
           }
         },
         "image_brhKbE": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/pexels-michael-obstoj-1772571864-33549627.jpg",
             "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80&auto=format&fit=crop"
           }
         },
         "image_JQQ7DT": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/pexels-yasharmag-21352760.jpg",
             "image_url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&q=80&auto=format&fit=crop"
           }
         }
@@ -496,7 +458,6 @@
         "card_mcdDXa": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/This_Is_the_One_Dress_Brand_Every_Editor_Wants_to_Own.jpg",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -505,7 +466,6 @@
         "card_zx7bQG": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/2.jpg",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -514,7 +474,6 @@
         "card_xWJkTE": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/1.jpg",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -523,7 +482,6 @@
         "card_ac7fPU": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/3.jpg",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -532,7 +490,6 @@
         "card_tP9agM": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/6.jpg",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -541,7 +498,6 @@
         "card_kmKpwJ": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/dce189eac47ae14c7e35d2aa3b29f58c.jpg",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -550,7 +506,6 @@
         "card_DAfBaR": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/7.jpg",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -559,7 +514,6 @@
         "card_eRWcww": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/womens-cream-ivory-pinstripe-shirt-midi-dress_824b7f4d-1d16-4719-9b16-0e287aa0c649.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -568,7 +522,6 @@
         "card_LbTzhk": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/washed-indigo-denim-trucker-jacket_32c09642-f4f8-4a04-b3f5-045b25768b10.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -577,7 +530,6 @@
         "card_B4zmHp": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/womens-burgundy-puffer-jacket_9dae85e3-ca25-4570-9a82-7c7228995f1e.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -586,7 +538,6 @@
         "card_wWmncB": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/faded-washed-black-relaxed-fit-t-shirt.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -595,7 +546,6 @@
         "card_VQJ68U": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/oversized-washed-charcoal-crew-neck-t-shirt_5b9774d9-b7c0-48ca-bb7a-bcef36185a41.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -604,7 +554,6 @@
         "card_MeXiXx": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/mens-camel-wool-blend-overcoat_57ff3188-25d0-4f3b-9c51-fbf7c5004cda.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -613,7 +562,6 @@
         "card_NXitXJ": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/mens-tailored-oxford-dress-shirt_b79e89d2-58bc-43fa-9b54-f73e1f840976.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -622,7 +570,6 @@
         "card_byUFzE": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress_fd6bf210-764a-4cb7-99e5-dbcf8731fdd9.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -631,7 +578,6 @@
         "card_mBWKyt": {
           "type": "card",
           "settings": {
-            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt_3fce5b10-c7aa-416a-ad8f-c567249626ec.png",
             "link": "",
             "back_label": "View",
             "back_title": "Details"
@@ -663,7 +609,6 @@
         "arc_heading": "Your Style. Your Rules",
         "arc_text": "<p>For those who don't follow trends, but create their own. Those who see fashion as more than just clothing, embracing individuality, expressing confidence, and turning everyday moments into their own statement. Because true style isn't about fitting in; it's about standing out, being unapologetically yourself, and wearing every look with confidence.</p>",
         "arc_reveal": "shuffle",
-        "bg_image": "shopify://shop_images/pexels-rachel-claire-5490975.jpg",
         "bg_reveal": "wipe",
         "bg_duration": 1600,
         "bg_overlay_color": "#000000",
@@ -697,7 +642,6 @@
           "type": "feature",
           "settings": {
             "icon": "truck",
-            "image": "shopify://shop_images/truck.gif",
             "title": "Express Delivery",
             "description": "Fast, tracked shipping with same-day dispatch on everyday essentials."
           }
@@ -706,7 +650,6 @@
           "type": "feature",
           "settings": {
             "icon": "cpu",
-            "image": "shopify://shop_images/spool.gif",
             "title": "Premium Fabrics",
             "description": "Pre-shrunk, breathable cottons and durable blends made to hold shape wash after wash."
           }
@@ -715,7 +658,6 @@
           "type": "feature",
           "settings": {
             "icon": "fingerprint",
-            "image": "shopify://shop_images/return-of-investment.gif",
             "title": "Seamless Returns",
             "description": "7-day hassle-free doorstep exchange and return policy for total peace of mind."
           }
@@ -724,7 +666,6 @@
           "type": "feature",
           "settings": {
             "icon": "pencil",
-            "image": "shopify://shop_images/problem-solving.gif",
             "title": "Tailored Fits",
             "description": "Structured cuts engineered to flatter all silhouettes across men’s and women’s lines."
           }
@@ -733,7 +674,6 @@
           "type": "feature",
           "settings": {
             "icon": "settings",
-            "image": "shopify://shop_images/high-quality.gif",
             "title": "Ethically Made",
             "description": "Responsible sourcing and durable construction built against fast-fashion waste."
           }
@@ -742,7 +682,6 @@
           "type": "feature",
           "settings": {
             "icon": "sparkles",
-            "image": "shopify://shop_images/shield.gif",
             "title": "Secure Checkout",
             "description": "Safe, encrypted UPI, card, and cash-on-delivery payment options."
           }
@@ -809,7 +748,6 @@
         "slide_1": {
           "type": "slide",
           "settings": {
-            "desktop_image": "shopify://shop_images/Modern_Neutral-Tone_Fashion_Campaign.png",
             "subheading": "New season",
             "heading": "Bring the outdoors in",
             "description": "<p>Plants, planters and care essentials chosen for real homes.</p>",
@@ -822,7 +760,6 @@
         "slide_2": {
           "type": "slide",
           "settings": {
-            "desktop_image": "shopify://shop_images/Contemporary_Archway_Fashion_Duo.png",
             "subheading": "Care made simple",
             "heading": "Grow with confidence",
             "description": "<p>Every plant ships with a care card and lifetime advice from our growers.</p>",
@@ -864,7 +801,7 @@
         "card_1": {
           "type": "collection_card",
           "settings": {
-            "collection": "t-shirts",
+            "collection": "bedroom-furniture",
             "title": "T Shirts",
             "link": "",
             "card_size": "large",
@@ -874,8 +811,8 @@
         "card_2": {
           "type": "collection_card",
           "settings": {
-            "collection": "dresses",
-            "title": "Dresses",
+            "collection": "coffee-tables",
+            "title": "CoffeeTables",
             "link": "",
             "card_size": "normal",
             "text_position": "bottom-left"
@@ -963,7 +900,6 @@
       "settings": {
         "heading": "Shop the look",
         "description": "<p>Discover the products featured in this image.</p>",
-        "image": "shopify://shop_images/Premium_Olive_Bomber_and_Cream_Tee_Display.png",
         "link_label": "View product",
         "color_scheme": "scheme-4"
       }
@@ -1097,7 +1033,6 @@
           "settings": {
             "title": "Dresses",
             "tag": "dresses",
-            "image": "shopify://shop_images/womens-stone-beige-wrap-dress.png",
             "link": "shopify://collections/dresses"
           }
         },
@@ -1106,7 +1041,6 @@
           "settings": {
             "title": "T-Shirts",
             "tag": "T-Shirts",
-            "image": "shopify://shop_images/womens-fitted-cream-ivory-crop-t-shirt.png",
             "link": "shopify://collections/t-shirts"
           }
         },
@@ -1115,7 +1049,6 @@
           "settings": {
             "title": "Jackets",
             "tag": "Jackets",
-            "image": "shopify://shop_images/mens-deep-navy-full-zip-hoodie.png",
             "link": "shopify://collections/jackets"
           }
         },
@@ -1124,7 +1057,6 @@
           "settings": {
             "title": "Hoodie",
             "tag": "Hoodie",
-            "image": "shopify://shop_images/washed-charcoal-pullover-hoodie.png",
             "link": "shopify://collections/hoodies-sweatshirts"
           }
         }
@@ -1317,7 +1249,6 @@
       "type": "image-with-overlap-card",
       "name": "Image with overlap card",
       "settings": {
-        "image": "shopify://shop_images/about-sec.webp",
         "image_position": "right",
         "image_width": 62,
         "image_height": "custom",
