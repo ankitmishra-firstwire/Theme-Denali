@@ -27,15 +27,6 @@
         "color_scheme": "scheme-1"
       }
     },
-    "newsletter_yQyhF4": {
-      "type": "newsletter",
-      "name": "Email signup",
-      "settings": {
-        "heading": "Stay in the loop",
-        "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
-        "color_scheme": ""
-      }
-    },
     "collection_carousel_A9jCWG": {
       "type": "collection-carousel",
       "blocks": {
@@ -156,12 +147,21 @@
         "dot_color": "#c8c8c8",
         "dot_active_color": "#1a1a1a"
       }
+    },
+    "newsletter_yQyhF4": {
+      "type": "newsletter",
+      "name": "Email signup",
+      "settings": {
+        "heading": "Stay in the loop",
+        "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
+        "color_scheme": ""
+      }
     }
   },
   "order": [
     "banner",
     "product-grid",
-    "newsletter_yQyhF4",
-    "collection_carousel_A9jCWG"
+    "collection_carousel_A9jCWG",
+    "newsletter_yQyhF4"
   ]
 }
