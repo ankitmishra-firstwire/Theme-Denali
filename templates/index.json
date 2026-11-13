@@ -233,12 +233,6 @@
             "image": "shopify://shop_images/img6.jpg",
             "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80&auto=format&fit=crop"
           }
-        },
-        "image_JQQ7DT": {
-          "type": "image",
-          "settings": {
-            "image_url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&q=80&auto=format&fit=crop"
-          }
         }
       },
       "block_order": [
@@ -247,8 +241,7 @@
         "image_rjDjkf",
         "image_EzxqGC",
         "image_mVPY37",
-        "image_brhKbE",
-        "image_JQQ7DT"
+        "image_brhKbE"
       ],
       "name": "Tilted grid hero",
       "settings": {
