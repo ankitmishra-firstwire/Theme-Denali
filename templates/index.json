@@ -831,8 +831,8 @@
         "card_4": {
           "type": "collection_card",
           "settings": {
-            "collection": "jackets",
-            "title": "Jackets",
+            "collection": "dining-furniture",
+            "title": "Dining Furniture",
             "link": "",
             "card_size": "wide",
             "text_position": "bottom-left"
