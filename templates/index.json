@@ -1046,20 +1046,6 @@
         "padding_bottom": 0
       }
     },
-    "featured_product": {
-      "type": "featured-product",
-      "custom_css": [
-        ".shopify-payment-button__button--unbranded {background-color: #000;}"
-      ],
-      "settings": {
-        "product": "linen-wrap-maxi-dress",
-        "subheading": "Featured product",
-        "show_vendor": false,
-        "show_description": true,
-        "show_dynamic_checkout": true,
-        "color_scheme": "scheme-4"
-      }
-    },
     "hotspots": {
       "type": "product-hotspots",
       "blocks": {
@@ -1212,6 +1198,25 @@
         "transition_speed": 500
       }
     },
+    "featured_product": {
+      "type": "featured-product",
+      "custom_css": [
+        ".shopify-payment-button__button--unbranded {background-color: #000;}"
+      ],
+      "settings": {
+        "product": "linen-wrap-maxi-dress",
+        "subheading": "Featured product",
+        "show_vendor": false,
+        "show_description": true,
+        "show_dynamic_checkout": true,
+        "color_scheme": "scheme-4"
+      }
+    },
+    "scroll_expand_lookbook_hCCxWy": {
+      "type": "scroll-expand-lookbook",
+      "name": "Scroll expand lookbook",
+      "settings": {}
+    },
     "image_with_overlap_card_i4MYrd": {
       "type": "image-with-overlap-card",
       "name": "Image with overlap card",
@@ -1272,11 +1277,6 @@
         "mobile_overlap": 40,
         "mobile_side_space": 16
       }
-    },
-    "scroll_expand_lookbook_hCCxWy": {
-      "type": "scroll-expand-lookbook",
-      "name": "Scroll expand lookbook",
-      "settings": {}
     },
     "titled_grid_hero_hRJjVk": {
       "type": "titled-grid-hero",
@@ -1679,9 +1679,9 @@
     "hotspots",
     "collection_product_scroll_iXcUpD",
     "featured_product",
-    "image_with_overlap_card_i4MYrd",
     "scroll_expand_lookbook_hCCxWy",
     "titled_grid_hero_hRJjVk",
+    "image_with_overlap_card_i4MYrd",
     "testimonial_autoscroll_iJ4ch6",
     "newsletter",
     "lumina_slideshow_YjrF9Y"
