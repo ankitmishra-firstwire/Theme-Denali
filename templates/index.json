@@ -896,7 +896,7 @@
         "collection_FF9rJe": {
           "type": "collection",
           "settings": {
-            "collection": "jackets",
+            "collection": "bedroom-furniture",
             "title": "",
             "description": "",
             "button_label": ""
@@ -905,7 +905,7 @@
         "collection_MFgjAg": {
           "type": "collection",
           "settings": {
-            "collection": "shirts",
+            "collection": "coffee-tables",
             "title": "",
             "description": "",
             "button_label": ""
@@ -914,7 +914,7 @@
         "collection_xUGPWW": {
           "type": "collection",
           "settings": {
-            "collection": "t-shirts",
+            "collection": "dining-furniture",
             "title": "",
             "description": "",
             "button_label": ""
@@ -923,16 +923,7 @@
         "collection_dpG6WP": {
           "type": "collection",
           "settings": {
-            "collection": "hoodies-sweatshirts",
-            "title": "",
-            "description": "",
-            "button_label": ""
-          }
-        },
-        "collection_X9GbRr": {
-          "type": "collection",
-          "settings": {
-            "collection": "dresses",
+            "collection": "decorative-accents",
             "title": "",
             "description": "",
             "button_label": ""
@@ -943,8 +934,7 @@
         "collection_FF9rJe",
         "collection_MFgjAg",
         "collection_xUGPWW",
-        "collection_dpG6WP",
-        "collection_X9GbRr"
+        "collection_dpG6WP"
       ],
       "name": "Collection carousel",
       "settings": {
