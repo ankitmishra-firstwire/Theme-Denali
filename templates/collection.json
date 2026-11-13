@@ -27,120 +27,6 @@
         "color_scheme": "scheme-1"
       }
     },
-    "fashion_hover_reveal_cCrFtx": {
-      "type": "fashion-hover-reveal",
-      "blocks": {
-        "item_LDQVxD": {
-          "type": "item",
-          "settings": {
-            "title": "Dresses",
-            "tag": "",
-            "image": "shopify://shop_images/chocolate-brown-ribbed-knit-midi-dress.png",
-            "link": "shopify://collections/dresses"
-          }
-        },
-        "item_JwxpyL": {
-          "type": "item",
-          "settings": {
-            "title": "Jackets",
-            "tag": "24 pieces",
-            "image": "shopify://shop_images/womens-burgundy-puffer-jacket_9dae85e3-ca25-4570-9a82-7c7228995f1e.png",
-            "link": "shopify://collections/jackets"
-          }
-        },
-        "item_jjyMcw": {
-          "type": "item",
-          "settings": {
-            "title": "Shirts",
-            "tag": "Bestseller",
-            "image": "shopify://shop_images/brushed-flannel-shirt.png",
-            "link": "shopify://collections/shirts"
-          }
-        },
-        "item_7tUjJM": {
-          "type": "item",
-          "settings": {
-            "title": "T Shirts",
-            "tag": "New",
-            "image": "shopify://shop_images/model-wearing-faded-washed-black-t-shirt.png",
-            "link": "shopify://collections/t-shirts"
-          }
-        },
-        "item_FNQgpq": {
-          "type": "item",
-          "settings": {
-            "title": "Hoodie",
-            "tag": "Gifts",
-            "image": "shopify://shop_images/washed-charcoal-pullover-hoodie.png",
-            "link": "shopify://collections/hoodies-sweatshirts"
-          }
-        }
-      },
-      "block_order": [
-        "item_LDQVxD",
-        "item_JwxpyL",
-        "item_jjyMcw",
-        "item_7tUjJM",
-        "item_FNQgpq"
-      ],
-      "name": "Fashion hover reveal",
-      "settings": {
-        "eyebrow": "The Edit",
-        "heading": "Dressed for <em>every</em> season",
-        "description": "Hover over a collection to preview the look. New pieces arrive every week.",
-        "view_all_label": "View all collections",
-        "view_all_link": "",
-        "header_layout": "split",
-        "heading_size": 56,
-        "title_size_desktop": 88,
-        "title_size_mobile": 34,
-        "title_weight": "400",
-        "title_tightening": 2,
-        "title_uppercase": false,
-        "use_custom_font": false,
-        "title_font": "assistant_n4",
-        "show_numbers": true,
-        "show_tags": true,
-        "show_arrow": true,
-        "show_dividers": true,
-        "row_padding": 22,
-        "hover_style": "fill",
-        "dim_opacity": 25,
-        "reveal_on_scroll": true,
-        "animation_speed": 800,
-        "preview_width": 300,
-        "preview_ratio": "3 / 4",
-        "preview_radius": 4,
-        "preview_layer": "behind",
-        "follow_smoothness": 5,
-        "preview_tilt": true,
-        "preview_shadow": true,
-        "mobile_image": "thumb",
-        "thumb_size": 72,
-        "show_marquee": true,
-        "marquee_text": "New season|Free shipping over $150|Shop the lookbook|Made to last",
-        "marquee_separator": "✦",
-        "marquee_position": "bottom",
-        "marquee_direction": "left",
-        "marquee_speed": 30,
-        "marquee_size": 16,
-        "marquee_padding": 14,
-        "marquee_tilt": false,
-        "marquee_pause": true,
-        "marquee_use_font": false,
-        "marquee_bg": "#141414",
-        "marquee_text_color": "#f5f1ea",
-        "background": "#f5f1ea",
-        "text_color": "#141414",
-        "muted_color": "#7a7368",
-        "accent_color": "#a8432c",
-        "divider_color": "#d9d1c4",
-        "full_width": true,
-        "side_padding": 48,
-        "padding_top": 96,
-        "padding_bottom": 0
-      }
-    },
     "newsletter_yQyhF4": {
       "type": "newsletter",
       "name": "Email signup",
@@ -149,12 +35,133 @@
         "text": "<p>Get seasonal care tips, early access to new arrivals and members-only offers.</p>",
         "color_scheme": ""
       }
+    },
+    "collection_carousel_A9jCWG": {
+      "type": "collection-carousel",
+      "blocks": {
+        "collection_BK9HW7": {
+          "type": "collection",
+          "settings": {
+            "collection": "jackets",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_n8WrAU": {
+          "type": "collection",
+          "settings": {
+            "collection": "dresses",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_wHYCPa": {
+          "type": "collection",
+          "settings": {
+            "collection": "shirts",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_AiKRLH": {
+          "type": "collection",
+          "settings": {
+            "collection": "hoodies-sweatshirts",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        },
+        "collection_YQ3w4W": {
+          "type": "collection",
+          "settings": {
+            "collection": "t-shirts",
+            "title": "",
+            "description": "",
+            "button_label": ""
+          }
+        }
+      },
+      "block_order": [
+        "collection_BK9HW7",
+        "collection_n8WrAU",
+        "collection_wHYCPa",
+        "collection_AiKRLH",
+        "collection_YQ3w4W"
+      ],
+      "name": "Collection carousel",
+      "settings": {
+        "heading": "Shop by collection",
+        "subheading": "Browse our latest collections, picked for the season.",
+        "heading_alignment": "center",
+        "heading_size": 40,
+        "heading_color": "#1a1a1a",
+        "subheading_color": "#5c5c5c",
+        "background": "#ffffff",
+        "full_width": true,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "card_ratio": "height",
+        "border_radius": 16,
+        "center_scale": 106,
+        "side_scale": 84,
+        "side_opacity": 70,
+        "card_shadow": true,
+        "card_bg": "#f4f4f4",
+        "card_width_desktop": 440,
+        "card_height_desktop": 520,
+        "gap_desktop": 24,
+        "card_width_tablet": 360,
+        "card_height_tablet": 440,
+        "gap_tablet": 20,
+        "card_width_mobile": 76,
+        "card_height_mobile": 400,
+        "gap_mobile": 12,
+        "overlay_color": "#000000",
+        "overlay_style": "gradient",
+        "overlay_opacity": 55,
+        "text_position": "overlay-bottom",
+        "text_alignment": "left",
+        "text_color": "#ffffff",
+        "show_title": true,
+        "show_description": true,
+        "use_custom_font": false,
+        "title_font": "assistant_n4",
+        "title_size": 26,
+        "title_weight": "600",
+        "title_letter_spacing": 0,
+        "title_uppercase": false,
+        "description_size": 15,
+        "show_button": true,
+        "button_text": "Shop collection",
+        "button_bg": "#ffffff",
+        "button_color": "#1a1a1a",
+        "button_radius": 50,
+        "autoplay": false,
+        "autoplay_interval": 5,
+        "transition_speed": 600,
+        "side_click": "center",
+        "show_arrows": true,
+        "arrow_position": "edges",
+        "arrow_style": "circle",
+        "arrow_size": 48,
+        "arrow_bg": "#ffffff",
+        "arrow_color": "#1a1a1a",
+        "hide_arrows_mobile": true,
+        "show_dots": true,
+        "dot_style": "dots",
+        "dot_color": "#c8c8c8",
+        "dot_active_color": "#1a1a1a"
+      }
     }
   },
   "order": [
     "banner",
     "product-grid",
-    "fashion_hover_reveal_cCrFtx",
-    "newsletter_yQyhF4"
+    "newsletter_yQyhF4",
+    "collection_carousel_A9jCWG"
   ]
 }
