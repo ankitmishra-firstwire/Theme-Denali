@@ -821,8 +821,8 @@
         "card_3": {
           "type": "collection_card",
           "settings": {
-            "collection": "shirts",
-            "title": "Shirts",
+            "collection": "benches-ottomans",
+            "title": "Benches",
             "link": "",
             "card_size": "normal",
             "text_position": "bottom-left"
