@@ -401,107 +401,6 @@
         "padding_bottom": 40
       }
     },
-    "titled_grid_hero_hRJjVk": {
-      "type": "titled-grid-hero",
-      "blocks": {
-        "image_33JC8W": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/pexels-johndetochka-11494773.jpg",
-            "image_url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80&auto=format&fit=crop"
-          }
-        },
-        "image_exR3wG": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/pexels-esra-salturk-1165434438-38356287.jpg",
-            "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1400&q=80&auto=format&fit=crop"
-          }
-        },
-        "image_rjDjkf": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/pexels-cozy-ajans-2157466415-34833582.jpg",
-            "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=80&auto=format&fit=crop"
-          }
-        },
-        "image_EzxqGC": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/pexels-mikhail-nilov-9476367.jpg",
-            "image_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&q=80&auto=format&fit=crop"
-          }
-        },
-        "image_mVPY37": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/pexels-bertellifotografia-16029813.jpg",
-            "image_url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80&auto=format&fit=crop"
-          }
-        },
-        "image_brhKbE": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/pexels-michael-obstoj-1772571864-33549627.jpg",
-            "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80&auto=format&fit=crop"
-          }
-        },
-        "image_JQQ7DT": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/pexels-yasharmag-21352760.jpg",
-            "image_url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&q=80&auto=format&fit=crop"
-          }
-        }
-      },
-      "block_order": [
-        "image_33JC8W",
-        "image_exR3wG",
-        "image_rjDjkf",
-        "image_EzxqGC",
-        "image_mVPY37",
-        "image_brhKbE",
-        "image_JQQ7DT"
-      ],
-      "name": "Tilted grid hero",
-      "settings": {
-        "heading": "Every look, a story worth telling.",
-        "heading_tag": "h1",
-        "heading_class": "",
-        "text": "<p>Fashion is more than what you wear. It's how you express yourself, how you move, and how you make every moment your own. Discover a world where individuality meets effortless style.</p>",
-        "text_class": "",
-        "button_label": "",
-        "button_link": "",
-        "button_class": "button",
-        "content_layout": "split",
-        "text_align": "center",
-        "content_max_width": 560,
-        "content_padding": 48,
-        "speed": 4,
-        "direction": "rtl",
-        "tile_height": 26,
-        "aspect_ratio": "1.7778",
-        "gap": 6,
-        "axis": 56,
-        "curve": 80,
-        "fade": 12,
-        "tile_radius": 8,
-        "pause_on_hover": false,
-        "height_desktop": 560,
-        "height_mobile": 460,
-        "full_width": true,
-        "max_width": 1200,
-        "radius": 8,
-        "bg_color": "",
-        "text_color": "",
-        "subtext_color": "",
-        "tile_bg": "",
-        "show_border": true,
-        "border_color": "",
-        "padding_top": 36,
-        "padding_bottom": 36
-      }
-    },
     "collection_bento": {
       "type": "collection-bento",
       "blocks": {
@@ -1379,6 +1278,107 @@
       "name": "Scroll expand lookbook",
       "settings": {}
     },
+    "titled_grid_hero_hRJjVk": {
+      "type": "titled-grid-hero",
+      "blocks": {
+        "image_33JC8W": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-johndetochka-11494773.jpg",
+            "image_url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_exR3wG": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-esra-salturk-1165434438-38356287.jpg",
+            "image_url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_rjDjkf": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-cozy-ajans-2157466415-34833582.jpg",
+            "image_url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_EzxqGC": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-mikhail-nilov-9476367.jpg",
+            "image_url": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_mVPY37": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-bertellifotografia-16029813.jpg",
+            "image_url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_brhKbE": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-michael-obstoj-1772571864-33549627.jpg",
+            "image_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1400&q=80&auto=format&fit=crop"
+          }
+        },
+        "image_JQQ7DT": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pexels-yasharmag-21352760.jpg",
+            "image_url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1400&q=80&auto=format&fit=crop"
+          }
+        }
+      },
+      "block_order": [
+        "image_33JC8W",
+        "image_exR3wG",
+        "image_rjDjkf",
+        "image_EzxqGC",
+        "image_mVPY37",
+        "image_brhKbE",
+        "image_JQQ7DT"
+      ],
+      "name": "Tilted grid hero",
+      "settings": {
+        "heading": "Every look, a story worth telling.",
+        "heading_tag": "h1",
+        "heading_class": "",
+        "text": "<p>Fashion is more than what you wear. It's how you express yourself, how you move, and how you make every moment your own. Discover a world where individuality meets effortless style.</p>",
+        "text_class": "",
+        "button_label": "",
+        "button_link": "",
+        "button_class": "button",
+        "content_layout": "split",
+        "text_align": "center",
+        "content_max_width": 560,
+        "content_padding": 48,
+        "speed": 4,
+        "direction": "rtl",
+        "tile_height": 26,
+        "aspect_ratio": "1.7778",
+        "gap": 6,
+        "axis": 56,
+        "curve": 80,
+        "fade": 12,
+        "tile_radius": 8,
+        "pause_on_hover": false,
+        "height_desktop": 560,
+        "height_mobile": 460,
+        "full_width": true,
+        "max_width": 1200,
+        "radius": 8,
+        "bg_color": "",
+        "text_color": "",
+        "subtext_color": "",
+        "tile_bg": "",
+        "show_border": true,
+        "border_color": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
     "testimonial_autoscroll_iJ4ch6": {
       "type": "testimonial-autoscroll",
       "blocks": {
@@ -1670,7 +1670,6 @@
     "clothing_rail_rule_npfJ73",
     "featured_collection",
     "ferris_wheel_gallery_DfdeLM",
-    "titled_grid_hero_hRJjVk",
     "collection_bento",
     "scroll_morph_hero_3prAnb",
     "grid_features_card_gY4nYg",
@@ -1682,6 +1681,7 @@
     "collection_product_scroll_iXcUpD",
     "image_with_overlap_card_i4MYrd",
     "scroll_expand_lookbook_hCCxWy",
+    "titled_grid_hero_hRJjVk",
     "testimonial_autoscroll_iJ4ch6",
     "newsletter",
     "lumina_slideshow_YjrF9Y"
