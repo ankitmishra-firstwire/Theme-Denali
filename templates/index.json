@@ -290,6 +290,18 @@
         "padding_bottom": 0
       }
     },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "subheading": "Bestsellers",
+        "heading": "Customer favourites",
+        "collection": "all",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true,
+        "color_scheme": ""
+      }
+    },
     "ferris_wheel_gallery_DfdeLM": {
       "type": "ferris-wheel-gallery",
       "blocks": {
@@ -844,18 +856,6 @@
         "autoplay": true,
         "slide_interval": 6,
         "color_scheme": "scheme-3"
-      }
-    },
-    "featured_collection": {
-      "type": "featured-collection",
-      "settings": {
-        "subheading": "Bestsellers",
-        "heading": "Customer favourites",
-        "collection": "all",
-        "products_to_show": 4,
-        "columns_desktop": 4,
-        "show_view_all": true,
-        "color_scheme": ""
       }
     },
     "collection_bento": {
@@ -1667,12 +1667,12 @@
   "order": [
     "parallex_strip_slider_L334YC",
     "clothing_rail_rule_npfJ73",
+    "featured_collection",
     "ferris_wheel_gallery_DfdeLM",
     "titled_grid_hero_hRJjVk",
     "scroll_morph_hero_3prAnb",
     "grid_features_card_gY4nYg",
     "slideshow",
-    "featured_collection",
     "collection_bento",
     "featured_product",
     "hotspots",
