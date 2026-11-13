@@ -250,7 +250,7 @@
         "duration_col_1": 15,
         "duration_col_2": 19,
         "duration_col_3": 17,
-        "reverse_middle": false,
+        "reverse_middle": true,
         "pause_on_hover": true,
         "enable_fade": true,
         "fade_size": 25,
