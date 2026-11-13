@@ -942,52 +942,6 @@
         "dot_active_color": "#1a1a1a"
       }
     },
-    "featured_product": {
-      "type": "featured-product",
-      "custom_css": [
-        ".shopify-payment-button__button--unbranded {background-color: #000;}"
-      ],
-      "settings": {
-        "product": "linen-wrap-maxi-dress",
-        "subheading": "Featured product",
-        "show_vendor": false,
-        "show_description": true,
-        "show_dynamic_checkout": true,
-        "color_scheme": "scheme-4"
-      }
-    },
-    "hotspots": {
-      "type": "product-hotspots",
-      "blocks": {
-        "hotspot_1": {
-          "type": "hotspot",
-          "settings": {
-            "product": "corduroy-chore-jacket",
-            "horizontal_position": 30,
-            "vertical_position": 55
-          }
-        },
-        "hotspot_2": {
-          "type": "hotspot",
-          "settings": {
-            "product": "classic-crew-neck-cotton-tee",
-            "horizontal_position": 68,
-            "vertical_position": 40
-          }
-        }
-      },
-      "block_order": [
-        "hotspot_1",
-        "hotspot_2"
-      ],
-      "settings": {
-        "heading": "Shop the look",
-        "description": "<p>Discover the products featured in this image.</p>",
-        "image": "shopify://shop_images/Premium_Olive_Bomber_and_Cream_Tee_Display.png",
-        "link_label": "View product",
-        "color_scheme": "scheme-4"
-      }
-    },
     "fashion_hover_reveal_KT6XNt": {
       "type": "fashion-hover-reveal",
       "blocks": {
@@ -1090,6 +1044,52 @@
         "side_padding": 48,
         "padding_top": 96,
         "padding_bottom": 0
+      }
+    },
+    "featured_product": {
+      "type": "featured-product",
+      "custom_css": [
+        ".shopify-payment-button__button--unbranded {background-color: #000;}"
+      ],
+      "settings": {
+        "product": "linen-wrap-maxi-dress",
+        "subheading": "Featured product",
+        "show_vendor": false,
+        "show_description": true,
+        "show_dynamic_checkout": true,
+        "color_scheme": "scheme-4"
+      }
+    },
+    "hotspots": {
+      "type": "product-hotspots",
+      "blocks": {
+        "hotspot_1": {
+          "type": "hotspot",
+          "settings": {
+            "product": "corduroy-chore-jacket",
+            "horizontal_position": 30,
+            "vertical_position": 55
+          }
+        },
+        "hotspot_2": {
+          "type": "hotspot",
+          "settings": {
+            "product": "classic-crew-neck-cotton-tee",
+            "horizontal_position": 68,
+            "vertical_position": 40
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_1",
+        "hotspot_2"
+      ],
+      "settings": {
+        "heading": "Shop the look",
+        "description": "<p>Discover the products featured in this image.</p>",
+        "image": "shopify://shop_images/Premium_Olive_Bomber_and_Cream_Tee_Display.png",
+        "link_label": "View product",
+        "color_scheme": "scheme-4"
       }
     },
     "collection_product_scroll_iXcUpD": {
@@ -1675,10 +1675,10 @@
     "grid_features_card_gY4nYg",
     "slideshow",
     "collection_carousel_fVVH8k",
-    "featured_product",
-    "hotspots",
     "fashion_hover_reveal_KT6XNt",
+    "hotspots",
     "collection_product_scroll_iXcUpD",
+    "featured_product",
     "image_with_overlap_card_i4MYrd",
     "scroll_expand_lookbook_hCCxWy",
     "titled_grid_hero_hRJjVk",
