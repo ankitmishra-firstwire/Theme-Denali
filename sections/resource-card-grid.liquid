@@ -1,0 +1,602 @@
+{%- comment -%}
+  Resource Cards Grid
+  Place in: /sections/resource-cards-grid.liquid
+  No font-family / font-size / font-weight is set here. Typography is inherited
+  from your theme's h2, h3 and p tags.
+{%- endcomment -%}
+
+{%- liquid
+  assign sid = section.id
+  assign new_tab = section.settings.open_in_new_tab
+-%}
+
+<style>
+  #rcg-{{ sid }} {
+    --rcg-bg: {{ section.settings.section_bg }};
+    --rcg-card-bg: {{ section.settings.card_bg }};
+    --rcg-card-border: {{ section.settings.card_border_color }};
+    --rcg-heading: {{ section.settings.heading_color }};
+    --rcg-card-title: {{ section.settings.card_title_color }};
+    --rcg-muted: {{ section.settings.muted_color }};
+    --rcg-arrow: {{ section.settings.arrow_color }};
+    --rcg-radius: {{ section.settings.card_radius }}px;
+    --rcg-border-w: {{ section.settings.card_border_width }}px;
+    --rcg-card-pad: {{ section.settings.card_padding }}px;
+    --rcg-gap: {{ section.settings.grid_gap }}px;
+    --rcg-icon: {{ section.settings.icon_size }}px;
+    --rcg-cols-mobile: {{ section.settings.columns_mobile }};
+    --rcg-cols-tablet: {{ section.settings.columns_tablet }};
+    --rcg-cols-desktop: {{ section.settings.columns_desktop }};
+    --rcg-max: {{ section.settings.max_width }}px;
+    --rcg-hover-scale: {{ section.settings.hover_scale | divide: 100.0 }};
+    --rcg-stagger: {{ section.settings.stagger_delay }}ms;
+    background-color: var(--rcg-bg);
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #rcg-{{ sid }} .rcg__inner {
+    width: 100%;
+    max-width: var(--rcg-max);
+    margin-inline: auto;
+    padding-inline: 16px;
+    box-sizing: border-box;
+  }
+
+  #rcg-{{ sid }} .rcg__header {
+    margin-bottom: 32px;
+    text-align: {{ section.settings.header_alignment }};
+  }
+
+  #rcg-{{ sid }} .rcg__heading {
+    margin: 0;
+    color: var(--rcg-heading);
+  }
+
+  #rcg-{{ sid }} .rcg__subheading {
+    margin: 8px 0 0;
+    color: var(--rcg-muted);
+  }
+
+  #rcg-{{ sid }} .rcg__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--rcg-cols-mobile), minmax(0, 1fr));
+    gap: var(--rcg-gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    #rcg-{{ sid }} .rcg__inner { padding-inline: 32px; }
+    #rcg-{{ sid }} .rcg__grid {
+      grid-template-columns: repeat(var(--rcg-cols-tablet), minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    #rcg-{{ sid }} .rcg__grid {
+      grid-template-columns: repeat(var(--rcg-cols-desktop), minmax(0, 1fr));
+    }
+  }
+
+  #rcg-{{ sid }} .rcg__item {
+    display: block;
+    margin: 0;
+    padding: 0;
+  }
+
+  #rcg-{{ sid }} .rcg__link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+  }
+
+  #rcg-{{ sid }} .rcg__link:hover {
+    transform: scale(var(--rcg-hover-scale));
+  }
+
+  #rcg-{{ sid }} .rcg__link:active {
+    transform: scale(0.98);
+  }
+
+  #rcg-{{ sid }} .rcg__link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: var(--rcg-radius);
+  }
+
+  #rcg-{{ sid }} .rcg__card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    height: 100%;
+    box-sizing: border-box;
+    padding: var(--rcg-card-pad);
+    background-color: var(--rcg-card-bg);
+    border: var(--rcg-border-w) solid var(--rcg-card-border);
+    border-radius: var(--rcg-radius);
+    {%- if section.settings.show_shadow %}
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
+    {%- endif %}
+  }
+
+  {%- if section.settings.show_shadow %}
+  #rcg-{{ sid }} .rcg__link:hover .rcg__card {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  }
+  {%- endif %}
+
+  #rcg-{{ sid }} .rcg__main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  #rcg-{{ sid }} .rcg__icon {
+    flex: 0 0 auto;
+    width: var(--rcg-icon);
+    height: var(--rcg-icon);
+    display: block;
+    overflow: hidden;
+  }
+
+  #rcg-{{ sid }} .rcg__icon img,
+  #rcg-{{ sid }} .rcg__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  #rcg-{{ sid }} .rcg__text { min-width: 0; }
+
+  #rcg-{{ sid }} .rcg__title {
+    margin: 0;
+    color: var(--rcg-card-title);
+  }
+
+  #rcg-{{ sid }} .rcg__meta {
+    margin: 4px 0 0;
+    color: var(--rcg-muted);
+  }
+
+  #rcg-{{ sid }} .rcg__arrow {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    color: var(--rcg-arrow);
+    transition: transform 0.3s ease;
+  }
+
+  #rcg-{{ sid }} .rcg__link:hover .rcg__arrow {
+    transform: translate(4px, -4px);
+  }
+
+  {%- if section.settings.enable_animation %}
+  #rcg-{{ sid }} .rcg__item {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: rcg-fade-up-{{ sid }} 0.5s ease forwards;
+    animation-delay: calc(var(--rcg-i, 0) * var(--rcg-stagger));
+  }
+
+  @keyframes rcg-fade-up-{{ sid }} {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #rcg-{{ sid }} .rcg__item {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+    #rcg-{{ sid }} .rcg__link,
+    #rcg-{{ sid }} .rcg__arrow { transition: none; }
+    #rcg-{{ sid }} .rcg__link:hover { transform: none; }
+  }
+  {%- endif %}
+</style>
+
+<section id="rcg-{{ sid }}" class="rcg" data-section-id="{{ sid }}">
+  <div class="rcg__inner">
+
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <header class="rcg__header">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="rcg__heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="rcg__subheading">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="rcg__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign link = block.settings.link
+            assign tag = 'a'
+            if link == blank
+              assign tag = 'div'
+            endif
+          -%}
+          <li class="rcg__item" style="--rcg-i: {{ forloop.index0 }};" {{ block.shopify_attributes }}>
+            <{{ tag }}
+              class="rcg__link"
+              {%- if link != blank %}
+                href="{{ link }}"
+                {%- if new_tab %} target="_blank" rel="noopener noreferrer"{% endif -%}
+              {%- endif -%}
+            >
+              <div class="rcg__card">
+                <div class="rcg__main">
+                  <div class="rcg__icon">
+                    {%- if block.settings.icon != blank -%}
+                      {%- assign icon_alt = block.settings.icon.alt | default: block.settings.title -%}
+                      {{
+                        block.settings.icon
+                        | image_url: width: 160
+                        | image_tag: loading: 'lazy', width: 80, height: 80, alt: icon_alt
+                      }}
+                    {%- else -%}
+                      {{ 'image' | placeholder_svg_tag }}
+                    {%- endif -%}
+                  </div>
+                  <div class="rcg__text">
+                    {%- if block.settings.title != blank -%}
+                      <h3 class="rcg__title">{{ block.settings.title | escape }}</h3>
+                    {%- endif -%}
+                    {%- if section.settings.show_last_updated and block.settings.last_updated != blank -%}
+                      <p class="rcg__meta">
+                        {%- if section.settings.last_updated_label != blank -%}
+                          {{ section.settings.last_updated_label | escape }}
+                        {%- endif %} {{ block.settings.last_updated | escape -}}
+                      </p>
+                    {%- endif -%}
+                  </div>
+                </div>
+
+                {%- if section.settings.show_arrow and link != blank -%}
+                  <svg class="rcg__arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M7 7h10v10"></path>
+                    <path d="M7 17 17 7"></path>
+                  </svg>
+                {%- endif -%}
+              </div>
+            </{{ tag }}>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Resource cards grid",
+  "tag": "section",
+  "class": "section-resource-cards-grid",
+  "max_blocks": 24,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop & Support"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "info": "Optional supporting text shown below the heading.",
+      "default": "Everything you need to find your fit, from the latest drops to sizing help and easy returns."
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "Columns on tablet",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1 column" },
+        { "value": "2", "label": "2 columns" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap between cards",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Maximum content width",
+      "min": 640,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1200
+    },
+
+    {
+      "type": "header",
+      "content": "Card"
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card padding",
+      "min": 8,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "card_border_width",
+      "label": "Border thickness",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 24,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shadow",
+      "label": "Show card shadow",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow icon",
+      "info": "Only appears on cards that have a link.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_last_updated",
+      "label": "Show secondary text under card title",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "last_updated_label",
+      "label": "Secondary text prefix",
+      "info": "Optional text shown before each card's secondary text, e.g. \"Updated:\". Leave empty for none."
+    },
+    {
+      "type": "checkbox",
+      "id": "open_in_new_tab",
+      "label": "Open links in a new tab",
+      "default": true
+    },
+
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_animation",
+      "label": "Enable fade-up entrance animation",
+      "info": "Disabled automatically for visitors who prefer reduced motion.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "stagger_delay",
+      "label": "Delay between cards",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "ms",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "hover_scale",
+      "label": "Hover scale",
+      "min": 100,
+      "max": 110,
+      "step": 1,
+      "unit": "%",
+      "default": 103
+    },
+
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Section background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Card border",
+      "default": "#e5e7eb"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card title",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Secondary text",
+      "default": "#6b7280"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow icon",
+      "default": "#6b7280"
+    },
+
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Resource card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon image",
+          "info": "Square image, at least 160 x 160 px. PNG with transparent background works best."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Collection name"
+        },
+        {
+          "type": "text",
+          "id": "last_updated",
+          "label": "Secondary text",
+          "default": "New styles added weekly"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Leave empty to render the card without a link."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Resource cards grid",
+      "category": "Custom",
+      "settings": {
+        "heading": "Shop & Support",
+        "subheading": "Everything you need to find your fit, from the latest drops to sizing help and easy returns."
+      },
+      "blocks": [
+        { "type": "card", "settings": { "title": "New Arrivals", "last_updated": "Fresh styles added every week" } },
+        { "type": "card", "settings": { "title": "Women's Collection", "last_updated": "Dresses, tops, denim & more" } },
+        { "type": "card", "settings": { "title": "Men's Collection", "last_updated": "Tees, shirts, jackets & joggers" } },
+        { "type": "card", "settings": { "title": "Size Guide", "last_updated": "Find your perfect fit" } },
+        { "type": "card", "settings": { "title": "Shipping & Returns", "last_updated": "Free shipping over $75, 30-day returns" } },
+        { "type": "card", "settings": { "title": "Care & Sustainability", "last_updated": "Made to last, washed with care" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
