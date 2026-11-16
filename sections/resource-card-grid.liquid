@@ -154,6 +154,13 @@
     object-fit: contain;
   }
 
+  /* Stop theme-level image hover zoom from stacking on top of the card hover */
+  #rcg-{{ sid }} .rcg__icon img,
+  #rcg-{{ sid }} .rcg__link:hover .rcg__icon img {
+    transform: none !important;
+    transition: none !important;
+  }
+
   #rcg-{{ sid }} .rcg__text { min-width: 0; }
 
   #rcg-{{ sid }} .rcg__title {
@@ -470,10 +477,11 @@
       "id": "hover_scale",
       "label": "Hover scale",
       "min": 100,
-      "max": 110,
+      "max": 106,
       "step": 1,
       "unit": "%",
-      "default": 103
+      "info": "100% turns the hover zoom off.",
+      "default": 101
     },
 
     {
