@@ -1663,91 +1663,6 @@
         "button_background": "#ffffff",
         "button_text": "#0a0a0a"
       }
-    },
-    "resource_card_grid_yjdQ4f": {
-      "type": "resource-card-grid",
-      "blocks": {
-        "card_7Q8hMq": {
-          "type": "card",
-          "settings": {
-            "icon": "shopify://shop_images/truck.gif",
-            "title": "New Arrivals",
-            "link": ""
-          }
-        },
-        "card_AtND4F": {
-          "type": "card",
-          "settings": {
-            "title": "Women's Collection",
-            "link": ""
-          }
-        },
-        "card_rgqcHd": {
-          "type": "card",
-          "settings": {
-            "title": "Men's Collection",
-            "link": ""
-          }
-        },
-        "card_A6banL": {
-          "type": "card",
-          "settings": {
-            "title": "Size Guide",
-            "link": ""
-          }
-        },
-        "card_Y6BcYY": {
-          "type": "card",
-          "settings": {
-            "title": "Shipping & Returns",
-            "link": ""
-          }
-        },
-        "card_p4t63c": {
-          "type": "card",
-          "settings": {
-            "title": "Care & Sustainability",
-            "link": ""
-          }
-        }
-      },
-      "block_order": [
-        "card_7Q8hMq",
-        "card_AtND4F",
-        "card_rgqcHd",
-        "card_A6banL",
-        "card_Y6BcYY",
-        "card_p4t63c"
-      ],
-      "name": "Resource cards grid",
-      "settings": {
-        "heading": "Shop & Support",
-        "subheading": "Everything you need to find your fit, from the latest drops to sizing help and easy returns.",
-        "header_alignment": "left",
-        "columns_desktop": 3,
-        "columns_tablet": 2,
-        "columns_mobile": "1",
-        "grid_gap": 24,
-        "max_width": 1200,
-        "card_padding": 24,
-        "card_radius": 8,
-        "card_border_width": 1,
-        "icon_size": 40,
-        "show_shadow": true,
-        "show_arrow": true,
-        "open_in_new_tab": true,
-        "enable_animation": true,
-        "stagger_delay": 100,
-        "section_bg": "#ffffff",
-        "card_bg": "#ffffff",
-        "card_border_color": "#e5e7eb",
-        "heading_color": "#111827",
-        "card_title_color": "#111827",
-        "muted_color": "#6b7280",
-        "arrow_color": "#6b7280",
-        "padding_top": 48,
-        "padding_bottom": 48
-      }
     }
   },
   "order": [
@@ -1769,7 +1684,6 @@
     "image_with_overlap_card_i4MYrd",
     "testimonial_autoscroll_iJ4ch6",
     "newsletter",
-    "lumina_slideshow_YjrF9Y",
-    "resource_card_grid_yjdQ4f"
+    "lumina_slideshow_YjrF9Y"
   ]
 }
