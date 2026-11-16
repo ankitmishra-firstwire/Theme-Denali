@@ -1,8 +1,10 @@
 {%- comment -%}
   Resource Cards Grid
   Place in: /sections/resource-cards-grid.liquid
-  No font-family / font-size / font-weight is set here. Typography is inherited
-  from your theme's h2, h3 and p tags.
+  - No font-family / font-size / font-weight is set here. Typography is inherited
+    from your theme's h2, h3 and p tags.
+  - No hover effects (no zoom, no movement). Only a fade-up entrance animation,
+    which can be turned off in the section settings.
 {%- endcomment -%}
 
 {%- liquid
@@ -28,7 +30,6 @@
     --rcg-cols-tablet: {{ section.settings.columns_tablet }};
     --rcg-cols-desktop: {{ section.settings.columns_desktop }};
     --rcg-max: {{ section.settings.max_width }}px;
-    --rcg-hover-scale: {{ section.settings.hover_scale | divide: 100.0 }};
     --rcg-stagger: {{ section.settings.stagger_delay }}ms;
     background-color: var(--rcg-bg);
     padding-top: {{ section.settings.padding_top }}px;
@@ -86,20 +87,18 @@
     padding: 0;
   }
 
-  #rcg-{{ sid }} .rcg__link {
+  /* Link wrapper: neutralise any theme hover styles on links */
+  #rcg-{{ sid }} .rcg__link,
+  #rcg-{{ sid }} .rcg__link:hover,
+  #rcg-{{ sid }} .rcg__link:focus,
+  #rcg-{{ sid }} .rcg__link:active {
     display: block;
     height: 100%;
     color: inherit;
     text-decoration: none;
-    transition: transform 0.2s ease;
-  }
-
-  #rcg-{{ sid }} .rcg__link:hover {
-    transform: scale(var(--rcg-hover-scale));
-  }
-
-  #rcg-{{ sid }} .rcg__link:active {
-    transform: scale(0.98);
+    transform: none;
+    transition: none;
+    animation: none;
   }
 
   #rcg-{{ sid }} .rcg__link:focus-visible {
@@ -121,15 +120,8 @@
     border-radius: var(--rcg-radius);
     {%- if section.settings.show_shadow %}
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-    transition: box-shadow 0.3s ease;
     {%- endif %}
   }
-
-  {%- if section.settings.show_shadow %}
-  #rcg-{{ sid }} .rcg__link:hover .rcg__card {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  }
-  {%- endif %}
 
   #rcg-{{ sid }} .rcg__main {
     display: flex;
@@ -152,11 +144,6 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-  }
-
-  /* Stop theme-level image hover zoom from stacking on top of the card hover */
-  #rcg-{{ sid }} .rcg__icon img,
-  #rcg-{{ sid }} .rcg__link:hover .rcg__icon img {
     transform: none !important;
     transition: none !important;
   }
@@ -178,34 +165,25 @@
     width: 20px;
     height: 20px;
     color: var(--rcg-arrow);
-    transition: transform 0.3s ease;
-  }
-
-  #rcg-{{ sid }} .rcg__link:hover .rcg__arrow {
-    transform: translate(4px, -4px);
   }
 
   {%- if section.settings.enable_animation %}
   #rcg-{{ sid }} .rcg__item {
     opacity: 0;
-    transform: translateY(20px);
     animation: rcg-fade-up-{{ sid }} 0.5s ease forwards;
     animation-delay: calc(var(--rcg-i, 0) * var(--rcg-stagger));
   }
 
   @keyframes rcg-fade-up-{{ sid }} {
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @media (prefers-reduced-motion: reduce) {
     #rcg-{{ sid }} .rcg__item {
       opacity: 1;
-      transform: none;
       animation: none;
     }
-    #rcg-{{ sid }} .rcg__link,
-    #rcg-{{ sid }} .rcg__arrow { transition: none; }
-    #rcg-{{ sid }} .rcg__link:hover { transform: none; }
   }
   {%- endif %}
 </style>
@@ -260,12 +238,8 @@
                     {%- if block.settings.title != blank -%}
                       <h3 class="rcg__title">{{ block.settings.title | escape }}</h3>
                     {%- endif -%}
-                    {%- if section.settings.show_last_updated and block.settings.last_updated != blank -%}
-                      <p class="rcg__meta">
-                        {%- if section.settings.last_updated_label != blank -%}
-                          {{ section.settings.last_updated_label | escape }}
-                        {%- endif %} {{ block.settings.last_updated | escape -}}
-                      </p>
+                    {%- if section.settings.show_secondary_text and block.settings.secondary_text != blank -%}
+                      <p class="rcg__meta">{{ block.settings.secondary_text | escape }}</p>
                     {%- endif -%}
                   </div>
                 </div>
@@ -434,21 +408,15 @@
     },
     {
       "type": "checkbox",
-      "id": "show_last_updated",
+      "id": "show_secondary_text",
       "label": "Show secondary text under card title",
       "default": true
-    },
-    {
-      "type": "text",
-      "id": "last_updated_label",
-      "label": "Secondary text prefix",
-      "info": "Optional text shown before each card's secondary text, e.g. \"Updated:\". Leave empty for none."
     },
     {
       "type": "checkbox",
       "id": "open_in_new_tab",
       "label": "Open links in a new tab",
-      "default": true
+      "default": false
     },
 
     {
@@ -459,7 +427,7 @@
       "type": "checkbox",
       "id": "enable_animation",
       "label": "Enable fade-up entrance animation",
-      "info": "Disabled automatically for visitors who prefer reduced motion.",
+      "info": "Plays once when the page loads. There are no hover effects. Disabled automatically for visitors who prefer reduced motion.",
       "default": true
     },
     {
@@ -471,17 +439,6 @@
       "step": 10,
       "unit": "ms",
       "default": 100
-    },
-    {
-      "type": "range",
-      "id": "hover_scale",
-      "label": "Hover scale",
-      "min": 100,
-      "max": 106,
-      "step": 1,
-      "unit": "%",
-      "info": "100% turns the hover zoom off.",
-      "default": 101
     },
 
     {
@@ -575,7 +532,7 @@
         },
         {
           "type": "text",
-          "id": "last_updated",
+          "id": "secondary_text",
           "label": "Secondary text",
           "default": "New styles added weekly"
         },
@@ -597,12 +554,12 @@
         "subheading": "Everything you need to find your fit, from the latest drops to sizing help and easy returns."
       },
       "blocks": [
-        { "type": "card", "settings": { "title": "New Arrivals", "last_updated": "Fresh styles added every week" } },
-        { "type": "card", "settings": { "title": "Women's Collection", "last_updated": "Dresses, tops, denim & more" } },
-        { "type": "card", "settings": { "title": "Men's Collection", "last_updated": "Tees, shirts, jackets & joggers" } },
-        { "type": "card", "settings": { "title": "Size Guide", "last_updated": "Find your perfect fit" } },
-        { "type": "card", "settings": { "title": "Shipping & Returns", "last_updated": "Free shipping over $75, 30-day returns" } },
-        { "type": "card", "settings": { "title": "Care & Sustainability", "last_updated": "Made to last, washed with care" } }
+        { "type": "card", "settings": { "title": "New Arrivals", "secondary_text": "Fresh styles added every week" } },
+        { "type": "card", "settings": { "title": "Women's Collection", "secondary_text": "Dresses, tops, denim & more" } },
+        { "type": "card", "settings": { "title": "Men's Collection", "secondary_text": "Tees, shirts, jackets & joggers" } },
+        { "type": "card", "settings": { "title": "Size Guide", "secondary_text": "Find your perfect fit" } },
+        { "type": "card", "settings": { "title": "Shipping & Returns", "secondary_text": "Free shipping over $75, 30-day returns" } },
+        { "type": "card", "settings": { "title": "Care & Sustainability", "secondary_text": "Made to last, washed with care" } }
       ]
     }
   ]
