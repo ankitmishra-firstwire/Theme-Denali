@@ -1217,67 +1217,6 @@
       "name": "Scroll expand lookbook",
       "settings": {}
     },
-    "image_with_overlap_card_i4MYrd": {
-      "type": "image-with-overlap-card",
-      "name": "Image with overlap card",
-      "settings": {
-        "image": "shopify://shop_images/about-sec.webp",
-        "image_position": "right",
-        "image_width": 62,
-        "image_height": "custom",
-        "image_height_desktop": 490,
-        "image_height_mobile": 320,
-        "image_focus": "default",
-        "image_radius": 0,
-        "overlay_color": "#000000",
-        "overlay_opacity": 0,
-        "eyebrow": "",
-        "heading": "Forged in Cali",
-        "heading_tag": "h2",
-        "body": "<p>Born in a small, Southern California, blue-collar beach town, graced with world class point breaks and seaside racetracks, where ghosts of a once towering oil industry still linger.</p>",
-        "text_alignment": "left",
-        "show_accent": true,
-        "accent_color": "#e0a23b",
-        "accent_width": 30,
-        "accent_thickness": 2,
-        "accent_spacing": 14,
-        "card_bg": "#ffffff",
-        "card_width": 510,
-        "card_overlap": 80,
-        "edge_space": 26,
-        "card_vertical": "center",
-        "card_vertical_space": 40,
-        "card_padding": 48,
-        "card_padding_mobile": 24,
-        "card_radius": 6,
-        "card_shadow": false,
-        "card_border": false,
-        "card_border_color": "#e5e5e5",
-        "use_custom_font": false,
-        "heading_font": "assistant_n4",
-        "heading_size": 22,
-        "heading_weight": "500",
-        "body_size": 13,
-        "body_line_height": 19,
-        "background": "#f2f2f2",
-        "eyebrow_color": "#e0a23b",
-        "heading_color": "#000000",
-        "body_color": "#3a3a3a",
-        "button_label": "",
-        "button_link": "",
-        "button_style": "solid",
-        "button_bg": "#1a1a1a",
-        "button_text_color": "#ffffff",
-        "button_radius": 4,
-        "full_width": true,
-        "padding_top": 0,
-        "padding_bottom": 0,
-        "animate": true,
-        "mobile_layout": "stack",
-        "mobile_overlap": 40,
-        "mobile_side_space": 16
-      }
-    },
     "titled_grid_hero_hRJjVk": {
       "type": "titled-grid-hero",
       "blocks": {
@@ -1377,6 +1316,67 @@
         "border_color": "",
         "padding_top": 36,
         "padding_bottom": 36
+      }
+    },
+    "image_with_overlap_card_i4MYrd": {
+      "type": "image-with-overlap-card",
+      "name": "Image with overlap card",
+      "settings": {
+        "image": "shopify://shop_images/about-sec.webp",
+        "image_position": "right",
+        "image_width": 62,
+        "image_height": "custom",
+        "image_height_desktop": 490,
+        "image_height_mobile": 320,
+        "image_focus": "default",
+        "image_radius": 0,
+        "overlay_color": "#000000",
+        "overlay_opacity": 0,
+        "eyebrow": "",
+        "heading": "Forged in Cali",
+        "heading_tag": "h2",
+        "body": "<p>Born in a small, Southern California, blue-collar beach town, graced with world class point breaks and seaside racetracks, where ghosts of a once towering oil industry still linger.</p>",
+        "text_alignment": "left",
+        "show_accent": true,
+        "accent_color": "#e0a23b",
+        "accent_width": 30,
+        "accent_thickness": 2,
+        "accent_spacing": 14,
+        "card_bg": "#ffffff",
+        "card_width": 510,
+        "card_overlap": 80,
+        "edge_space": 26,
+        "card_vertical": "center",
+        "card_vertical_space": 40,
+        "card_padding": 48,
+        "card_padding_mobile": 24,
+        "card_radius": 6,
+        "card_shadow": false,
+        "card_border": false,
+        "card_border_color": "#e5e5e5",
+        "use_custom_font": false,
+        "heading_font": "assistant_n4",
+        "heading_size": 22,
+        "heading_weight": "500",
+        "body_size": 13,
+        "body_line_height": 19,
+        "background": "#f2f2f2",
+        "eyebrow_color": "#e0a23b",
+        "heading_color": "#000000",
+        "body_color": "#3a3a3a",
+        "button_label": "",
+        "button_link": "",
+        "button_style": "solid",
+        "button_bg": "#1a1a1a",
+        "button_text_color": "#ffffff",
+        "button_radius": 4,
+        "full_width": true,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "animate": true,
+        "mobile_layout": "stack",
+        "mobile_overlap": 40,
+        "mobile_side_space": 16
       }
     },
     "testimonial_autoscroll_iJ4ch6": {
@@ -1663,6 +1663,90 @@
         "button_background": "#ffffff",
         "button_text": "#0a0a0a"
       }
+    },
+    "resource_card_grid_yjdQ4f": {
+      "type": "resource-card-grid",
+      "blocks": {
+        "card_7Q8hMq": {
+          "type": "card",
+          "settings": {
+            "title": "New Arrivals",
+            "link": ""
+          }
+        },
+        "card_AtND4F": {
+          "type": "card",
+          "settings": {
+            "title": "Women's Collection",
+            "link": ""
+          }
+        },
+        "card_rgqcHd": {
+          "type": "card",
+          "settings": {
+            "title": "Men's Collection",
+            "link": ""
+          }
+        },
+        "card_A6banL": {
+          "type": "card",
+          "settings": {
+            "title": "Size Guide",
+            "link": ""
+          }
+        },
+        "card_Y6BcYY": {
+          "type": "card",
+          "settings": {
+            "title": "Shipping & Returns",
+            "link": ""
+          }
+        },
+        "card_p4t63c": {
+          "type": "card",
+          "settings": {
+            "title": "Care & Sustainability",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "card_7Q8hMq",
+        "card_AtND4F",
+        "card_rgqcHd",
+        "card_A6banL",
+        "card_Y6BcYY",
+        "card_p4t63c"
+      ],
+      "name": "Resource cards grid",
+      "settings": {
+        "heading": "Shop & Support",
+        "subheading": "Everything you need to find your fit, from the latest drops to sizing help and easy returns.",
+        "header_alignment": "left",
+        "columns_desktop": 3,
+        "columns_tablet": 2,
+        "columns_mobile": "1",
+        "grid_gap": 24,
+        "max_width": 1200,
+        "card_padding": 24,
+        "card_radius": 8,
+        "card_border_width": 1,
+        "icon_size": 40,
+        "show_shadow": true,
+        "show_arrow": true,
+        "open_in_new_tab": true,
+        "enable_animation": true,
+        "stagger_delay": 100,
+        "section_bg": "#ffffff",
+        "card_bg": "#ffffff",
+        "card_border_color": "#e5e7eb",
+        "heading_color": "#111827",
+        "card_title_color": "#111827",
+        "muted_color": "#6b7280",
+        "arrow_color": "#6b7280",
+        "padding_top": 48,
+        "padding_bottom": 48
+      }
     }
   },
   "order": [
@@ -1684,6 +1768,7 @@
     "image_with_overlap_card_i4MYrd",
     "testimonial_autoscroll_iJ4ch6",
     "newsletter",
-    "lumina_slideshow_YjrF9Y"
+    "lumina_slideshow_YjrF9Y",
+    "resource_card_grid_yjdQ4f"
   ]
 }
