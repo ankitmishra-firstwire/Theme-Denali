@@ -1670,6 +1670,7 @@
         "card_7Q8hMq": {
           "type": "card",
           "settings": {
+            "icon": "shopify://shop_images/truck.gif",
             "title": "New Arrivals",
             "link": ""
           }
