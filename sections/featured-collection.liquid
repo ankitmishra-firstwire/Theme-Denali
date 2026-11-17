@@ -470,9 +470,9 @@
   .fcx {
     --fcx-fg: rgb(var(--color-foreground, 18, 18, 18));
     --fcx-bg: rgb(var(--color-background, 255, 255, 255));
-    --fcx-muted: rgba(var(--color-foreground, 18, 18, 18), 0.66);
-    --fcx-line: rgba(var(--color-foreground, 18, 18, 18), 0.14);
-    --fcx-tint: rgba(var(--color-foreground, 18, 18, 18), 0.04);
+    --fcx-muted: color-mix(in srgb, var(--fcx-fg) 66%, transparent);
+    --fcx-line: color-mix(in srgb, var(--fcx-fg) 14%, transparent);
+    --fcx-tint: color-mix(in srgb, var(--fcx-fg) 4%, transparent);
     --fcx-media-bg: linear-gradient(var(--fcx-tint), var(--fcx-tint)), var(--fcx-bg);
     --fcx-btn-bg: var(--fcx-fg);
     --fcx-btn-text: var(--fcx-bg);
@@ -674,13 +674,17 @@
   .fcx--btn-outline .fcx-btn.is-loading::after { border-color: var(--fcx-btn-bg); border-right-color: transparent; }
 
   /* Quick view */
-  .fcx-modal {
-    padding: 0; border: 0; width: min(980px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);
-    border-radius: calc(var(--fcx-radius) + 6px); background: var(--fcx-bg); color: var(--fcx-fg);
+  .fcx .fcx-modal {
+    position: fixed; inset: 0; margin: auto;
+    width: min(980px, calc(100vw - 24px)); max-width: none;
+    height: fit-content; max-height: calc(100dvh - 24px);
+    padding: 0; border: 0; border-radius: calc(var(--fcx-radius) + 6px);
+    background: var(--fcx-bg); color: var(--fcx-fg);
     overflow: hidden; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
   }
-  .fcx-modal::backdrop { background: rgba(0, 0, 0, 0.5); }
-  .fcx-modal[open] { animation: fcx-pop 0.25s ease; }
+  .fcx .fcx-modal:not([open]) { display: none; }
+  .fcx .fcx-modal[open] { display: block; animation: fcx-pop 0.25s ease; }
+  .fcx .fcx-modal::backdrop { background: rgba(0, 0, 0, 0.55); }
   .fcx-modal__inner { position: relative; max-height: calc(100dvh - 24px); overflow: auto; }
   .fcx-modal__close { position: absolute; top: 12px; right: 12px; z-index: 5; }
   .fcx-modal__loading { min-height: 360px; display: grid; place-items: center; }
@@ -748,7 +752,7 @@
   @keyframes fcx-pop { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
   @media (prefers-reduced-motion: reduce) {
     .fcx *, .fcx *::before, .fcx *::after { transition: none !important; scroll-behavior: auto !important; }
-    .fcx-modal[open] { animation: none; }
+    .fcx .fcx-modal[open] { animation: none; }
   }
 {% endstylesheet %}
 
@@ -756,6 +760,7 @@
   if (!customElements.get('fc-advanced')) {
     class FcAdvanced extends HTMLElement {
       connectedCallback() {
+        this.resolveColors();
         const cfg = this.querySelector('[data-fcx-config]');
         this.config = cfg ? JSON.parse(cfg.textContent) : {};
         this.L = this.config.labels || {};
@@ -783,6 +788,25 @@
 
       disconnectedCallback() {
         if (this.onResize) window.removeEventListener('resize', this.onResize);
+      }
+
+      /* Reads the text and background colours the theme really renders, so the popup,
+         badges and toast get a solid background whatever format the theme uses for its colour variables. */
+      resolveColors() {
+        const alpha = (c) => {
+          if (!c || c === 'transparent') return 0;
+          let a = 1;
+          if (c.includes('/')) a = parseFloat(c.split('/').pop());
+          else if (/^(rgba|hsla)\(/.test(c)) a = parseFloat(c.split(',')[3]);
+          return isNaN(a) ? 1 : a;
+        };
+        let bg = null;
+        for (let el = this; el && el.nodeType === 1; el = el.parentElement) {
+          const c = getComputedStyle(el).backgroundColor;
+          if (alpha(c) >= 1) { bg = c; break; }
+        }
+        this.style.setProperty('--fcx-bg', bg || '#ffffff');
+        this.style.setProperty('--fcx-fg', getComputedStyle(this).color);
       }
 
       /* ---------- helpers ---------- */
