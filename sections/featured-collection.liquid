@@ -1,54 +1,1345 @@
-{%- assign collection = section.settings.collection -%}
-<div class="section color-{{ section.settings.color_scheme }}">
+{%- comment -%}
+  Featured collection (advanced)
+  - Quick add (single-variant: instant add · multi-variant: opens variant picker)
+  - Quick view modal with gallery, variant options, quantity, availability
+  - Hover image swap, colour swatches, badges (sale / sold out / new / tag-based)
+  - Ratings (reviews.rating metafield), low-stock note, unit price
+  - Grid or slider layout, swipe-on-mobile, theme cart drawer / notification integration
+{%- endcomment -%}
+
+{%- liquid
+  assign collection = section.settings.collection
+  assign products_to_show = section.settings.products_to_show
+  assign cols_d = section.settings.columns_desktop
+  assign cols_t = cols_d | at_most: 3
+  assign cols_m = section.settings.columns_mobile
+
+  case section.settings.image_ratio
+    when 'portrait'
+      assign media_ratio = '4 / 5'
+    when 'square'
+      assign media_ratio = '1 / 1'
+    when 'landscape'
+      assign media_ratio = '4 / 3'
+    else
+      assign media_ratio = nil
+      if collection != blank and collection.products.first.featured_media
+        assign media_ratio = collection.products.first.featured_media.aspect_ratio
+      endif
+      if media_ratio == blank
+        assign media_ratio = '1 / 1'
+      endif
+  endcase
+
+  assign align_items = 'flex-start'
+  if section.settings.text_alignment == 'center'
+    assign align_items = 'center'
+  endif
+
+  assign badge_right = false
+  if section.settings.badge_position == 'top_right'
+    assign badge_right = true
+  endif
+
+  assign show_view_all_link = false
+  if collection != blank and section.settings.show_view_all and collection.products_count > products_to_show
+    assign show_view_all_link = true
+  endif
+
+  assign show_arrows = false
+  if section.settings.layout == 'slider' and section.settings.show_arrows
+    assign show_arrows = true
+  endif
+
+  assign grid_class = ''
+  if section.settings.layout == 'slider'
+    assign grid_class = ' fcx-grid--slider'
+  elsif section.settings.slider_on_mobile
+    assign grid_class = ' fcx-grid--slider-mobile'
+  endif
+
+  assign img_widths = '240,360,480,600,800,1000,1200'
+  assign now_ts = 'now' | date: '%s' | plus: 0
+-%}
+
+{%- capture img_sizes -%}(min-width: 990px) calc((min(100vw, 1600px) - 100px) / {{ cols_d }}), (min-width: 750px) calc((100vw - 80px) / {{ cols_t }}), calc((100vw - 40px) / {{ cols_m }}){%- endcapture -%}
+
+{%- capture icon_eye -%}<svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>{%- endcapture -%}
+{%- capture icon_prev -%}<svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>{%- endcapture -%}
+{%- capture icon_next -%}<svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>{%- endcapture -%}
+{%- capture icon_close -%}<svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>{%- endcapture -%}
+
+<fc-advanced
+  class="fcx fcx--{{ section.settings.card_style }} fcx--btn-{{ section.settings.button_style }}{% if section.settings.image_zoom %} fcx--zoom{% endif %} color-{{ section.settings.color_scheme }}"
+  data-section-id="{{ section.id }}"
+  style="
+    --fcx-cols: {{ cols_d }};
+    --fcx-cols-tablet: {{ cols_t }};
+    --fcx-cols-mobile: {{ cols_m }};
+    --fcx-gap: {{ section.settings.grid_gap }}px;
+    --fcx-ratio: {{ media_ratio }};
+    --fcx-fit: {{ section.settings.image_fit }};
+    --fcx-radius: {{ section.settings.card_radius }}px;
+    --fcx-btn-radius: {{ section.settings.button_radius }}px;
+    --fcx-align: {{ section.settings.text_alignment }};
+    --fcx-items: {{ align_items }};
+    --fcx-pt: {{ section.settings.padding_top }};
+    --fcx-pb: {{ section.settings.padding_bottom }};
+    --fcx-sale-bg: {{ section.settings.sale_badge_bg }};
+    --fcx-sale-text: {{ section.settings.sale_badge_text }};
+    --fcx-new-bg: {{ section.settings.new_badge_bg }};
+    --fcx-new-text: {{ section.settings.new_badge_text }};
+    --fcx-star: {{ section.settings.rating_color }};
+    {%- if section.settings.image_bg != blank -%}--fcx-media-bg: {{ section.settings.image_bg }};{%- endif -%}
+    {%- if section.settings.button_bg != blank -%}--fcx-btn-bg: {{ section.settings.button_bg }};{%- endif -%}
+    {%- if section.settings.button_text != blank -%}--fcx-btn-text: {{ section.settings.button_text }};{%- endif -%}
+  "
+>
+  <script type="application/json" data-fcx-config>
+    {
+      "moneyFormat": {{ shop.money_format | json }},
+      "afterAdd": {{ section.settings.after_add | json }},
+      "cartUrl": {{ routes.cart_url | json }},
+      "cartAddUrl": {{ routes.cart_add_url | json }},
+      "root": {{ routes.root_url | json }},
+      "qvVendor": {{ section.settings.qv_show_vendor | json }},
+      "qvQuantity": {{ section.settings.qv_show_quantity | json }},
+      "qvDescription": {{ section.settings.qv_show_description | json }},
+      "qvDescriptionWords": {{ section.settings.qv_description_words | json }},
+      "labels": {
+        "addToCart": {{ section.settings.label_add_to_cart | json }},
+        "soldOut": {{ section.settings.label_sold_out | json }},
+        "unavailable": {{ section.settings.label_unavailable | json }},
+        "viewDetails": {{ section.settings.label_view_details | json }},
+        "added": {{ section.settings.label_added | json }},
+        "viewCart": {{ section.settings.label_view_cart | json }},
+        "quantity": {{ section.settings.label_quantity | json }},
+        "error": {{ section.settings.label_error | json }}
+      }
+    }
+  </script>
+
   <div class="page-width">
-    <div class="section-heading">
-      <div>
-        {%- if section.settings.subheading != blank -%}<p class="eyebrow">{{ section.settings.subheading | escape }}</p>{%- endif -%}
-        {%- if section.settings.heading != blank -%}<h2 class="section-title">{{ section.settings.heading | escape }}</h2>{%- endif -%}
+    <div class="fcx-head{% if section.settings.header_alignment == 'center' %} fcx-head--center{% endif %}">
+      <div class="fcx-head__text">
+        {%- if section.settings.subheading != blank -%}
+          <p class="fcx-eyebrow">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="fcx-title {{ section.settings.heading_size }}">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.description != blank -%}
+          <div class="fcx-desc rte">{{ section.settings.description }}</div>
+        {%- endif -%}
       </div>
-      {%- if collection != blank and section.settings.show_view_all and collection.products_count > section.settings.products_to_show -%}
-        <a class="link" href="{{ collection.url }}">
-          {{- 'sections.featured_collection.view_all' | t -}}
-          <span class="visually-hidden">: {{ collection.title | escape }}</span>
-        </a>
+
+      {%- if show_view_all_link or show_arrows -%}
+        <div class="fcx-head__aside">
+          {%- if show_view_all_link -%}
+            <a
+              class="{% if section.settings.view_all_style == 'button' %}fcx-btn fcx-btn--auto{% else %}fcx-viewall{% endif %}"
+              href="{{ collection.url }}"
+            >
+              {{- 'sections.featured_collection.view_all' | t -}}
+              <span class="fcx-sr">: {{ collection.title | escape }}</span>
+            </a>
+          {%- endif -%}
+          {%- if show_arrows -%}
+            <div class="fcx-arrows">
+              <button type="button" class="fcx-arrow" data-fcx-arrow="prev" aria-controls="FcxTrack-{{ section.id }}">
+                {{ icon_prev }}<span class="fcx-sr">{{ section.settings.label_previous | escape }}</span>
+              </button>
+              <button type="button" class="fcx-arrow" data-fcx-arrow="next" aria-controls="FcxTrack-{{ section.id }}">
+                {{ icon_next }}<span class="fcx-sr">{{ section.settings.label_next | escape }}</span>
+              </button>
+            </div>
+          {%- endif -%}
+        </div>
       {%- endif -%}
     </div>
 
-    <ul class="product-grid product-grid--{{ section.settings.columns_desktop }}-col list-unstyled" role="list">
+    <ul id="FcxTrack-{{ section.id }}" class="fcx-grid{{ grid_class }}" role="list" data-fcx-track>
       {%- if collection != blank and collection.products.size > 0 -%}
-        {%- for product in collection.products limit: section.settings.products_to_show -%}
-          <li class="product-grid__item">{% render 'product-card', product: product %}</li>
+        {%- for product in collection.products limit: products_to_show -%}
+          {%- liquid
+            assign v = product.selected_or_first_available_variant
+            assign card_media = v.featured_media | default: product.featured_media
+            assign alt_text = card_media.alt | default: product.title
+
+            assign second_media = nil
+            if section.settings.show_secondary_image and card_media
+              for m in product.media limit: 3
+                if m.id != card_media.id
+                  assign second_media = m
+                  break
+                endif
+              endfor
+            endif
+
+            assign on_sale = false
+            if v.compare_at_price > v.price
+              assign on_sale = true
+            endif
+          -%}
+
+          {%- capture badges -%}
+            {%- if product.available == false -%}
+              {%- if section.settings.show_sold_out_badge -%}
+                <span class="fcx-badge fcx-badge--soldout">{{ section.settings.label_sold_out | escape }}</span>
+              {%- endif -%}
+            {%- elsif on_sale and section.settings.show_sale_badge -%}
+              {%- case section.settings.sale_badge_style -%}
+                {%- when 'percent' -%}
+                  {%- assign pct = v.compare_at_price | minus: v.price | times: 100.0 | divided_by: v.compare_at_price | round -%}
+                  <span class="fcx-badge fcx-badge--sale">-{{ pct }}%</span>
+                {%- when 'amount' -%}
+                  {%- assign saved = v.compare_at_price | minus: v.price -%}
+                  <span class="fcx-badge fcx-badge--sale">{{ section.settings.label_save | escape }} {{ saved | money_without_trailing_zeros }}</span>
+                {%- else -%}
+                  <span class="fcx-badge fcx-badge--sale">{{ section.settings.label_sale | escape }}</span>
+              {%- endcase -%}
+            {%- endif -%}
+
+            {%- if section.settings.show_new_badge -%}
+              {%- assign published_ts = product.published_at | default: product.created_at | date: '%s' | plus: 0 -%}
+              {%- assign age_days = now_ts | minus: published_ts | divided_by: 86400 -%}
+              {%- if age_days <= section.settings.new_badge_days -%}
+                <span class="fcx-badge fcx-badge--new">{{ section.settings.label_new | escape }}</span>
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- if section.settings.badge_tag_prefix != blank -%}
+              {%- assign tag_prefix = section.settings.badge_tag_prefix | downcase -%}
+              {%- assign tag_prefix_size = tag_prefix | size -%}
+              {%- for tag in product.tags -%}
+                {%- assign tag_start = tag | slice: 0, tag_prefix_size | downcase -%}
+                {%- if tag_start == tag_prefix -%}
+                  {%- assign badge_text = tag | slice: tag_prefix_size, 60 | strip -%}
+                  {%- if badge_text != blank -%}
+                    <span class="fcx-badge fcx-badge--custom">{{ badge_text | escape }}</span>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          {%- endcapture -%}
+
+          {%- capture quick_add_btn -%}
+            {%- if product.has_only_default_variant -%}
+              {%- form 'product', product, class: 'fcx-quick-add-form', novalidate: 'novalidate' -%}
+                <input type="hidden" name="id" value="{{ v.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="fcx-btn"{% unless v.available %} disabled{% endunless %}>
+                  {%- if v.available -%}
+                    {{ section.settings.label_add_to_cart | escape }}
+                  {%- else -%}
+                    {{ section.settings.label_sold_out | escape }}
+                  {%- endif -%}
+                  <span class="fcx-sr">: {{ product.title | escape }}</span>
+                </button>
+              {%- endform -%}
+            {%- elsif product.available -%}
+              <button
+                type="button"
+                class="fcx-btn"
+                data-fcx-quick-view
+                data-url="{{ product.url }}"
+                data-variant-id="{{ v.id }}"
+                aria-haspopup="dialog"
+              >
+                {{- section.settings.label_choose_options | escape -}}
+                <span class="fcx-sr">: {{ product.title | escape }}</span>
+              </button>
+            {%- else -%}
+              <button type="button" class="fcx-btn" disabled>
+                {{- section.settings.label_sold_out | escape -}}
+                <span class="fcx-sr">: {{ product.title | escape }}</span>
+              </button>
+            {%- endif -%}
+          {%- endcapture -%}
+
+          <li class="fcx-grid__item">
+            <article class="fcx-card">
+              <div class="fcx-card__media{% if second_media %} fcx-card__media--has-secondary{% endif %}">
+                {%- if card_media -%}
+                  {{
+                    card_media
+                    | image_url: width: 1200
+                    | image_tag:
+                      widths: img_widths,
+                      sizes: img_sizes,
+                      loading: 'lazy',
+                      alt: alt_text,
+                      class: 'fcx-card__img fcx-card__img--primary'
+                  }}
+                  {%- if second_media -%}
+                    {{
+                      second_media
+                      | image_url: width: 1200
+                      | image_tag:
+                        widths: img_widths,
+                        sizes: img_sizes,
+                        loading: 'lazy',
+                        alt: '',
+                        class: 'fcx-card__img fcx-card__img--secondary'
+                    }}
+                  {%- endif -%}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'fcx-card__img fcx-placeholder' }}
+                {%- endif -%}
+
+                {%- if badges != blank -%}
+                  <div class="fcx-badges{% if badge_right %} fcx-badges--right{% endif %}">{{ badges }}</div>
+                {%- endif -%}
+
+                {%- if section.settings.show_quick_view -%}
+                  <div class="fcx-card__icons{% if badge_right %} fcx-card__icons--left{% endif %}">
+                    <button
+                      type="button"
+                      class="fcx-icon-btn"
+                      data-fcx-quick-view
+                      data-url="{{ product.url }}"
+                      data-variant-id="{{ v.id }}"
+                      aria-haspopup="dialog"
+                    >
+                      {{ icon_eye }}
+                      <span class="fcx-sr">{{ section.settings.label_quick_view | escape }}: {{ product.title | escape }}</span>
+                    </button>
+                  </div>
+                {%- endif -%}
+
+                {%- if section.settings.quick_add == 'overlay' -%}
+                  <div class="fcx-card__overlay">{{ quick_add_btn }}</div>
+                {%- endif -%}
+              </div>
+
+              <div class="fcx-card__info">
+                {%- if section.settings.show_vendor and product.vendor != blank -%}
+                  <p class="fcx-card__vendor">{{ product.vendor | escape }}</p>
+                {%- endif -%}
+
+                <h3 class="fcx-card__title">
+                  <a href="{{ product.url }}" data-fcx-link>{{ product.title | escape }}</a>
+                </h3>
+
+                {%- if section.settings.show_rating and product.metafields.reviews.rating.value != blank -%}
+                  {%- liquid
+                    assign rating = product.metafields.reviews.rating.value
+                    assign rating_pct = rating.rating | times: 100.0 | divided_by: rating.scale_max
+                    assign rating_count = product.metafields.reviews.rating_count.value
+                  -%}
+                  <div class="fcx-rating">
+                    <span
+                      class="fcx-rating__stars"
+                      style="--fcx-rating: {{ rating_pct }}%;"
+                      role="img"
+                      aria-label="{{ rating.rating | round: 1 }} / {{ rating.scale_max }}"
+                    ></span>
+                    {%- if rating_count != blank -%}
+                      <span class="fcx-rating__count">({{ rating_count }})</span>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+                <div class="fcx-price{% if on_sale and product.price_varies == false %} fcx-price--sale{% endif %}">
+                  {%- if product.price_varies -%}
+                    <span class="fcx-price__from">{{ section.settings.label_from | escape }}</span>
+                    <span class="fcx-price__current">{{ product.price_min | money }}</span>
+                  {%- else -%}
+                    <span class="fcx-price__current">{{ v.price | money }}</span>
+                    {%- if on_sale -%}
+                      <s class="fcx-price__compare">{{ v.compare_at_price | money }}</s>
+                    {%- endif -%}
+                  {%- endif -%}
+                  {%- if v.unit_price_measurement -%}
+                    <small class="fcx-price__unit">
+                      {{- v.unit_price | money }}/
+                      {%- if v.unit_price_measurement.reference_value != 1 -%}
+                        {{- v.unit_price_measurement.reference_value -}}
+                      {%- endif -%}
+                      {{- v.unit_price_measurement.reference_unit -}}
+                    </small>
+                  {%- endif -%}
+                </div>
+
+                {%- if section.settings.show_swatches and product.has_only_default_variant == false -%}
+                  {%- assign swatch_names = section.settings.swatch_option_name | downcase | replace: ', ', ',' | split: ',' -%}
+                  {%- for option in product.options_with_values -%}
+                    {%- assign option_name = option.name | downcase -%}
+                    {%- if swatch_names contains option_name -%}
+                      <ul class="fcx-swatches" role="list" aria-label="{{ option.name | escape }}">
+                        {%- for value in option.values limit: section.settings.swatch_limit -%}
+                          {%- liquid
+                            assign swatch_style = ''
+                            assign swatch_is_text = false
+                            if value.swatch.image
+                              assign swatch_url = value.swatch.image | image_url: width: 60
+                              assign swatch_style = '--swatch: url(' | append: swatch_url | append: ')'
+                            elsif value.swatch.color
+                              assign swatch_style = '--swatch: ' | append: value.swatch.color
+                            elsif value.variant.featured_media
+                              assign swatch_url = value.variant.featured_media | image_url: width: 60
+                              assign swatch_style = '--swatch: url(' | append: swatch_url | append: ')'
+                            else
+                              assign swatch_is_text = true
+                            endif
+                          -%}
+                          <li>
+                            <button
+                              type="button"
+                              class="fcx-swatch{% if swatch_is_text %} fcx-swatch--text{% endif %}{% if value.selected %} is-active{% endif %}"
+                              data-fcx-swatch
+                              aria-pressed="{% if value.selected %}true{% else %}false{% endif %}"
+                              {% if value.variant %}
+                                data-variant-id="{{ value.variant.id }}"
+                                data-url="{{ value.variant.url }}"
+                              {% endif %}
+                              {% if value.variant.featured_media %}
+                                data-image="{{ value.variant.featured_media | image_url: width: 1000 }}"
+                              {% endif %}
+                              {% if swatch_style != blank %}
+                                style="{{ swatch_style }}"
+                              {% endif %}
+                            >
+                              {%- if swatch_is_text -%}
+                                {{ value | escape }}
+                              {%- else -%}
+                                <span class="fcx-sr">{{ option.name | escape }}: {{ value | escape }}</span>
+                              {%- endif -%}
+                            </button>
+                          </li>
+                        {%- endfor -%}
+                        {%- if option.values.size > section.settings.swatch_limit -%}
+                          <li>
+                            <a class="fcx-swatch-more" href="{{ product.url }}">
+                              +{{ option.values.size | minus: section.settings.swatch_limit }}
+                            </a>
+                          </li>
+                        {%- endif -%}
+                      </ul>
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+
+                {%- if section.settings.show_low_stock and v.inventory_management == 'shopify' and v.inventory_policy == 'deny' and v.inventory_quantity > 0 and v.inventory_quantity <= section.settings.low_stock_threshold -%}
+                  <p class="fcx-stock">{{ section.settings.label_low_stock | replace: '[count]', v.inventory_quantity | escape }}</p>
+                {%- endif -%}
+
+                {%- if section.settings.quick_add == 'below' -%}
+                  <div class="fcx-card__cta">{{ quick_add_btn }}</div>
+                {%- endif -%}
+              </div>
+            </article>
+          </li>
         {%- endfor -%}
       {%- else -%}
-        {%- for i in (1..section.settings.products_to_show) -%}
-          <li class="product-grid__item">
-            <div class="product-card">
-              <div class="product-card__media">{%- assign placeholder_index = i | modulo: 4 | plus: 1 -%}{{ 'product-apparel-' | append: placeholder_index | placeholder_svg_tag: 'placeholder-svg' }}</div>
-              <div class="product-card__info">
-                <h3 class="product-card__title">{{ 'sections.featured_collection.placeholder_title' | t }}</h3>
-                <div class="price"><span class="price__current">{{ 1999 | money }}</span></div>
+        {%- for i in (1..products_to_show) -%}
+          {%- assign placeholder_index = i | modulo: 4 | plus: 1 -%}
+          <li class="fcx-grid__item">
+            <article class="fcx-card">
+              <div class="fcx-card__media">
+                {{ 'product-apparel-' | append: placeholder_index | placeholder_svg_tag: 'fcx-card__img fcx-placeholder' }}
               </div>
-            </div>
+              <div class="fcx-card__info">
+                {%- if section.settings.show_vendor -%}
+                  <p class="fcx-card__vendor">{{ shop.name | escape }}</p>
+                {%- endif -%}
+                <h3 class="fcx-card__title">{{ 'sections.featured_collection.placeholder_title' | t }}</h3>
+                <div class="fcx-price"><span class="fcx-price__current">{{ 1999 | money }}</span></div>
+              </div>
+            </article>
           </li>
         {%- endfor -%}
       {%- endif -%}
     </ul>
   </div>
-</div>
+
+  <dialog class="fcx-modal" data-fcx-modal aria-label="{{ section.settings.label_quick_view | escape }}">
+    <div class="fcx-modal__inner">
+      <button type="button" class="fcx-icon-btn fcx-modal__close" data-fcx-close>
+        {{ icon_close }}<span class="fcx-sr">{{ section.settings.label_close | escape }}</span>
+      </button>
+      <div data-fcx-modal-content></div>
+    </div>
+  </dialog>
+
+  <div class="fcx-toast" data-fcx-toast role="status" aria-live="polite"></div>
+</fc-advanced>
+
+{% stylesheet %}
+  .fcx {
+    --fcx-fg: rgb(var(--color-foreground, 18, 18, 18));
+    --fcx-bg: rgb(var(--color-background, 255, 255, 255));
+    --fcx-muted: rgba(var(--color-foreground, 18, 18, 18), 0.66);
+    --fcx-line: rgba(var(--color-foreground, 18, 18, 18), 0.14);
+    --fcx-tint: rgba(var(--color-foreground, 18, 18, 18), 0.04);
+    --fcx-media-bg: linear-gradient(var(--fcx-tint), var(--fcx-tint)), var(--fcx-bg);
+    --fcx-btn-bg: var(--fcx-fg);
+    --fcx-btn-text: var(--fcx-bg);
+    display: block;
+    color: var(--fcx-fg);
+    padding-top: calc(var(--fcx-pt) * 0.75px);
+    padding-bottom: calc(var(--fcx-pb) * 0.75px);
+  }
+  @media (min-width: 750px) {
+    .fcx {
+      padding-top: calc(var(--fcx-pt) * 1px);
+      padding-bottom: calc(var(--fcx-pb) * 1px);
+    }
+  }
+  .fcx-sr {
+    position: absolute !important;
+    width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* Heading */
+  .fcx-head {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 16px 24px; margin-bottom: 28px;
+  }
+  .fcx-head--center { flex-direction: column; align-items: center; text-align: center; }
+  .fcx-head__text > * { margin: 0; }
+  .fcx-head__text > * + * { margin-top: 8px; }
+  .fcx-eyebrow { font-size: 0.9em; color: var(--fcx-muted); }
+  .fcx-desc { color: var(--fcx-muted); max-width: 60ch; }
+  .fcx-head--center .fcx-desc { margin-inline: auto; }
+  .fcx-head__aside { display: flex; align-items: center; gap: 16px; }
+  .fcx-viewall { color: inherit; font-weight: 600; text-underline-offset: 4px; }
+  .fcx-arrows { display: flex; gap: 8px; }
+  .fcx-arrow {
+    width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+    border: 1px solid var(--fcx-line); background: var(--fcx-bg); color: var(--fcx-fg); cursor: pointer;
+  }
+  .fcx-arrow:hover:not(:disabled) { border-color: var(--fcx-fg); }
+  .fcx-arrow:disabled { opacity: 0.35; cursor: default; }
+
+  /* Grid + slider */
+  .fcx-grid {
+    --fcx-g: min(var(--fcx-gap), 12px);
+    list-style: none; margin: 0; padding: 0;
+    display: grid; gap: calc(var(--fcx-g) * 1.6) var(--fcx-g);
+    grid-template-columns: repeat(var(--fcx-cols-mobile), minmax(0, 1fr));
+  }
+  @media (min-width: 750px) {
+    .fcx-grid { --fcx-g: var(--fcx-gap); grid-template-columns: repeat(var(--fcx-cols-tablet), minmax(0, 1fr)); }
+  }
+  @media (min-width: 990px) {
+    .fcx-grid { grid-template-columns: repeat(var(--fcx-cols), minmax(0, 1fr)); }
+  }
+  .fcx-grid--slider {
+    --fcx-c: calc(var(--fcx-cols-mobile) + 0.3);
+    grid-template-columns: none; grid-auto-flow: column; column-gap: var(--fcx-g);
+    grid-auto-columns: calc((100% - var(--fcx-g) * (var(--fcx-c) - 1)) / var(--fcx-c));
+    overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+    scroll-behavior: smooth; scrollbar-width: none; padding-bottom: 4px;
+  }
+  .fcx-grid--slider::-webkit-scrollbar { display: none; }
+  .fcx-grid--slider > .fcx-grid__item { scroll-snap-align: start; }
+  @media (min-width: 750px) { .fcx-grid--slider { --fcx-c: calc(var(--fcx-cols-tablet) + 0.3); grid-template-columns: none; } }
+  @media (min-width: 990px) { .fcx-grid--slider { --fcx-c: var(--fcx-cols); grid-template-columns: none; } }
+  @media (max-width: 749px) {
+    .fcx-grid--slider-mobile {
+      --fcx-c: calc(var(--fcx-cols-mobile) + 0.3);
+      grid-template-columns: none; grid-auto-flow: column;
+      grid-auto-columns: calc((100% - var(--fcx-g) * (var(--fcx-c) - 1)) / var(--fcx-c));
+      overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 4px;
+    }
+    .fcx-grid--slider-mobile::-webkit-scrollbar { display: none; }
+    .fcx-grid--slider-mobile > .fcx-grid__item { scroll-snap-align: start; }
+  }
+
+  /* Card */
+  .fcx-card {
+    position: relative; display: flex; flex-direction: column; height: 100%;
+    text-align: var(--fcx-align); border-radius: var(--fcx-radius);
+  }
+  .fcx--bordered .fcx-card { border: 1px solid var(--fcx-line); overflow: hidden; }
+  .fcx--elevated .fcx-card {
+    overflow: hidden; background: var(--fcx-bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 10px 30px -12px rgba(0, 0, 0, 0.18);
+  }
+  .fcx--bordered .fcx-card__info, .fcx--elevated .fcx-card__info { padding: 0 14px 14px; }
+  .fcx-card__media {
+    position: relative; aspect-ratio: var(--fcx-ratio); overflow: hidden;
+    border-radius: var(--fcx-radius); background: var(--fcx-media-bg);
+  }
+  .fcx--bordered .fcx-card__media, .fcx--elevated .fcx-card__media { border-radius: 0; }
+  .fcx-card__img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: var(--fcx-fit); transition: opacity 0.4s ease, transform 0.6s ease;
+  }
+  .fcx-card__img--secondary { opacity: 0; background: var(--fcx-media-bg); }
+  .fcx-placeholder { fill: var(--fcx-muted); background: var(--fcx-tint); }
+  @media (hover: hover) {
+    .fcx-card:hover .fcx-card__img--secondary { opacity: 1; }
+    .fcx--zoom .fcx-card:hover .fcx-card__img { transform: scale(1.05); }
+  }
+
+  /* Badges */
+  .fcx-badges {
+    position: absolute; top: 10px; left: 10px; z-index: 2; pointer-events: none;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  }
+  .fcx-badges--right { left: auto; right: 10px; align-items: flex-end; }
+  .fcx-badge {
+    font-size: 0.72em; font-weight: 600; line-height: 1; padding: 6px 9px; border-radius: 999px;
+    background: var(--fcx-bg); color: var(--fcx-fg); box-shadow: 0 0 0 1px var(--fcx-line);
+  }
+  .fcx-badge--sale { background: var(--fcx-sale-bg); color: var(--fcx-sale-text); box-shadow: none; }
+  .fcx-badge--new { background: var(--fcx-new-bg); color: var(--fcx-new-text); box-shadow: none; }
+  .fcx-badge--soldout { background: var(--fcx-fg); color: var(--fcx-bg); box-shadow: none; }
+
+  /* Card actions */
+  .fcx-card__icons { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; flex-direction: column; gap: 8px; }
+  .fcx-card__icons--left { right: auto; left: 10px; }
+  .fcx-icon-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: 0; display: grid; place-items: center;
+    background: var(--fcx-bg); color: var(--fcx-fg); cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14); transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .fcx-card__overlay { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3; transition: opacity 0.25s ease, transform 0.25s ease; }
+  @media (hover: hover) {
+    .fcx-card__icons .fcx-icon-btn, .fcx-card__overlay { opacity: 0; transform: translateY(6px); }
+    .fcx-card:hover .fcx-card__icons .fcx-icon-btn, .fcx-card:focus-within .fcx-card__icons .fcx-icon-btn,
+    .fcx-card:hover .fcx-card__overlay, .fcx-card:focus-within .fcx-card__overlay { opacity: 1; transform: none; }
+  }
+
+  /* Info */
+  .fcx-card__info { display: flex; flex-direction: column; align-items: var(--fcx-items); gap: 6px; padding-top: 12px; flex: 1; }
+  .fcx-card__vendor { margin: 0; font-size: 0.8em; color: var(--fcx-muted); }
+  .fcx-card__title { margin: 0; font-size: 1em; line-height: 1.35; font-weight: 500; }
+  .fcx-card__title a { color: inherit; text-decoration: none; }
+  .fcx-card__title a::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: var(--fcx-radius); }
+  .fcx-card:hover .fcx-card__title a { text-decoration: underline; text-underline-offset: 3px; }
+  .fcx-card__title a:focus-visible { outline: none; }
+  .fcx-card__title a:focus-visible::after { outline: 2px solid var(--fcx-fg); outline-offset: 3px; }
+
+  .fcx-rating { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8em; color: var(--fcx-muted); }
+  .fcx-rating__stars {
+    font-size: 1.1em; letter-spacing: 2px; line-height: 1; color: transparent;
+    background: linear-gradient(90deg, var(--fcx-star) var(--fcx-rating), var(--fcx-line) var(--fcx-rating));
+    -webkit-background-clip: text; background-clip: text;
+  }
+  .fcx-rating__stars::before { content: "★★★★★"; }
+
+  .fcx-price { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: var(--fcx-items); gap: 2px 8px; }
+  .fcx-price__current { font-weight: 600; }
+  .fcx-price--sale .fcx-price__current { color: var(--fcx-sale-bg); }
+  .fcx-price__compare, .fcx-price__from { color: var(--fcx-muted); font-size: 0.9em; }
+  .fcx-price__unit { width: 100%; font-size: 0.78em; color: var(--fcx-muted); }
+
+  .fcx-swatches {
+    position: relative; z-index: 2; list-style: none; margin: 2px 0 0; padding: 0;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: var(--fcx-items); gap: 8px;
+  }
+  .fcx-swatch {
+    width: 22px; height: 22px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1px solid var(--fcx-line); background: var(--swatch, var(--fcx-tint)) center / cover no-repeat;
+    box-shadow: 0 0 0 2px var(--fcx-bg); transition: box-shadow 0.2s ease;
+  }
+  .fcx-swatch--text {
+    width: auto; min-width: 22px; padding: 0 8px; border-radius: 999px;
+    font: inherit; font-size: 0.72em; color: inherit; background: none;
+  }
+  .fcx-swatch.is-active, .fcx-swatch:hover { box-shadow: 0 0 0 2px var(--fcx-bg), 0 0 0 3px var(--fcx-fg); }
+  .fcx-swatch:focus-visible { outline: 2px solid var(--fcx-fg); outline-offset: 3px; }
+  .fcx-swatch-more { font-size: 0.78em; color: var(--fcx-muted); text-decoration: none; }
+
+  .fcx-stock { margin: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 0.8em; color: var(--fcx-sale-bg); }
+  .fcx-stock::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  /* Buttons */
+  .fcx-card__cta { margin-top: auto; padding-top: 8px; width: 100%; }
+  .fcx-quick-add-form { margin: 0; width: 100%; }
+  .fcx-btn {
+    position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; min-height: 44px; padding: 0 18px; border-radius: var(--fcx-btn-radius);
+    border: 1px solid var(--fcx-btn-bg); background: var(--fcx-btn-bg); color: var(--fcx-btn-text);
+    font: inherit; font-size: 0.9em; font-weight: 600; text-decoration: none; cursor: pointer;
+    transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+  .fcx-btn--auto { width: auto; }
+  .fcx-btn:hover { opacity: 0.88; }
+  .fcx-btn:focus-visible { outline: 2px solid var(--fcx-fg); outline-offset: 2px; }
+  .fcx-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .fcx--btn-outline .fcx-btn { background: transparent; color: var(--fcx-btn-bg); }
+  .fcx--btn-outline .fcx-btn:hover:not(:disabled) { background: var(--fcx-btn-bg); color: var(--fcx-btn-text); opacity: 1; }
+  .fcx--btn-outline .fcx-card__overlay .fcx-btn { background: var(--fcx-bg); color: var(--fcx-fg); border-color: var(--fcx-bg); }
+  .fcx-btn.is-loading { color: transparent !important; pointer-events: none; }
+  .fcx-btn.is-loading::after {
+    content: ""; position: absolute; width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--fcx-btn-text); border-right-color: transparent; animation: fcx-spin 0.7s linear infinite;
+  }
+  .fcx--btn-outline .fcx-btn.is-loading::after { border-color: var(--fcx-btn-bg); border-right-color: transparent; }
+
+  /* Quick view */
+  .fcx-modal {
+    padding: 0; border: 0; width: min(980px, calc(100vw - 24px)); max-height: calc(100dvh - 24px);
+    border-radius: calc(var(--fcx-radius) + 6px); background: var(--fcx-bg); color: var(--fcx-fg);
+    overflow: hidden; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
+  }
+  .fcx-modal::backdrop { background: rgba(0, 0, 0, 0.5); }
+  .fcx-modal[open] { animation: fcx-pop 0.25s ease; }
+  .fcx-modal__inner { position: relative; max-height: calc(100dvh - 24px); overflow: auto; }
+  .fcx-modal__close { position: absolute; top: 12px; right: 12px; z-index: 5; }
+  .fcx-modal__loading { min-height: 360px; display: grid; place-items: center; }
+  .fcx-modal__error { padding: 48px 24px; text-align: center; }
+  .fcx-spinner {
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--fcx-line);
+    border-top-color: var(--fcx-fg); animation: fcx-spin 0.7s linear infinite;
+  }
+  .fcx-qv { display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 750px) { .fcx-qv { grid-template-columns: 1.05fr 1fr; } }
+  .fcx-qv__gallery { padding: 16px; background: var(--fcx-tint); }
+  .fcx-qv__main { aspect-ratio: var(--fcx-ratio); border-radius: var(--fcx-radius); overflow: hidden; background: var(--fcx-media-bg); }
+  .fcx-qv__main img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .fcx-qv__thumbs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; scrollbar-width: thin; }
+  .fcx-qv__thumb {
+    flex: 0 0 60px; height: 60px; padding: 0; border: 1px solid var(--fcx-line); border-radius: 6px;
+    overflow: hidden; background: var(--fcx-bg); cursor: pointer; opacity: 0.65;
+  }
+  .fcx-qv__thumb.is-active { opacity: 1; border-color: var(--fcx-fg); }
+  .fcx-qv__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .fcx-qv__info { padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .fcx-qv__info .fcx-card__vendor { margin-bottom: -10px; }
+  .fcx-qv__title { margin: 0; font-size: 1.5em; line-height: 1.2; padding-right: 44px; }
+  .fcx-qv .fcx-price { font-size: 1.15em; justify-content: flex-start; }
+  .fcx-opt { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .fcx-opt legend { padding: 0; margin-bottom: 8px; font-size: 0.85em; }
+  .fcx-opt legend span { color: var(--fcx-muted); }
+  .fcx-opt__values { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fcx-pill { position: relative; }
+  .fcx-pill input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .fcx-pill span {
+    display: inline-flex; align-items: center; min-height: 38px; padding: 0 14px;
+    border: 1px solid var(--fcx-line); border-radius: 999px; font-size: 0.85em;
+  }
+  .fcx-pill input:checked + span { background: var(--fcx-fg); color: var(--fcx-bg); border-color: var(--fcx-fg); }
+  .fcx-pill input:focus-visible + span { outline: 2px solid var(--fcx-fg); outline-offset: 2px; }
+  .fcx-pill.is-unavailable span { text-decoration: line-through; opacity: 0.5; }
+  .fcx-qv__buy { display: flex; gap: 10px; }
+  .fcx-qty { display: inline-flex; align-items: center; flex: 0 0 auto; border: 1px solid var(--fcx-line); border-radius: var(--fcx-btn-radius); }
+  .fcx-qty button { width: 40px; height: 44px; border: 0; background: none; color: inherit; font-size: 1.1em; cursor: pointer; }
+  .fcx-qty input { width: 40px; border: 0; background: none; color: inherit; font: inherit; text-align: center; -moz-appearance: textfield; }
+  .fcx-qty input::-webkit-outer-spin-button, .fcx-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .fcx-qv__error { margin: 0; font-size: 0.85em; color: var(--fcx-sale-bg); }
+  .fcx-qv__desc { margin: 0; font-size: 0.9em; line-height: 1.6; color: var(--fcx-muted); }
+  .fcx-qv__details { color: inherit; font-weight: 600; font-size: 0.9em; text-underline-offset: 4px; }
+  html.fcx-lock { overflow: hidden; }
+
+  /* Toast */
+  .fcx-toast {
+    position: fixed; z-index: 1000; right: 16px; bottom: 16px; left: 16px; max-width: 380px; margin-left: auto;
+    display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px;
+    background: var(--fcx-bg); color: var(--fcx-fg); border: 1px solid var(--fcx-line);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    opacity: 0; visibility: hidden; transform: translateY(16px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  }
+  .fcx-toast.is-visible { opacity: 1; visibility: visible; transform: none; }
+  .fcx-toast--error { border-color: var(--fcx-sale-bg); }
+  .fcx-toast img { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; }
+  .fcx-toast__text { flex: 1; font-size: 0.85em; line-height: 1.4; }
+  .fcx-toast__text strong { display: block; }
+  .fcx-toast a { color: inherit; font-weight: 600; font-size: 0.85em; white-space: nowrap; }
+
+  @keyframes fcx-spin { to { transform: rotate(360deg); } }
+  @keyframes fcx-pop { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+  @media (prefers-reduced-motion: reduce) {
+    .fcx *, .fcx *::before, .fcx *::after { transition: none !important; scroll-behavior: auto !important; }
+    .fcx-modal[open] { animation: none; }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  if (!customElements.get('fc-advanced')) {
+    class FcAdvanced extends HTMLElement {
+      connectedCallback() {
+        const cfg = this.querySelector('[data-fcx-config]');
+        this.config = cfg ? JSON.parse(cfg.textContent) : {};
+        this.L = this.config.labels || {};
+        this.modal = this.querySelector('[data-fcx-modal]');
+        this.modalContent = this.querySelector('[data-fcx-modal-content]');
+        this.toast = this.querySelector('[data-fcx-toast]');
+        this.cache = new Map();
+
+        this.handleClick = this.handleClick.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.addEventListener('click', this.handleClick);
+        this.addEventListener('submit', this.handleSubmit);
+
+        if (this.modal) {
+          this.modal.addEventListener('click', (e) => { if (e.target === this.modal) this.modal.close(); });
+          this.modal.addEventListener('change', (e) => { if (e.target.matches('[data-fcx-option]')) this.updateQuickView(); });
+          this.modal.addEventListener('close', () => {
+            document.documentElement.classList.remove('fcx-lock');
+            if (this.lastTrigger && document.contains(this.lastTrigger)) this.lastTrigger.focus({ preventScroll: true });
+            this.lastTrigger = null;
+          });
+        }
+        this.setupSlider();
+      }
+
+      disconnectedCallback() {
+        if (this.onResize) window.removeEventListener('resize', this.onResize);
+      }
+
+      /* ---------- helpers ---------- */
+      esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      }
+      img(src, w) {
+        if (!src) return '';
+        const u = src.startsWith('//') ? 'https:' + src : src;
+        return u + (u.includes('?') ? '&' : '?') + 'width=' + w;
+      }
+      baseSrc(src) { return String(src || '').split('?')[0].replace(/^https?:/, ''); }
+      money(cents) {
+        const fmt = this.config.moneyFormat || '';
+        const rx = /\{\{\s*(\w+)\s*\}\}/;
+        const num = (n, p, t = ',', d = '.') => {
+          const [i, f] = (n / 100).toFixed(p).split('.');
+          return i.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + t) + (f ? d + f : '');
+        };
+        const m = fmt.match(rx);
+        if (!m) return (cents / 100).toFixed(2);
+        const map = {
+          amount: () => num(cents, 2),
+          amount_no_decimals: () => num(cents, 0),
+          amount_with_comma_separator: () => num(cents, 2, '.', ','),
+          amount_no_decimals_with_comma_separator: () => num(cents, 0, '.', ','),
+          amount_with_apostrophe_separator: () => num(cents, 2, "'", '.'),
+          amount_no_decimals_with_space_separator: () => num(cents, 0, ' ', ''),
+          amount_with_space_separator: () => num(cents, 2, ' ', ','),
+          amount_with_period_and_space_separator: () => num(cents, 2, ' ', '.'),
+        };
+        return fmt.replace(rx, (map[m[1]] || map.amount)());
+      }
+
+      /* ---------- events ---------- */
+      handleClick(e) {
+        const qv = e.target.closest('[data-fcx-quick-view]');
+        if (qv) { e.preventDefault(); this.openQuickView(qv); return; }
+
+        const sw = e.target.closest('[data-fcx-swatch]');
+        if (sw) { e.preventDefault(); this.selectSwatch(sw); return; }
+
+        if (e.target.closest('[data-fcx-close]')) { this.modal.close(); return; }
+
+        const thumb = e.target.closest('[data-fcx-thumb]');
+        if (thumb) { this.setQvImage(thumb.dataset.fcxThumb); return; }
+
+        const qty = e.target.closest('[data-fcx-qty]');
+        if (qty) {
+          const input = qty.parentElement.querySelector('input');
+          input.value = Math.max(1, (parseInt(input.value, 10) || 1) + Number(qty.dataset.fcxQty));
+          return;
+        }
+
+        const arrow = e.target.closest('[data-fcx-arrow]');
+        if (arrow) this.scrollSlider(arrow.dataset.fcxArrow === 'next' ? 1 : -1);
+      }
+
+      async handleSubmit(e) {
+        const form = e.target.closest('form.fcx-quick-add-form, form[data-fcx-form]');
+        if (!form) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const btn = form.querySelector('[type="submit"]');
+        if (!btn || btn.disabled || btn.classList.contains('is-loading')) return;
+        this.setLoading(btn, true);
+
+        const errorBox = form.querySelector('[data-fcx-qv-error]');
+        if (errorBox) errorBox.hidden = true;
+
+        const fd = new FormData(form);
+        const cartUI = this.getCartUI();
+        if (cartUI) {
+          fd.append('sections', cartUI.getSectionsToRender().map((s) => s.id).join(','));
+          fd.append('sections_url', window.location.pathname);
+        }
+
+        try {
+          const res = await fetch(this.config.cartAddUrl, {
+            method: 'POST',
+            headers: { Accept: 'application/javascript', 'X-Requested-With': 'XMLHttpRequest' },
+            body: fd,
+          });
+          const data = await res.json();
+          if (!res.ok || data.status) throw new Error(data.description || data.message || this.L.error);
+          this.afterAdd(data, cartUI);
+        } catch (err) {
+          const msg = err && err.message ? err.message : this.L.error;
+          if (errorBox) { errorBox.textContent = msg; errorBox.hidden = false; }
+          else this.showToast({ title: this.L.error, text: msg, error: true });
+        } finally {
+          this.setLoading(btn, false);
+        }
+      }
+
+      setLoading(btn, on) {
+        btn.classList.toggle('is-loading', on);
+        btn.setAttribute('aria-busy', on ? 'true' : 'false');
+      }
+
+      /* ---------- cart ---------- */
+      getCartUI() {
+        if (this.config.afterAdd !== 'theme') return null;
+        const el = document.querySelector('cart-drawer') || document.querySelector('cart-notification');
+        return el && typeof el.renderContents === 'function' && typeof el.getSectionsToRender === 'function' ? el : null;
+      }
+
+      afterAdd(item, cartUI) {
+        if (this.modal && this.modal.open) { this.lastTrigger = null; this.modal.close(); }
+
+        document.dispatchEvent(new CustomEvent('cart:item-added', { detail: { item } }));
+        if (typeof publish === 'function' && typeof PUB_SUB_EVENTS !== 'undefined') {
+          publish(PUB_SUB_EVENTS.cartUpdate, { source: 'fc-advanced', productVariantId: item.variant_id, cartData: item });
+        }
+
+        if (this.config.afterAdd === 'cart_page') { window.location.href = this.config.cartUrl; return; }
+
+        if (cartUI) {
+          cartUI.classList.remove('is-empty');
+          cartUI.renderContents(item);
+          return;
+        }
+
+        this.refreshCartCount();
+        const variant = item.variant_title && !/default title/i.test(item.variant_title) ? ' – ' + item.variant_title : '';
+        this.showToast({ title: this.L.added, text: (item.product_title || '') + variant, image: item.image });
+      }
+
+      async refreshCartCount() {
+        try {
+          const root = (this.config.root || '/').replace(/\/$/, '');
+          const bubble = document.getElementById('cart-icon-bubble');
+          if (bubble) {
+            const r = await fetch(root + '/?sections=cart-icon-bubble');
+            const j = await r.json();
+            if (j['cart-icon-bubble']) {
+              const doc = new DOMParser().parseFromString(j['cart-icon-bubble'], 'text/html');
+              const inner = doc.querySelector('.shopify-section');
+              if (inner) bubble.innerHTML = inner.innerHTML;
+            }
+          }
+          const cart = await (await fetch(this.config.cartUrl + '.js')).json();
+          document.querySelectorAll('[data-cart-count]').forEach((el) => { el.textContent = cart.item_count; });
+        } catch (_) { /* non-blocking */ }
+      }
+
+      showToast({ title, text, image, error }) {
+        if (!this.toast) return;
+        clearTimeout(this.toastTimer);
+        this.toast.classList.toggle('fcx-toast--error', !!error);
+        this.toast.innerHTML =
+          (image ? `<img src="${this.esc(this.img(image, 120))}" alt="" width="52" height="52">` : '') +
+          `<div class="fcx-toast__text"><strong>${this.esc(title)}</strong>${text ? `<span>${this.esc(text)}</span>` : ''}</div>` +
+          (error ? '' : `<a href="${this.esc(this.config.cartUrl)}">${this.esc(this.L.viewCart)}</a>`);
+        this.toast.classList.add('is-visible');
+        this.toastTimer = setTimeout(() => this.toast.classList.remove('is-visible'), 4500);
+      }
+
+      /* ---------- swatches ---------- */
+      selectSwatch(btn) {
+        const card = btn.closest('.fcx-card');
+        if (!card) return;
+        card.querySelectorAll('[data-fcx-swatch]').forEach((b) => {
+          b.classList.toggle('is-active', b === btn);
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+        if (btn.dataset.image) {
+          const img = card.querySelector('.fcx-card__img--primary');
+          if (img) { img.removeAttribute('srcset'); img.src = btn.dataset.image; }
+        }
+        if (btn.dataset.url) card.querySelectorAll('[data-fcx-link]').forEach((a) => { a.href = btn.dataset.url; });
+        if (btn.dataset.variantId) card.querySelectorAll('[data-fcx-quick-view]').forEach((b) => { b.dataset.variantId = btn.dataset.variantId; });
+      }
+
+      /* ---------- slider ---------- */
+      setupSlider() {
+        this.track = this.querySelector('[data-fcx-track]');
+        this.prevBtn = this.querySelector('[data-fcx-arrow="prev"]');
+        this.nextBtn = this.querySelector('[data-fcx-arrow="next"]');
+        if (!this.track || !this.prevBtn || !this.nextBtn) return;
+        const update = () => {
+          const max = this.track.scrollWidth - this.track.clientWidth - 2;
+          this.prevBtn.disabled = this.track.scrollLeft <= 2;
+          this.nextBtn.disabled = this.track.scrollLeft >= max;
+        };
+        this.onResize = update;
+        this.track.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        update();
+      }
+
+      scrollSlider(dir) {
+        const item = this.track && this.track.querySelector('.fcx-grid__item');
+        if (!item) return;
+        const gap = parseFloat(getComputedStyle(this.track).columnGap) || 0;
+        const step = item.offsetWidth + gap;
+        const perPage = Math.max(1, Math.floor((this.track.clientWidth + gap) / step));
+        this.track.scrollBy({ left: dir * perPage * step, behavior: 'smooth' });
+      }
+
+      /* ---------- quick view ---------- */
+      async fetchProduct(url) {
+        const clean = url.split('?')[0].replace(/\/$/, '');
+        if (this.cache.has(clean)) return this.cache.get(clean);
+        const res = await fetch(clean + '.js', { headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(this.L.error);
+        const product = await res.json();
+        this.cache.set(clean, product);
+        return product;
+      }
+
+      async openQuickView(trigger) {
+        if (!this.modal) return;
+        this.lastTrigger = trigger;
+        this.modalContent.innerHTML = '<div class="fcx-modal__loading" aria-busy="true"><span class="fcx-spinner"></span></div>';
+        if (!this.modal.open) this.modal.showModal();
+        document.documentElement.classList.add('fcx-lock');
+        try {
+          const product = await this.fetchProduct(trigger.dataset.url);
+          this.renderQuickView(product, trigger.dataset.variantId, trigger.dataset.url.split('?')[0]);
+        } catch (err) {
+          this.modalContent.innerHTML = `<p class="fcx-modal__error">${this.esc(this.L.error)}</p>`;
+        }
+      }
+
+      renderQuickView(p, variantId, fallbackUrl) {
+        const c = this.config;
+        const L = this.L;
+        const uid = this.dataset.sectionId;
+        const variant =
+          p.variants.find((v) => String(v.id) === String(variantId)) ||
+          p.variants.find((v) => v.available) ||
+          p.variants[0];
+        this.qv = { product: p, variant, url: p.url || fallbackUrl };
+
+        let media = (p.media || [])
+          .filter((m) => m.media_type === 'image' || m.preview_image)
+          .map((m) => ({ src: m.media_type === 'image' ? m.src : m.preview_image.src, alt: m.alt || p.title }));
+        if (!media.length) media = (p.images || []).map((src) => ({ src, alt: p.title }));
+        const startSrc = (variant && variant.featured_image && variant.featured_image.src) || (media[0] && media[0].src);
+
+        const hasOptions = !(p.variants.length === 1 && /^default title$/i.test(p.variants[0].title));
+        const optionsHtml = hasOptions
+          ? (p.options || []).map((opt, i) => {
+              const name = typeof opt === 'string' ? opt : opt.name;
+              const values = opt && opt.values ? opt.values : [...new Set(p.variants.map((v) => v.options[i]))];
+              const current = variant ? variant.options[i] : values[0];
+              return `<fieldset class="fcx-opt">
+                <legend>${this.esc(name)}: <span data-fcx-opt-label>${this.esc(current)}</span></legend>
+                <div class="fcx-opt__values">${values.map((val) => `
+                  <label class="fcx-pill">
+                    <input type="radio" name="fcx-${uid}-opt-${i}" value="${this.esc(val)}" data-fcx-option data-index="${i}"${val === current ? ' checked' : ''}>
+                    <span>${this.esc(val)}</span>
+                  </label>`).join('')}
+                </div>
+              </fieldset>`;
+            }).join('')
+          : '';
+
+        let desc = '';
+        if (c.qvDescription && p.description) {
+          const text = new DOMParser().parseFromString(p.description, 'text/html').body.textContent.replace(/\s+/g, ' ').trim();
+          const words = text.split(' ');
+          const limit = c.qvDescriptionWords || 35;
+          if (text) desc = `<p class="fcx-qv__desc">${this.esc(words.slice(0, limit).join(' '))}${words.length > limit ? '…' : ''}</p>`;
+        }
+
+        const qty = c.qvQuantity
+          ? `<div class="fcx-qty">
+               <button type="button" data-fcx-qty="-1" aria-label="${this.esc(L.quantity)} −">−</button>
+               <input type="number" name="quantity" value="1" min="1" aria-label="${this.esc(L.quantity)}">
+               <button type="button" data-fcx-qty="1" aria-label="${this.esc(L.quantity)} +">+</button>
+             </div>`
+          : '<input type="hidden" name="quantity" value="1">';
+
+        const titleId = 'FcxQvTitle-' + uid;
+        this.modalContent.innerHTML = `
+          <div class="fcx-qv">
+            <div class="fcx-qv__gallery">
+              <div class="fcx-qv__main">${startSrc ? `<img data-fcx-qv-main src="${this.esc(this.img(startSrc, 1000))}" alt="${this.esc(p.title)}">` : ''}</div>
+              ${media.length > 1 ? `<div class="fcx-qv__thumbs">${media.map((m, i) => `
+                <button type="button" class="fcx-qv__thumb" data-fcx-thumb="${this.esc(m.src)}" aria-label="${this.esc(m.alt)} ${i + 1}">
+                  <img src="${this.esc(this.img(m.src, 160))}" alt="" loading="lazy">
+                </button>`).join('')}</div>` : ''}
+            </div>
+            <div class="fcx-qv__info">
+              ${c.qvVendor && p.vendor ? `<p class="fcx-card__vendor">${this.esc(p.vendor)}</p>` : ''}
+              <h2 id="${titleId}" class="fcx-qv__title">${this.esc(p.title)}</h2>
+              <div class="fcx-price" data-fcx-qv-price></div>
+              <form data-fcx-form action="${this.esc(c.cartAddUrl)}" method="post" novalidate>
+                <input type="hidden" name="id" value="${variant ? variant.id : ''}">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  ${optionsHtml}
+                  <div class="fcx-qv__buy">${qty}<button type="submit" class="fcx-btn" data-fcx-qv-submit></button></div>
+                  <p class="fcx-qv__error" data-fcx-qv-error role="alert" hidden></p>
+                </div>
+              </form>
+              ${desc}
+              <a class="fcx-qv__details" data-fcx-qv-link href="${this.esc(this.qv.url)}">${this.esc(L.viewDetails)}</a>
+            </div>
+          </div>`;
+        this.modal.setAttribute('aria-labelledby', titleId);
+        if (startSrc) this.setQvImage(startSrc);
+        this.updateQuickView();
+      }
+
+      setQvImage(src) {
+        const main = this.modalContent.querySelector('[data-fcx-qv-main]');
+        if (main) main.src = this.img(src, 1000);
+        const target = this.baseSrc(src);
+        this.modalContent.querySelectorAll('[data-fcx-thumb]').forEach((t) => {
+          t.classList.toggle('is-active', this.baseSrc(t.dataset.fcxThumb) === target);
+        });
+      }
+
+      updateQuickView() {
+        if (!this.qv) return;
+        const p = this.qv.product;
+        const root = this.modalContent;
+        const fieldsets = [...root.querySelectorAll('.fcx-opt')];
+        const selected = fieldsets.map((fs) => {
+          const checked = fs.querySelector('input:checked');
+          return checked ? checked.value : null;
+        });
+
+        let variant = this.qv.variant;
+        if (selected.length) variant = p.variants.find((v) => v.options.every((o, i) => o === selected[i])) || null;
+        this.qv.variant = variant;
+
+        fieldsets.forEach((fs, i) => {
+          const label = fs.querySelector('[data-fcx-opt-label]');
+          if (label) label.textContent = selected[i] || '';
+        });
+        root.querySelectorAll('[data-fcx-option]').forEach((input) => {
+          const i = Number(input.dataset.index);
+          const ok = p.variants.some((v) => v.available && v.options[i] === input.value && v.options.every((o, j) => j === i || o === selected[j]));
+          input.closest('.fcx-pill').classList.toggle('is-unavailable', !ok);
+        });
+
+        const priceEl = root.querySelector('[data-fcx-qv-price]');
+        const btn = root.querySelector('[data-fcx-qv-submit]');
+        const idInput = root.querySelector('input[name="id"]');
+        const link = root.querySelector('[data-fcx-qv-link]');
+
+        if (!variant) {
+          priceEl.innerHTML = '';
+          btn.disabled = true;
+          btn.textContent = this.L.unavailable;
+          return;
+        }
+
+        const sale = variant.compare_at_price && variant.compare_at_price > variant.price;
+        priceEl.classList.toggle('fcx-price--sale', !!sale);
+        priceEl.innerHTML =
+          `<span class="fcx-price__current">${this.money(variant.price)}</span>` +
+          (sale ? `<s class="fcx-price__compare">${this.money(variant.compare_at_price)}</s>` : '');
+
+        idInput.value = variant.id;
+        btn.disabled = !variant.available;
+        btn.textContent = variant.available ? this.L.addToCart : this.L.soldOut;
+        if (link) link.href = this.qv.url + '?variant=' + variant.id;
+        if (variant.featured_image && variant.featured_image.src) this.setQvImage(variant.featured_image.src);
+      }
+    }
+    customElements.define('fc-advanced', FcAdvanced);
+  }
+{% endjavascript %}
 
 {% schema %}
 {
   "name": "Featured collection",
   "tag": "section",
   "class": "section-featured-collection",
+  "disabled_on": { "groups": ["header", "footer"] },
   "settings": [
+    { "type": "header", "content": "Content" },
     { "type": "text", "id": "subheading", "label": "Subheading" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Featured products" },
+    {
+      "type": "select", "id": "heading_size", "label": "Heading size", "default": "h1",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ]
+    },
+    { "type": "richtext", "id": "description", "label": "Description" },
+    {
+      "type": "select", "id": "header_alignment", "label": "Heading alignment", "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ]
+    },
     { "type": "collection", "id": "collection", "label": "Collection" },
-    { "type": "range", "id": "products_to_show", "label": "Products to show", "min": 2, "max": 12, "step": 1, "default": 4 },
-    { "type": "range", "id": "columns_desktop", "label": "Columns on desktop", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "range", "id": "products_to_show", "label": "Products to show", "min": 2, "max": 24, "step": 1, "default": 8 },
     { "type": "checkbox", "id": "show_view_all", "label": "Show “View all” link", "info": "Shown when the collection has more products than are displayed.", "default": true },
-    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+    {
+      "type": "select", "id": "view_all_style", "label": "“View all” style", "default": "link",
+      "options": [
+        { "value": "link", "label": "Link" },
+        { "value": "button", "label": "Button" }
+      ]
+    },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "select", "id": "layout", "label": "Layout", "default": "grid",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "slider", "label": "Slider" }
+      ]
+    },
+    { "type": "range", "id": "columns_desktop", "label": "Columns on desktop", "min": 2, "max": 6, "step": 1, "default": 4 },
+    {
+      "type": "select", "id": "columns_mobile", "label": "Columns on mobile", "default": "2",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ]
+    },
+    { "type": "checkbox", "id": "slider_on_mobile", "label": "Swipe on mobile", "info": "Turns the grid into a swipeable row on mobile.", "default": false },
+    { "type": "checkbox", "id": "show_arrows", "label": "Show slider arrows", "info": "Slider layout only.", "default": true },
+    { "type": "range", "id": "grid_gap", "label": "Space between products", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 20 },
+
+    { "type": "header", "content": "Product card" },
+    {
+      "type": "select", "id": "card_style", "label": "Card style", "default": "standard",
+      "options": [
+        { "value": "standard", "label": "Standard" },
+        { "value": "bordered", "label": "Bordered" },
+        { "value": "elevated", "label": "Elevated" }
+      ]
+    },
+    { "type": "range", "id": "card_radius", "label": "Corner radius", "min": 0, "max": 24, "step": 1, "unit": "px", "default": 8 },
+    {
+      "type": "select", "id": "text_alignment", "label": "Text alignment", "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ]
+    },
+    {
+      "type": "select", "id": "image_ratio", "label": "Image ratio", "default": "portrait",
+      "options": [
+        { "value": "adapt", "label": "Adapt to first image" },
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "square", "label": "Square" },
+        { "value": "landscape", "label": "Landscape" }
+      ]
+    },
+    {
+      "type": "select", "id": "image_fit", "label": "Image fit", "default": "cover",
+      "options": [
+        { "value": "cover", "label": "Fill" },
+        { "value": "contain", "label": "Fit" }
+      ]
+    },
+    { "type": "color", "id": "image_bg", "label": "Image background", "info": "Fills behind transparent images (PNG cutouts) and around images set to Fit. Leave empty for a light tint of the color scheme." },
+    { "type": "checkbox", "id": "show_secondary_image", "label": "Show second image on hover", "default": true },
+    { "type": "checkbox", "id": "image_zoom", "label": "Zoom image on hover", "default": false },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_rating", "label": "Show rating", "info": "Needs a reviews app that fills the standard reviews.rating metafield.", "default": false },
+    { "type": "color", "id": "rating_color", "label": "Star color", "default": "#E8A317" },
+    { "type": "checkbox", "id": "show_swatches", "label": "Show swatches", "default": true },
+    { "type": "text", "id": "swatch_option_name", "label": "Swatch option names", "info": "Comma-separated, e.g. Color,Colour,Shade", "default": "Color,Colour" },
+    { "type": "range", "id": "swatch_limit", "label": "Max swatches per card", "min": 2, "max": 10, "step": 1, "default": 5 },
+    { "type": "checkbox", "id": "show_low_stock", "label": "Show low stock note", "info": "Only for variants tracked by Shopify that can't be oversold.", "default": true },
+    { "type": "range", "id": "low_stock_threshold", "label": "Low stock threshold", "min": 1, "max": 20, "step": 1, "default": 5 },
+
+    { "type": "header", "content": "Badges" },
+    {
+      "type": "select", "id": "badge_position", "label": "Badge position", "default": "top_left",
+      "options": [
+        { "value": "top_left", "label": "Top left" },
+        { "value": "top_right", "label": "Top right" }
+      ]
+    },
+    { "type": "checkbox", "id": "show_sale_badge", "label": "Show sale badge", "default": true },
+    {
+      "type": "select", "id": "sale_badge_style", "label": "Sale badge shows", "default": "percent",
+      "options": [
+        { "value": "text", "label": "Text" },
+        { "value": "percent", "label": "Percentage off" },
+        { "value": "amount", "label": "Amount saved" }
+      ]
+    },
+    { "type": "checkbox", "id": "show_sold_out_badge", "label": "Show sold out badge", "default": true },
+    { "type": "checkbox", "id": "show_new_badge", "label": "Show “New” badge", "default": false },
+    { "type": "range", "id": "new_badge_days", "label": "Product counts as new for", "min": 1, "max": 90, "step": 1, "unit": "d", "default": 30 },
+    { "type": "text", "id": "badge_tag_prefix", "label": "Custom badge tag prefix", "info": "Tag a product badge:Bestseller to show a Bestseller badge. Leave empty to turn off.", "default": "badge:" },
+    { "type": "color", "id": "sale_badge_bg", "label": "Sale color", "info": "Also used for sale prices and low stock.", "default": "#C8102E" },
+    { "type": "color", "id": "sale_badge_text", "label": "Sale badge text", "default": "#FFFFFF" },
+    { "type": "color", "id": "new_badge_bg", "label": "New badge background", "default": "#1E6B52" },
+    { "type": "color", "id": "new_badge_text", "label": "New badge text", "default": "#FFFFFF" },
+
+    { "type": "header", "content": "Buttons" },
+    {
+      "type": "select", "id": "quick_add", "label": "Quick add", "default": "below",
+      "options": [
+        { "value": "none", "label": "Off" },
+        { "value": "below", "label": "Button below details" },
+        { "value": "overlay", "label": "Button on image (hover)" }
+      ]
+    },
+    { "type": "checkbox", "id": "show_quick_view", "label": "Show quick view", "default": true },
+    {
+      "type": "select", "id": "after_add", "label": "After adding to cart", "default": "theme",
+      "options": [
+        { "value": "theme", "label": "Open theme cart drawer / popup" },
+        { "value": "toast", "label": "Show a small confirmation" },
+        { "value": "cart_page", "label": "Go to cart page" }
+      ],
+      "info": "If the theme has no cart drawer or popup, a small confirmation is shown instead."
+    },
+    {
+      "type": "select", "id": "button_style", "label": "Button style", "default": "solid",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "outline", "label": "Outline" }
+      ]
+    },
+    { "type": "range", "id": "button_radius", "label": "Button radius", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 6 },
+    { "type": "color", "id": "button_bg", "label": "Button color", "info": "Leave empty to use the color scheme." },
+    { "type": "color", "id": "button_text", "label": "Button text color", "info": "Leave empty to use the color scheme." },
+
+    { "type": "header", "content": "Quick view" },
+    { "type": "checkbox", "id": "qv_show_vendor", "label": "Show vendor", "default": true },
+    { "type": "checkbox", "id": "qv_show_quantity", "label": "Show quantity selector", "default": true },
+    { "type": "checkbox", "id": "qv_show_description", "label": "Show description", "default": true },
+    { "type": "range", "id": "qv_description_words", "label": "Description length", "min": 10, "max": 80, "step": 5, "unit": "w", "default": 35 },
+
+    { "type": "header", "content": "Labels" },
+    { "type": "text", "id": "label_add_to_cart", "label": "Add to cart", "default": "Add to cart" },
+    { "type": "text", "id": "label_choose_options", "label": "Choose options", "default": "Choose options" },
+    { "type": "text", "id": "label_sold_out", "label": "Sold out", "default": "Sold out" },
+    { "type": "text", "id": "label_unavailable", "label": "Unavailable", "default": "Unavailable" },
+    { "type": "text", "id": "label_sale", "label": "Sale", "default": "Sale" },
+    { "type": "text", "id": "label_save", "label": "Save", "default": "Save" },
+    { "type": "text", "id": "label_new", "label": "New", "default": "New" },
+    { "type": "text", "id": "label_from", "label": "Price from", "default": "From" },
+    { "type": "text", "id": "label_low_stock", "label": "Low stock", "info": "[count] is replaced by the number left.", "default": "Only [count] left" },
+    { "type": "text", "id": "label_quick_view", "label": "Quick view", "default": "Quick view" },
+    { "type": "text", "id": "label_view_details", "label": "View details", "default": "View full details" },
+    { "type": "text", "id": "label_added", "label": "Added to cart", "default": "Added to cart" },
+    { "type": "text", "id": "label_view_cart", "label": "View cart", "default": "View cart" },
+    { "type": "text", "id": "label_quantity", "label": "Quantity", "default": "Quantity" },
+    { "type": "text", "id": "label_error", "label": "Error message", "default": "Couldn't add this item. Please try again." },
+    { "type": "text", "id": "label_close", "label": "Close", "default": "Close" },
+    { "type": "text", "id": "label_previous", "label": "Previous", "default": "Previous" },
+    { "type": "text", "id": "label_next", "label": "Next", "default": "Next" },
+
+    { "type": "header", "content": "Section" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 100, "step": 4, "unit": "px", "default": 40 }
   ],
   "presets": [{ "name": "Featured collection" }]
 }
