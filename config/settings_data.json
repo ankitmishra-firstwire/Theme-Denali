@@ -9,7 +9,10 @@
  */
 {
   "current": {
-    "type_body_font": "work_sans_n4",
+    "type_heading_font": "host_grotesk_n4",
+    "type_body_font": "host_grotesk_n4",
+    "type_accent_font": "host_grotesk_n4",
+    "h1_font_size": 52,
     "max_page_width": "1440px",
     "animations_reveal_on_scroll": true,
     "button_text_case": "uppercase",
