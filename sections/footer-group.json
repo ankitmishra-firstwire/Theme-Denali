@@ -19,28 +19,40 @@
           "settings": {
             "logo": "shopify://shop_images/Denali_Mountain_Wordmark_Logo.png",
             "logo_width": 200,
-            "text": "<p>Share a short description of your brand with customers.</p>"
+            "text": "<p>Share a short description of your brand with customers.</p>",
+            "show_social": false,
+            "width": "auto",
+            "width_mobile": "full"
           }
         },
         "link_list_K7expF": {
           "type": "link_list",
           "settings": {
             "heading": "Collections",
-            "menu": "collections"
+            "menu": "collections",
+            "columns": "1",
+            "width": "auto",
+            "width_mobile": "full"
           }
         },
         "menu": {
           "type": "link_list",
           "settings": {
             "heading": "Quick links",
-            "menu": "footer"
+            "menu": "footer",
+            "columns": "1",
+            "width": "auto",
+            "width_mobile": "full"
           }
         },
         "newsletter": {
           "type": "newsletter",
           "settings": {
             "heading": "Join our list",
-            "text": "<p>Be the first to hear about new arrivals and seasonal care guides.</p>"
+            "text": "<p>Be the first to hear about new arrivals and seasonal care guides.</p>",
+            "note": "",
+            "width": "auto",
+            "width_mobile": "full"
           }
         }
       },
@@ -51,14 +63,33 @@
         "newsletter"
       ],
       "settings": {
+        "layout_style": "full",
+        "content_width": "page",
+        "inset_margin": 16,
+        "corner_radius": 0,
+        "text_alignment": "left",
+        "heading_size": "medium",
+        "column_gap": 40,
+        "show_dividers": true,
+        "collapse_mobile": true,
+        "padding_top": 64,
+        "padding_bottom": 32,
         "color_scheme": "scheme-4",
+        "text_color": "",
+        "bg_type": "image",
+        "bg_image": "shopify://shop_images/mohamed-lammah-J_1pSMGACyI-unsplash.jpg",
+        "overlay_color": "#000000",
+        "overlay_opacity": 40,
         "show_social": true,
         "enable_follow_on_shop": true,
-        "show_payment_icons": true,
-        "show_policies": true,
-        "show_powered_by": false,
         "enable_country_selector": true,
-        "enable_language_selector": true
+        "enable_language_selector": true,
+        "copyright_text": "© [year], [shop]",
+        "show_policies": true,
+        "show_payment_icons": true,
+        "show_powered_by": false,
+        "show_back_to_top": true,
+        "back_to_top_label": "Back to top"
       }
     }
   },

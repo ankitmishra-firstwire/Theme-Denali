@@ -59,13 +59,13 @@
       },
       "scheme-4": {
         "settings": {
-          "background": "#ffffff",
+          "background": "#000000",
           "background_gradient": "",
-          "text": "#000000",
-          "accent": "#000000",
-          "button": "#000000",
+          "text": "#FFFFFF",
+          "accent": "#B7FF00",
+          "button": "#FFFFFF",
           "button_label": "#000000",
-          "secondary_button_label": "#000000",
+          "secondary_button_label": "#B7FF00",
           "border": "#000000"
         }
       }
