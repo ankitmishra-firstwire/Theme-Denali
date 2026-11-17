@@ -14,15 +14,19 @@
     "footer": {
       "type": "footer",
       "blocks": {
-        "logo_79gBjy": {
-          "type": "logo",
+        "wordmark_G9nQWf": {
+          "type": "wordmark",
           "settings": {
-            "logo": "shopify://shop_images/Denali_Mountain_Wordmark_Logo_9642548a-087d-4d5c-83fa-46fb0bbf5c8a.png",
-            "logo_width": 200,
-            "text": "<p>Born in a small, Southern California, blue-collar beach town, graced with world class point breaks and seaside racetracks, where ghosts of a once towering oil industry still linger.</p>",
-            "show_social": false,
-            "width": "auto",
-            "width_mobile": "full"
+            "image": "shopify://shop_images/Denali_Mountain_Wordmark_Logo_9642548a-087d-4d5c-83fa-46fb0bbf5c8a.png",
+            "link": "",
+            "text": "",
+            "size": 100,
+            "alignment": "center",
+            "style": "solid",
+            "opacity": 100,
+            "margin_top": 16,
+            "margin_bottom": 0,
+            "animate": false
           }
         },
         "link_list_K7expF": {
@@ -57,7 +61,7 @@
         }
       },
       "block_order": [
-        "logo_79gBjy",
+        "wordmark_G9nQWf",
         "link_list_K7expF",
         "menu",
         "newsletter"
@@ -72,7 +76,7 @@
         "column_gap": 40,
         "show_dividers": true,
         "collapse_mobile": true,
-        "padding_top": 64,
+        "padding_top": 0,
         "padding_bottom": 32,
         "color_scheme": "scheme-4",
         "text_color": "",
