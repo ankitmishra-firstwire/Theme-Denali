@@ -49,6 +49,16 @@
             "width_mobile": "full"
           }
         },
+        "link_list_GxzN87": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Policies",
+            "menu": "policies",
+            "columns": "1",
+            "width": "auto",
+            "width_mobile": "full"
+          }
+        },
         "newsletter": {
           "type": "newsletter",
           "settings": {
@@ -64,6 +74,7 @@
         "wordmark_G9nQWf",
         "link_list_K7expF",
         "menu",
+        "link_list_GxzN87",
         "newsletter"
       ],
       "settings": {
