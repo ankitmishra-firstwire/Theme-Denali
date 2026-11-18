@@ -1,9 +1,631 @@
-<div class="section color-{{ section.settings.color_scheme }}">
-  <div class="page-width page-width--narrow">
-    <h1 class="section-title">{{ page.title | escape }}</h1>
-    <div class="rte">{{ page.content }}</div>
-  </div>
+{%- liquid
+  assign s = section.settings
+
+  # ---------- Banner media ----------
+  assign media_type = s.media_type
+  assign has_media = false
+  if media_type == 'image' and s.image != blank
+    assign has_media = true
+  elsif media_type == 'video' and s.video != blank
+    assign has_media = true
+  elsif media_type == 'external_video' and s.video_url != blank
+    assign has_media = true
+  endif
+
+  assign ratio = 1.7778
+  assign ratio_mobile = 1.7778
+  if media_type == 'image' and s.image != blank
+    assign ratio = s.image.aspect_ratio
+    assign ratio_mobile = s.image.aspect_ratio
+    if s.image_mobile != blank
+      assign ratio_mobile = s.image_mobile.aspect_ratio
+    endif
+  elsif media_type == 'video' and s.video != blank
+    assign ratio = s.video.aspect_ratio | default: 1.7778
+    assign ratio_mobile = ratio
+  endif
+
+  assign heading_in_media = false
+  if has_media and s.heading_position == 'overlay'
+    assign heading_in_media = true
+  endif
+
+  # ---------- Heading ----------
+  if s.heading != blank
+    assign heading_text = s.heading | escape
+  else
+    assign heading_text = page.title | escape
+  endif
+
+  # ---------- Layout ----------
+  case s.content_width
+    when 'narrow'
+      assign container_class = 'page-width page-width--narrow'
+    when 'full'
+      assign container_class = 'main-page__full'
+    else
+      assign container_class = 'page-width'
+  endcase
+
+  case s.heading_alignment
+    when 'center'
+      assign desc_margin = 'auto'
+    when 'right'
+      assign desc_margin = 'auto 0'
+    else
+      assign desc_margin = '0 auto'
+  endcase
+
+  case s.heading_alignment_mobile
+    when 'center'
+      assign desc_margin_mobile = 'auto'
+    when 'right'
+      assign desc_margin_mobile = 'auto 0'
+    else
+      assign desc_margin_mobile = '0 auto'
+  endcase
+
+  case s.hero_content_position
+    when 'top'
+      assign v_align = 'flex-start'
+    when 'bottom'
+      assign v_align = 'flex-end'
+    else
+      assign v_align = 'center'
+  endcase
+
+  # ---------- Breadcrumb ----------
+  case s.breadcrumb_separator
+    when 'slash'
+      assign crumb_sep = '/'
+    when 'dot'
+      assign crumb_sep = '•'
+    else
+      assign crumb_sep = '›'
+  endcase
+
+  assign has_parent = false
+  if s.breadcrumb_parent_label != blank and s.breadcrumb_parent_link != blank
+    assign has_parent = true
+  endif
+
+  assign breadcrumb_in_header = true
+  if has_media and s.breadcrumb_position == 'top'
+    assign breadcrumb_in_header = false
+  endif
+
+  # ---------- What renders ----------
+  assign header_visible = s.show_heading
+  if s.description != blank and s.description_position != 'after_content'
+    assign header_visible = true
+  endif
+  if s.show_breadcrumb and breadcrumb_in_header
+    assign header_visible = true
+  endif
+
+  assign show_body = false
+  if s.show_content and page.content != blank
+    assign show_body = true
+  endif
+
+  assign show_desc_after = false
+  if s.description != blank and s.description_position == 'after_content'
+    assign show_desc_after = true
+  endif
+
+  assign render_container = true
+  if heading_in_media and show_body == false and show_desc_after == false
+    assign render_container = false
+  endif
+-%}
+
+{%- style -%}
+  #MainPage-{{ section.id }} {
+    --mp-gap: {{ s.content_spacing | times: 0.75 | round: 0 }}px;
+    --mp-align: {{ s.heading_alignment_mobile }};
+    --mp-desc-margin: {{ desc_margin_mobile }};
+    --mp-v: {{ v_align }};
+    padding-top: {{ s.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ s.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #MainPage-{{ section.id }} {
+      --mp-gap: {{ s.content_spacing }}px;
+      --mp-align: {{ s.heading_alignment }};
+      --mp-desc-margin: {{ desc_margin }};
+      padding-top: {{ s.padding_top }}px;
+      padding-bottom: {{ s.padding_bottom }}px;
+    }
+  }
+
+  {%- if has_media %}
+    #MainPage-{{ section.id }} .main-page__hero {
+      --mp-ratio: {{ ratio }};
+      --mp-ratio-mobile: {{ ratio_mobile }};
+      {%- if s.overlay_color != blank %}
+        --mp-overlay: rgba({{ s.overlay_color.red }}, {{ s.overlay_color.green }}, {{ s.overlay_color.blue }}, {{ s.overlay_opacity | divided_by: 100.0 }});
+      {%- endif %}
+    }
+
+    {%- if s.hero_text_color != blank %}
+      #MainPage-{{ section.id }} .main-page__hero-inner {
+        color: {{ s.hero_text_color }};
+        --color-foreground: {{ s.hero_text_color.red }}, {{ s.hero_text_color.green }}, {{ s.hero_text_color.blue }};
+      }
+    {%- endif %}
+  {%- endif %}
+{%- endstyle -%}
+
+{%- capture breadcrumb_html -%}
+  {%- if s.show_breadcrumb -%}
+    <nav class="main-page__breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li class="main-page__crumb">
+          <a href="{{ routes.root_url }}">{{ s.breadcrumb_home_label | default: 'Home' | escape }}</a>
+        </li>
+        {%- if has_parent -%}
+          <li class="main-page__crumb">
+            <span class="main-page__crumb-sep" aria-hidden="true">{{ crumb_sep }}</span>
+            <a href="{{ s.breadcrumb_parent_link }}">{{ s.breadcrumb_parent_label | escape }}</a>
+          </li>
+        {%- endif -%}
+        <li class="main-page__crumb">
+          <span class="main-page__crumb-sep" aria-hidden="true">{{ crumb_sep }}</span>
+          <span aria-current="page">{{ page.title | escape }}</span>
+        </li>
+      </ol>
+    </nav>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture description_html -%}
+  {%- if s.description != blank -%}
+    <div class="main-page__description rte">{{ s.description }}</div>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture header_html -%}
+  <header class="main-page__header{% unless header_visible %} main-page__header--hidden{% endunless %}">
+    {%- if breadcrumb_in_header -%}{{ breadcrumb_html }}{%- endif -%}
+    {%- if s.description_position == 'above_heading' -%}{{ description_html }}{%- endif -%}
+    <h1 class="main-page__title {{ s.heading_size }}{% unless s.show_heading %} main-page__sr-only{% endunless %}">
+      {{- heading_text -}}
+    </h1>
+    {%- if s.description_position == 'below_heading' -%}{{ description_html }}{%- endif -%}
+  </header>
+{%- endcapture -%}
+
+{%- capture image_html -%}
+  {%- if s.image != blank -%}
+    {%- assign focal = 'object-position: ' | append: s.image.presentation.focal_point -%}
+    <picture>
+      {%- if media_type == 'image' and s.image_mobile != blank -%}
+        <source
+          media="(max-width: 749px)"
+          srcset="
+            {{ s.image_mobile | image_url: width: 375 }} 375w,
+            {{ s.image_mobile | image_url: width: 750 }} 750w,
+            {{ s.image_mobile | image_url: width: 1100 }} 1100w,
+            {{ s.image_mobile | image_url: width: 1500 }} 1500w
+          "
+          sizes="100vw"
+          width="{{ s.image_mobile.width }}"
+          height="{{ s.image_mobile.height }}"
+        >
+      {%- endif -%}
+      {{
+        s.image
+        | image_url: width: 3840
+        | image_tag:
+          widths: '375, 550, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          class: 'main-page__image',
+          style: focal
+      }}
+    </picture>
+  {%- endif -%}
+{%- endcapture -%}
+
+<div
+  id="MainPage-{{ section.id }}"
+  class="main-page color-{{ s.color_scheme }} gradient"
+>
+  {%- if s.show_breadcrumb and breadcrumb_in_header == false -%}
+    <div class="{{ container_class }} main-page__top-crumbs">{{ breadcrumb_html }}</div>
+  {%- endif -%}
+
+  {%- if has_media -%}
+    <div class="main-page__hero-wrap{% unless s.hero_full_width %} page-width{% endunless %}">
+      <div class="main-page__hero main-page__hero--{{ s.hero_height }}">
+        <div class="main-page__media">
+          {%- case media_type -%}
+            {%- when 'image' -%}
+              {{ image_html }}
+
+            {%- when 'video' -%}
+              {{ image_html }}
+              {{
+                s.video
+                | video_tag:
+                  image_size: '1920x',
+                  autoplay: true,
+                  loop: true,
+                  muted: true,
+                  playsinline: true,
+                  class: 'main-page__video'
+              }}
+
+            {%- when 'external_video' -%}
+              {{ image_html }}
+              {%- assign vid = s.video_url.id -%}
+              {%- if s.video_url.type == 'youtube' -%}
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/{{ vid }}?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist={{ vid }}&amp;controls=0&amp;playsinline=1&amp;rel=0&amp;disablekb=1&amp;modestbranding=1"
+                  title="Background video"
+                  allow="autoplay; encrypted-media"
+                  tabindex="-1"
+                  aria-hidden="true"
+                ></iframe>
+              {%- else -%}
+                <iframe
+                  src="https://player.vimeo.com/video/{{ vid }}?background=1&amp;autoplay=1&amp;loop=1&amp;muted=1&amp;dnt=1"
+                  title="Background video"
+                  allow="autoplay; encrypted-media"
+                  tabindex="-1"
+                  aria-hidden="true"
+                ></iframe>
+              {%- endif -%}
+          {%- endcase -%}
+        </div>
+
+        {%- if heading_in_media -%}
+          <div class="main-page__hero-inner {% if s.hero_full_width %}{{ container_class }}{% else %}main-page__hero-inner--inset{% endif %}">
+            {{ header_html }}
+          </div>
+        {%- endif -%}
+
+        {%- if media_type == 'video' -%}
+          <button type="button" class="main-page__video-toggle" data-video-toggle aria-label="Pause background video">
+            <svg data-icon="pause" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <rect x="3" y="2" width="3.5" height="12" rx="1" fill="currentColor"/>
+              <rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="currentColor"/>
+            </svg>
+            <svg data-icon="play" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M4 2.5v11a.5.5 0 0 0 .77.42l8.5-5.5a.5.5 0 0 0 0-.84l-8.5-5.5A.5.5 0 0 0 4 2.5Z" fill="currentColor"/>
+            </svg>
+          </button>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- if render_container -%}
+    <div class="main-page__container {{ container_class }}">
+      {%- unless heading_in_media -%}
+        {{ header_html }}
+        {%- if s.show_divider and header_visible and show_body -%}
+          <hr class="main-page__divider">
+        {%- endif -%}
+      {%- endunless -%}
+
+      {%- if show_body -%}
+        <div class="main-page__body rte main-page__align--{{ s.content_alignment }}">
+          {{ page.content }}
+        </div>
+      {%- endif -%}
+
+      {%- if show_desc_after -%}
+        <div class="main-page__description main-page__description--after rte main-page__align--{{ s.content_alignment }}">
+          {{ s.description }}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
 </div>
+
+{%- if media_type == 'video' and has_media -%}
+  <script>
+    (function () {
+      var root = document.getElementById('MainPage-{{ section.id }}');
+      if (!root) return;
+      var video = root.querySelector('.main-page__media video');
+      var toggle = root.querySelector('[data-video-toggle]');
+      if (!video || !toggle) return;
+
+      function sync() {
+        var paused = video.paused;
+        toggle.classList.toggle('is-paused', paused);
+        toggle.setAttribute('aria-label', paused ? 'Play background video' : 'Pause background video');
+      }
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) video.pause();
+
+      toggle.addEventListener('click', function () {
+        if (video.paused) {
+          var p = video.play();
+          if (p && p.catch) p.catch(function () {});
+        } else {
+          video.pause();
+        }
+      });
+      video.addEventListener('play', sync);
+      video.addEventListener('pause', sync);
+      sync();
+    })();
+  </script>
+{%- endif -%}
+
+{%- if s.show_breadcrumb -%}
+  {%- liquid
+    assign home_url = request.origin | append: routes.root_url
+    assign page_abs = request.origin | append: page.url
+    assign last_position = 2
+    if has_parent
+      assign last_position = 3
+      if s.breadcrumb_parent_link contains '://'
+        assign parent_abs = s.breadcrumb_parent_link
+      else
+        assign parent_abs = request.origin | append: s.breadcrumb_parent_link
+      endif
+    endif
+  -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": {{ s.breadcrumb_home_label | default: 'Home' | json }},
+          "item": {{ home_url | json }}
+        },
+        {%- if has_parent %}
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ s.breadcrumb_parent_label | json }},
+          "item": {{ parent_abs | json }}
+        },
+        {%- endif %}
+        {
+          "@type": "ListItem",
+          "position": {{ last_position }},
+          "name": {{ page.title | json }},
+          "item": {{ page_abs | json }}
+        }
+      ]
+    }
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .main-page__full {
+    padding-inline: 20px;
+  }
+
+  .main-page__sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Breadcrumb */
+  .main-page__top-crumbs {
+    margin-bottom: 16px;
+  }
+
+  .main-page__breadcrumb ol {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .main-page__crumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .main-page__crumb-sep {
+    opacity: 0.5;
+  }
+
+  .main-page__breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.75;
+  }
+
+  .main-page__breadcrumb a:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .main-page__breadcrumb a:focus-visible,
+  .main-page__video-toggle:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  /* Header */
+  .main-page__header {
+    text-align: var(--mp-align, left);
+  }
+
+  .main-page__header > * {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .main-page__header > * + * {
+    margin-top: 12px;
+  }
+
+  .main-page__header .main-page__description {
+    max-width: 720px;
+    margin-inline: var(--mp-desc-margin, 0 auto);
+  }
+
+  .main-page__description > :first-child {
+    margin-top: 0;
+  }
+
+  .main-page__description > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* Stack below the banner */
+  .main-page__hero-wrap + .main-page__container {
+    margin-top: var(--mp-gap);
+  }
+
+  .main-page__container > * + * {
+    margin-top: var(--mp-gap);
+  }
+
+  .main-page__container > .main-page__header--hidden + * {
+    margin-top: 0;
+  }
+
+  .main-page__divider {
+    margin-inline: 0;
+    margin-bottom: 0;
+    border: 0;
+    border-top: 1px solid currentColor;
+    opacity: 0.15;
+  }
+
+  .main-page__align--center {
+    text-align: center;
+  }
+
+  /* Banner */
+  .main-page__hero {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .main-page__hero--small { min-height: 280px; }
+  .main-page__hero--medium { min-height: 360px; }
+  .main-page__hero--large { min-height: 440px; }
+  .main-page__hero--full { min-height: 100vh; min-height: 100svh; }
+  .main-page__hero--adapt { aspect-ratio: var(--mp-ratio-mobile, 16 / 9); }
+
+  .main-page__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    container-type: size;
+  }
+
+  .main-page__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--mp-overlay, transparent);
+    pointer-events: none;
+  }
+
+  .main-page__media picture,
+  .main-page__media img,
+  .main-page__media video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .main-page__media iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 177.78cqh);
+    height: max(100%, 56.25cqw);
+    transform: translate(-50%, -50%);
+    border: 0;
+    pointer-events: none;
+  }
+
+  .main-page__hero-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: var(--mp-v, center);
+    width: 100%;
+    padding-block: 40px;
+  }
+
+  .main-page__hero-inner--inset {
+    padding-inline: 24px;
+  }
+
+  .main-page__video-toggle {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .main-page__video-toggle svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .main-page__video-toggle [data-icon='play'],
+  .main-page__video-toggle.is-paused [data-icon='pause'] {
+    display: none;
+  }
+
+  .main-page__video-toggle.is-paused [data-icon='play'] {
+    display: block;
+  }
+
+  @media screen and (min-width: 750px) {
+    .main-page__full { padding-inline: 50px; }
+    .main-page__hero--small { min-height: 400px; }
+    .main-page__hero--medium { min-height: 560px; }
+    .main-page__hero--large { min-height: 720px; }
+    .main-page__hero--adapt { aspect-ratio: var(--mp-ratio, 16 / 9); }
+    .main-page__hero-inner { padding-block: 64px; }
+    .main-page__hero-inner--inset { padding-inline: 48px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .main-page__media iframe {
+      display: none;
+    }
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
@@ -11,8 +633,296 @@
   "tag": "section",
   "class": "section-main-page",
   "settings": [
-    { "type": "paragraph", "content": "Edit page content in Online Store > Pages." },
-    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" }
+    {
+      "type": "paragraph",
+      "content": "Edit page content in Online Store > Pages. These settings apply to every page using this template, so create an alternate template for pages that need a different layout."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+
+    { "type": "header", "content": "Breadcrumb" },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "breadcrumb_position",
+      "label": "Position",
+      "options": [
+        { "value": "heading", "label": "Above heading" },
+        { "value": "top", "label": "Top of section, above banner" }
+      ],
+      "default": "heading",
+      "info": "Top of section only applies when a banner image or video is set."
+    },
+    {
+      "type": "select",
+      "id": "breadcrumb_separator",
+      "label": "Separator",
+      "options": [
+        { "value": "chevron", "label": "›" },
+        { "value": "slash", "label": "/" },
+        { "value": "dot", "label": "•" }
+      ],
+      "default": "chevron"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_home_label",
+      "label": "Home label",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_parent_label",
+      "label": "Middle link label",
+      "info": "Optional. Adds a step between Home and the page, e.g. Help center."
+    },
+    {
+      "type": "url",
+      "id": "breadcrumb_parent_link",
+      "label": "Middle link"
+    },
+
+    { "type": "header", "content": "Heading" },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "Show heading",
+      "default": true,
+      "info": "When hidden, the heading stays available to search engines and screen readers."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Custom heading",
+      "info": "Leave blank to use the page title."
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Desktop alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment_mobile",
+      "label": "Mobile alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+
+    { "type": "header", "content": "Description" },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "info": "Connect this to a page metafield (dynamic source) to give each page its own description."
+    },
+    {
+      "type": "select",
+      "id": "description_position",
+      "label": "Position",
+      "options": [
+        { "value": "above_heading", "label": "Above heading" },
+        { "value": "below_heading", "label": "Below heading" },
+        { "value": "after_content", "label": "After page content" }
+      ],
+      "default": "below_heading"
+    },
+
+    { "type": "header", "content": "Banner" },
+    {
+      "type": "select",
+      "id": "media_type",
+      "label": "Background",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "image", "label": "Image" },
+        { "value": "video", "label": "Video (uploaded)" },
+        { "value": "external_video", "label": "Video (YouTube or Vimeo)" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Also shown behind videos as a fallback and for visitors who prefer reduced motion."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image",
+      "info": "Optional. Used on screens narrower than 750px for image banners."
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "label": "YouTube or Vimeo URL",
+      "accept": ["youtube", "vimeo"]
+    },
+    {
+      "type": "select",
+      "id": "heading_position",
+      "label": "Heading position",
+      "options": [
+        { "value": "overlay", "label": "On the banner" },
+        { "value": "below", "label": "Below the banner" }
+      ],
+      "default": "overlay"
+    },
+    {
+      "type": "select",
+      "id": "hero_height",
+      "label": "Banner height",
+      "options": [
+        { "value": "adapt", "label": "Adapt to media" },
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "full", "label": "Full screen" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "hero_content_position",
+      "label": "Vertical text position",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "checkbox",
+      "id": "hero_full_width",
+      "label": "Full-width banner",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "hero_text_color",
+      "label": "Text color on banner",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 40
+    },
+
+    { "type": "header", "content": "Page content" },
+    {
+      "type": "checkbox",
+      "id": "show_content",
+      "label": "Show page content",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Width",
+      "options": [
+        { "value": "narrow", "label": "Narrow" },
+        { "value": "normal", "label": "Normal" },
+        { "value": "full", "label": "Full width" }
+      ],
+      "default": "narrow"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "Show divider below heading",
+      "default": false
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "content_spacing",
+      "label": "Space between heading and content",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    }
   ]
 }
 {% endschema %}
