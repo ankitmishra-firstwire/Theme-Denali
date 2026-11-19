@@ -698,6 +698,7 @@
         "card_byUFzE",
         "card_mBWKyt"
       ],
+      "disabled": true,
       "name": "Scroll morph hero",
       "settings": {
         "intro_heading": "New Way to Dress",
@@ -1346,6 +1347,7 @@
         "image_brhKbE",
         "image_JQQ7DT"
       ],
+      "disabled": true,
       "name": "Tilted grid hero",
       "settings": {
         "heading": "Every look, a story worth telling.",
