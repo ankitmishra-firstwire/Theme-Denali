@@ -1,4 +1,4 @@
-{%- comment -%}
+{% comment %} {%- comment -%}
   Testimonials Columns
   Single-file Shopify section: Liquid + CSS + JS + Schema.
   No font family / size / weight is set here, so all text inherits from the theme.
@@ -565,6 +565,562 @@
           "label": "Author role",
           "default": "Job Title"
         }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials Columns",
+      "blocks": [
+        { "type": "testimonial", "settings": { "text": "This ERP revolutionized our operations, streamlining finance and inventory. The cloud-based platform keeps us productive, even remotely.", "name": "Briana Patton", "role": "Operations Manager" } },
+        { "type": "testimonial", "settings": { "text": "Implementing this ERP was smooth and quick. The customizable, user-friendly interface made team training effortless.", "name": "Bilal Ahmed", "role": "IT Manager" } },
+        { "type": "testimonial", "settings": { "text": "The support team is exceptional, guiding us through setup and providing ongoing assistance, ensuring our satisfaction.", "name": "Saman Malik", "role": "Customer Support Lead" } },
+        { "type": "testimonial", "settings": { "text": "This ERP's seamless integration enhanced our business operations and efficiency. Highly recommend for its intuitive interface.", "name": "Omar Raza", "role": "CEO" } },
+        { "type": "testimonial", "settings": { "text": "Its robust features and quick support have transformed our workflow, making us significantly more efficient.", "name": "Zainab Hussain", "role": "Project Manager" } },
+        { "type": "testimonial", "settings": { "text": "The smooth implementation exceeded expectations. It streamlined processes, improving overall business performance.", "name": "Aliza Khan", "role": "Business Analyst" } },
+        { "type": "testimonial", "settings": { "text": "Our business functions improved with a user-friendly design and positive customer feedback.", "name": "Farhan Siddiqui", "role": "Marketing Director" } },
+        { "type": "testimonial", "settings": { "text": "They delivered a solution that exceeded expectations, understanding our needs and enhancing our operations.", "name": "Sana Sheikh", "role": "Sales Manager" } },
+        { "type": "testimonial", "settings": { "text": "Using this ERP, our online presence and conversions significantly improved, boosting business performance.", "name": "Hassan Ali", "role": "E-commerce Manager" } }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+{%- comment -%}
+  Testimonials Columns
+  Single-file Shopify section: Liquid + CSS + JS + Schema.
+  No font family / size / weight is set here, so all text inherits from the theme.
+{%- endcomment -%}
+
+{%- liquid
+  assign s = section.settings
+  assign sid = section.id
+  assign badge_text = s.badge_text
+  assign heading = s.heading
+  assign subheading = s.subheading
+  assign total_blocks = section.blocks.size
+
+  assign hide_col2_mobile = s.hide_second_on_mobile
+  assign hide_col3_mobile = false
+  if s.hide_second_on_mobile or s.hide_third_on_tablet
+    assign hide_col3_mobile = true
+  endif
+-%}
+
+<style>
+  #tc-{{ sid }} {
+    --tc-bg: {{ s.bg_color }};
+    --tc-badge-text: {{ s.badge_text_color }};
+    --tc-badge-border: {{ s.badge_border_color }};
+    --tc-badge-bg: {{ s.badge_bg_color }};
+    --tc-heading: {{ s.heading_color }};
+    --tc-sub: {{ s.subheading_color }};
+    --tc-sub-opacity: {{ s.subheading_opacity | divided_by: 100.0 }};
+    --tc-card-bg: {{ s.card_bg_color }};
+    --tc-card-border: {{ s.card_border_color }};
+    --tc-card-text: {{ s.card_text_color }};
+    --tc-name: {{ s.name_color }};
+    --tc-role: {{ s.role_color }};
+    --tc-avatar-bg: {{ s.avatar_bg_color }};
+    --tc-avatar-text: {{ s.avatar_text_color }};
+    --tc-shadow-color: {{ s.shadow_color }};
+
+    --tc-pt: {{ s.padding_top }}px;
+    --tc-pb: {{ s.padding_bottom }}px;
+    --tc-mt: {{ s.margin_top }}px;
+    --tc-mb: {{ s.margin_bottom }}px;
+    --tc-max-width: {{ s.container_width }}px;
+    --tc-header-width: {{ s.header_width }}px;
+    --tc-header-gap: {{ s.header_gap }}px;
+    --tc-header-mb: {{ s.header_bottom_space }}px;
+    --tc-badge-radius: {{ s.badge_radius }}px;
+    --tc-badge-px: {{ s.badge_padding_x }}px;
+    --tc-badge-py: {{ s.badge_padding_y }}px;
+    --tc-badge-bw: {{ s.badge_border_width }}px;
+    --tc-col-gap: {{ s.column_gap }}px;
+    --tc-card-gap: {{ s.card_gap }}px;
+    --tc-card-pad: {{ s.card_padding }}px;
+    --tc-card-radius: {{ s.card_radius }}px;
+    --tc-card-bw: {{ s.card_border_width }}px;
+    --tc-card-max: {{ s.card_max_width }}px;
+    --tc-avatar: {{ s.avatar_size }}px;
+    --tc-avatar-radius: {{ s.avatar_radius }}%;
+    --tc-author-gap: {{ s.author_gap }}px;
+    --tc-text-gap: {{ s.text_gap }}px;
+    --tc-shadow-x: {{ s.shadow_x }}px;
+    --tc-shadow-y: {{ s.shadow_y }}px;
+    --tc-shadow-blur: {{ s.shadow_blur }}px;
+    --tc-shadow-spread: {{ s.shadow_spread }}px;
+    --tc-max-h: {{ s.max_height }}px;
+    --tc-fade: {{ s.fade_size }}%;
+    --tc-dur-1: {{ s.duration_col_1 }}s;
+    --tc-dur-2: {{ s.duration_col_2 }}s;
+    --tc-dur-3: {{ s.duration_col_3 }}s;
+
+    background: var(--tc-bg);
+    padding-top: var(--tc-pt);
+    padding-bottom: var(--tc-pb);
+    margin-top: var(--tc-mt);
+    margin-bottom: var(--tc-mb);
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  #tc-{{ sid }} *,
+  #tc-{{ sid }} *::before,
+  #tc-{{ sid }} *::after {
+    box-sizing: border-box;
+  }
+
+  #tc-{{ sid }} .tc__container {
+    max-width: var(--tc-max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  #tc-{{ sid }} .tc__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: var(--tc-header-width);
+    margin: 0 auto;
+    gap: var(--tc-header-gap);
+  }
+
+  #tc-{{ sid }} .tc__badge {
+    display: inline-block;
+    color: var(--tc-badge-text);
+    background: var(--tc-badge-bg);
+    border: var(--tc-badge-bw) solid var(--tc-badge-border);
+    border-radius: var(--tc-badge-radius);
+    padding: var(--tc-badge-py) var(--tc-badge-px);
+  }
+
+  #tc-{{ sid }} .tc__heading {
+    margin: 0;
+    color: var(--tc-heading);
+  }
+
+  #tc-{{ sid }} .tc__subheading {
+    margin: 0;
+    color: var(--tc-sub);
+    opacity: var(--tc-sub-opacity);
+  }
+
+  #tc-{{ sid }} .tc__columns {
+    display: flex;
+    justify-content: center;
+    gap: var(--tc-col-gap);
+    margin-top: var(--tc-header-mb);
+    max-height: var(--tc-max-h);
+    overflow: hidden;
+    {%- if s.enable_fade %}
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--tc-fade), #000 calc(100% - var(--tc-fade)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--tc-fade), #000 calc(100% - var(--tc-fade)), transparent);
+    {%- endif %}
+  }
+
+  #tc-{{ sid }} .tc__column {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: var(--tc-card-max);
+  }
+
+  #tc-{{ sid }} .tc__track {
+    display: flex;
+    flex-direction: column;
+    animation-name: tc-scroll-{{ sid }};
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  #tc-{{ sid }} .tc__column--1 .tc__track { animation-duration: var(--tc-dur-1); }
+  #tc-{{ sid }} .tc__column--2 .tc__track { animation-duration: var(--tc-dur-2);{% if s.reverse_middle %} animation-direction: reverse;{% endif %} }
+  #tc-{{ sid }} .tc__column--3 .tc__track { animation-duration: var(--tc-dur-3); }
+
+  {%- if s.pause_on_hover %}
+  #tc-{{ sid }} .tc__columns:hover .tc__track { animation-play-state: paused; }
+  {%- endif %}
+
+  #tc-{{ sid }} .tc__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tc-card-gap);
+    padding-bottom: var(--tc-card-gap);
+    margin: 0;
+    list-style: none;
+  }
+
+  #tc-{{ sid }} .tc__card {
+    padding: var(--tc-card-pad);
+    background: var(--tc-card-bg);
+    color: var(--tc-card-text);
+    border: var(--tc-card-bw) solid var(--tc-card-border);
+    border-radius: var(--tc-card-radius);
+    box-shadow: var(--tc-shadow-x) var(--tc-shadow-y) var(--tc-shadow-blur) var(--tc-shadow-spread) var(--tc-shadow-color);
+    width: 100%;
+  }
+
+  #tc-{{ sid }} .tc__text {
+    margin: 0;
+    color: var(--tc-card-text);
+  }
+
+  #tc-{{ sid }} .tc__author {
+    display: flex;
+    align-items: center;
+    gap: var(--tc-author-gap);
+    margin-top: var(--tc-text-gap);
+  }
+
+  #tc-{{ sid }} .tc__avatar {
+    width: var(--tc-avatar);
+    height: var(--tc-avatar);
+    min-width: var(--tc-avatar);
+    border-radius: var(--tc-avatar-radius);
+    overflow: hidden;
+    background: var(--tc-avatar-bg);
+    color: var(--tc-avatar-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #tc-{{ sid }} .tc__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #tc-{{ sid }} .tc__meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  #tc-{{ sid }} .tc__name { color: var(--tc-name); }
+  #tc-{{ sid }} .tc__role { color: var(--tc-role); }
+
+  #tc-{{ sid }} .tc__empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--tc-sub);
+  }
+
+  @keyframes tc-scroll-{{ sid }} {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+  }
+
+  {%- if s.hide_third_on_tablet %}
+  @media screen and (max-width: 989px) {
+    #tc-{{ sid }} .tc__column--3 { display: none; }
+  }
+  {%- endif %}
+
+  @media screen and (max-width: 749px) {
+    {%- if hide_col2_mobile %}
+    #tc-{{ sid }} .tc__column--2 { display: none; }
+    {%- endif %}
+    {%- if hide_col3_mobile %}
+    #tc-{{ sid }} .tc__column--3 { display: none; }
+    {%- endif %}
+    #tc-{{ sid }} .tc__container { padding: 0 {{ s.mobile_side_padding }}px; }
+    #tc-{{ sid }} .tc__column { max-width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #tc-{{ sid }} .tc__track { animation: none; }
+    #tc-{{ sid }} .tc__columns { overflow-y: auto; }
+  }
+</style>
+
+<section
+  id="tc-{{ sid }}"
+  class="tc"
+  data-tc-section
+  data-section-id="{{ sid }}"
+  data-section-type="testimonials-columns"
+>
+  <div class="tc__container">
+    {%- if badge_text != blank or heading != blank or subheading != blank -%}
+      <div class="tc__header" data-tc-header>
+        {%- if badge_text != blank -%}
+          <div class="tc__badge">{{ badge_text | escape }}</div>
+        {%- endif -%}
+        {%- if heading != blank -%}
+          <h2 class="tc__heading">{{ heading | escape }}</h2>
+        {%- endif -%}
+        {%- if subheading != blank -%}
+          <p class="tc__subheading">{{ subheading | escape }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if total_blocks > 0 -%}
+      {%- comment -%}
+        Each card is rendered once and sorted into its column (1st, 4th, 7th… → column 1, and so on).
+        The same markup is then printed twice per column for the seamless loop.
+      {%- endcomment -%}
+      {%- liquid
+        assign col1_cards = ''
+        assign col2_cards = ''
+        assign col3_cards = ''
+      -%}
+      {%- for block in section.blocks -%}
+        {%- assign b = block.settings -%}
+        {%- capture card -%}
+          <li class="tc__card" {{ block.shopify_attributes }}>
+            {%- if b.text != blank -%}
+              <p class="tc__text">{{ b.text | escape }}</p>
+            {%- endif -%}
+            <div class="tc__author">
+              <div class="tc__avatar">
+                {%- if b.image != blank -%}
+                  {{
+                    b.image
+                    | image_url: width: 160
+                    | image_tag: loading: 'lazy', widths: '80, 160', alt: b.name
+                  }}
+                {%- elsif b.name != blank -%}
+                  <span>{{ b.name | slice: 0 | upcase | escape }}</span>
+                {%- endif -%}
+              </div>
+              <div class="tc__meta">
+                {%- if b.name != blank -%}
+                  <span class="tc__name">{{ b.name | escape }}</span>
+                {%- endif -%}
+                {%- if b.role != blank -%}
+                  <span class="tc__role">{{ b.role | escape }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+          </li>
+        {%- endcapture -%}
+        {%- liquid
+          assign slot = forloop.index0 | modulo: 3
+          case slot
+            when 0
+              assign col1_cards = col1_cards | append: card
+            when 1
+              assign col2_cards = col2_cards | append: card
+            else
+              assign col3_cards = col3_cards | append: card
+          endcase
+        -%}
+      {%- endfor -%}
+
+      <div class="tc__columns">
+        {%- for col_number in (1..3) -%}
+          {%- liquid
+            case col_number
+              when 1
+                assign cards = col1_cards
+              when 2
+                assign cards = col2_cards
+              else
+                assign cards = col3_cards
+            endcase
+          -%}
+          {%- if cards != blank -%}
+            <div class="tc__column tc__column--{{ col_number }}" data-tc-column>
+              <div class="tc__track" data-tc-track>
+                <ul class="tc__list">{{- cards -}}</ul>
+                <ul class="tc__list" aria-hidden="true">{{- cards -}}</ul>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <p class="tc__empty">Add testimonial blocks to this section.</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.getElementById('tc-{{ sid }}');
+    if (!root) return;
+
+    var tracks = root.querySelectorAll('[data-tc-track]');
+    if (!window.IntersectionObserver || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+      bindTouch();
+      return;
+    }
+
+    var header = root.querySelector('[data-tc-header]');
+    var columnsWrap = root.querySelector('.tc__columns');
+    var observers = [];
+
+    /* Fade-in header on scroll into view */
+    if (header) {
+      var hs = header.style;
+      hs.opacity = '0';
+      hs.transform = 'translateY(20px)';
+      hs.transition = 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s';
+
+      var headerObserver = new IntersectionObserver(function (entries, obs) {
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].isIntersecting) {
+            hs.opacity = '1';
+            hs.transform = 'translateY(0)';
+            obs.disconnect();
+            return;
+          }
+        }
+      }, { threshold: 0.2 });
+
+      headerObserver.observe(header);
+      observers.push(headerObserver);
+    }
+
+    /* Only animate columns while visible (saves CPU off-screen) */
+    if (columnsWrap && tracks.length) {
+      var trackObserver = new IntersectionObserver(function (entries) {
+        var state = entries[entries.length - 1].isIntersecting ? 'running' : 'paused';
+        for (var i = 0; i < tracks.length; i++) {
+          if (!tracks[i].hasAttribute('data-tc-hover-paused')) tracks[i].style.animationPlayState = state;
+        }
+      }, { threshold: 0 });
+
+      trackObserver.observe(columnsWrap);
+      observers.push(trackObserver);
+    }
+
+    bindTouch();
+
+    /* Theme editor: release observers when this section is removed or re-rendered */
+    if (window.Shopify && window.Shopify.designMode && observers.length) {
+      document.addEventListener('shopify:section:unload', function onUnload(e) {
+        if (!e.detail || e.detail.sectionId !== '{{ sid }}') return;
+        observers.forEach(function (o) { o.disconnect(); });
+        document.removeEventListener('shopify:section:unload', onUnload);
+      });
+    }
+
+    /* Pause on touch hold for mobile */
+    function bindTouch() {
+      {%- if s.pause_on_hover %}
+      if (!tracks.length) return;
+      var opts = { passive: true };
+      var pause = function (e) {
+        var t = e.currentTarget;
+        t.setAttribute('data-tc-hover-paused', '');
+        t.style.animationPlayState = 'paused';
+      };
+      var resume = function (e) {
+        var t = e.currentTarget;
+        t.removeAttribute('data-tc-hover-paused');
+        t.style.animationPlayState = 'running';
+      };
+      for (var i = 0; i < tracks.length; i++) {
+        tracks[i].addEventListener('touchstart', pause, opts);
+        tracks[i].addEventListener('touchend', resume, opts);
+      }
+      {%- endif %}
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Testimonials Columns",
+  "tag": "div",
+  "class": "section-testimonials-columns",
+  "max_blocks": 24,
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "badge_text", "label": "Badge text", "default": "Testimonials" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "What our users say" },
+    { "type": "textarea", "id": "subheading", "label": "Subheading", "default": "See what our customers have to say about us." },
+
+    { "type": "header", "content": "Section colors" },
+    { "type": "color", "id": "bg_color", "label": "Section background", "default": "#ffffff" },
+    { "type": "color", "id": "badge_text_color", "label": "Badge text", "default": "#111111" },
+    { "type": "color", "id": "badge_bg_color", "label": "Badge background", "default": "#ffffff" },
+    { "type": "color", "id": "badge_border_color", "label": "Badge border", "default": "#e5e5e5" },
+    { "type": "color", "id": "heading_color", "label": "Heading", "default": "#111111" },
+    { "type": "color", "id": "subheading_color", "label": "Subheading", "default": "#111111" },
+    { "type": "range", "id": "subheading_opacity", "label": "Subheading opacity", "min": 10, "max": 100, "step": 5, "unit": "%", "default": 75 },
+
+    { "type": "header", "content": "Card colors" },
+    { "type": "color", "id": "card_bg_color", "label": "Card background", "default": "#ffffff" },
+    { "type": "color", "id": "card_border_color", "label": "Card border", "default": "#e5e5e5" },
+    { "type": "color", "id": "card_text_color", "label": "Card text", "default": "#333333" },
+    { "type": "color", "id": "name_color", "label": "Author name", "default": "#111111" },
+    { "type": "color", "id": "role_color", "label": "Author role", "default": "#6b6b6b" },
+    { "type": "color", "id": "avatar_bg_color", "label": "Avatar placeholder background", "default": "#e5e5e5" },
+    { "type": "color", "id": "avatar_text_color", "label": "Avatar placeholder text", "default": "#111111" },
+    { "type": "color", "id": "shadow_color", "label": "Card shadow", "default": "#0000001a" },
+
+    { "type": "header", "content": "Section spacing" },
+    { "type": "range", "id": "padding_top", "label": "Padding top", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "margin_top", "label": "Margin top", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "margin_bottom", "label": "Margin bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "container_width", "label": "Container max width", "min": 600, "max": 1920, "step": 20, "unit": "px", "default": 1200 },
+    { "type": "range", "id": "mobile_side_padding", "label": "Mobile side padding", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 16 },
+
+    { "type": "header", "content": "Header sizes" },
+    { "type": "range", "id": "header_width", "label": "Header max width", "min": 240, "max": 900, "step": 10, "unit": "px", "default": 540 },
+    { "type": "range", "id": "header_gap", "label": "Space between header items", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 16 },
+    { "type": "range", "id": "header_bottom_space", "label": "Space below header", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "badge_radius", "label": "Badge corner radius", "min": 0, "max": 50, "step": 1, "unit": "px", "default": 8 },
+    { "type": "range", "id": "badge_padding_x", "label": "Badge horizontal padding", "min": 0, "max": 40, "step": 1, "unit": "px", "default": 16 },
+    { "type": "range", "id": "badge_padding_y", "label": "Badge vertical padding", "min": 0, "max": 20, "step": 1, "unit": "px", "default": 4 },
+    { "type": "range", "id": "badge_border_width", "label": "Badge border width", "min": 0, "max": 6, "step": 1, "unit": "px", "default": 1 },
+
+    { "type": "header", "content": "Columns and cards" },
+    { "type": "range", "id": "max_height", "label": "Columns area max height", "min": 300, "max": 1400, "step": 100, "unit": "px", "default": 700 },
+    { "type": "range", "id": "column_gap", "label": "Gap between columns", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 24 },
+    { "type": "range", "id": "card_gap", "label": "Gap between cards", "min": 0, "max": 80, "step": 2, "unit": "px", "default": 24 },
+    { "type": "range", "id": "card_max_width", "label": "Card max width", "min": 200, "max": 600, "step": 10, "unit": "px", "default": 320 },
+    { "type": "range", "id": "card_padding", "label": "Card padding", "min": 8, "max": 64, "step": 2, "unit": "px", "default": 40 },
+    { "type": "range", "id": "card_radius", "label": "Card corner radius", "min": 0, "max": 60, "step": 1, "unit": "px", "default": 24 },
+    { "type": "range", "id": "card_border_width", "label": "Card border width", "min": 0, "max": 8, "step": 1, "unit": "px", "default": 1 },
+    { "type": "range", "id": "text_gap", "label": "Space between text and author", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 20 },
+    { "type": "range", "id": "avatar_size", "label": "Avatar size", "min": 24, "max": 96, "step": 2, "unit": "px", "default": 40 },
+    { "type": "range", "id": "avatar_radius", "label": "Avatar roundness", "min": 0, "max": 50, "step": 1, "unit": "%", "default": 50 },
+    { "type": "range", "id": "author_gap", "label": "Space between avatar and name", "min": 0, "max": 32, "step": 1, "unit": "px", "default": 8 },
+
+    { "type": "header", "content": "Card shadow" },
+    { "type": "range", "id": "shadow_x", "label": "Shadow horizontal offset", "min": -40, "max": 40, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "shadow_y", "label": "Shadow vertical offset", "min": -40, "max": 40, "step": 1, "unit": "px", "default": 10 },
+    { "type": "range", "id": "shadow_blur", "label": "Shadow blur", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 30 },
+    { "type": "range", "id": "shadow_spread", "label": "Shadow spread", "min": -40, "max": 40, "step": 1, "unit": "px", "default": 0 },
+
+    { "type": "header", "content": "Animation" },
+    { "type": "range", "id": "duration_col_1", "label": "Column 1 duration", "min": 5, "max": 80, "step": 1, "unit": "s", "default": 15 },
+    { "type": "range", "id": "duration_col_2", "label": "Column 2 duration", "min": 5, "max": 80, "step": 1, "unit": "s", "default": 19 },
+    { "type": "range", "id": "duration_col_3", "label": "Column 3 duration", "min": 5, "max": 80, "step": 1, "unit": "s", "default": 17 },
+    { "type": "checkbox", "id": "reverse_middle", "label": "Reverse direction of column 2", "default": false },
+    { "type": "checkbox", "id": "pause_on_hover", "label": "Pause on hover / touch", "default": true },
+    { "type": "checkbox", "id": "enable_fade", "label": "Fade top and bottom edges", "default": true },
+    { "type": "range", "id": "fade_size", "label": "Fade size", "min": 5, "max": 40, "step": 1, "unit": "%", "default": 25 },
+
+    { "type": "header", "content": "Responsive" },
+    { "type": "checkbox", "id": "hide_third_on_tablet", "label": "Hide column 3 on tablet", "default": true },
+    { "type": "checkbox", "id": "hide_second_on_mobile", "label": "Hide columns 2 and 3 on mobile", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        { "type": "textarea", "id": "text", "label": "Testimonial text", "default": "This product streamlined our operations and made our team far more productive." },
+        { "type": "image_picker", "id": "image", "label": "Author image" },
+        { "type": "text", "id": "name", "label": "Author name", "default": "Customer Name" },
+        { "type": "text", "id": "role", "label": "Author role", "default": "Job Title" }
       ]
     }
   ],
