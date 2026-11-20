@@ -1,4 +1,4 @@
-{%- comment -%}
+{% comment %} {%- comment -%}
   Collection Product Scroll — Shopify OS 2.0 section
   Single file: markup, CSS (<style>) and JS (<script>) are all included here.
   Left: fixed collection image. Right: 2-column product grid that scrolls on its own.
@@ -2350,6 +2350,1987 @@
           "label": "Button text override",
           "info": "Leave empty to use the section button text."
         }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection product scroll",
+      "blocks": [
+        { "type": "collection" },
+        { "type": "collection" },
+        { "type": "collection" }
+      ]
+    }
+  ]
+}
+{% endschema %} {% endcomment %}
+
+
+
+{%- comment -%}
+  Collection Product Scroll — Shopify OS 2.0 section
+  Single file: markup, CSS (<style>) and JS (<script>) are all included here.
+  Left: fixed collection image. Right: 2-column product grid that scrolls on its own.
+  Scrolling past the end of a collection's products switches to the next collection.
+{%- endcomment -%}
+
+<style>
+/* =========================================================
+   Collection Product Scroll
+   Every rule is prefixed with .cps; per-instance values are
+   CSS variables set on #CPS-{section.id} in the section file.
+   ========================================================= */
+
+.cps {
+  --cps-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --cps-media-h: 300px;
+  --cps-scroll-h: 70vh;
+  --cps-progress: 0;
+  display: block;
+  background: var(--cps-bg);
+  color: var(--cps-text);
+  padding-top: var(--cps-pad-top);
+  padding-bottom: var(--cps-pad-bottom);
+}
+
+.cps *,
+.cps *::before,
+.cps *::after {
+  box-sizing: border-box;
+}
+
+.cps__inner {
+  width: 100%;
+  max-width: var(--page-width, 1320px);
+  margin-inline: auto;
+  padding-inline: var(--cps-pad-x);
+}
+
+.cps--full .cps__inner {
+  max-width: none;
+}
+
+/* ---------- Header ---------- */
+.cps__header {
+  margin-bottom: 2rem;
+  text-align: var(--cps-heading-align);
+}
+
+.cps__heading {
+  margin: 0;
+  font-size: var(--cps-heading-size);
+  line-height: 1.15;
+  color: var(--cps-text);
+}
+
+.cps__subheading {
+  margin: 0.6rem 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--cps-muted);
+}
+
+/* ---------- Layout ---------- */
+.cps__layout {
+  display: grid;
+  grid-template-columns: minmax(0, var(--cps-media-w)) minmax(0, 1fr);
+  gap: var(--cps-layout-gap);
+  height: clamp(420px, var(--cps-height), 1100px);
+}
+
+.cps--media-right .cps__layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--cps-media-w));
+}
+
+.cps--media-right .cps__media-col {
+  order: 2;
+}
+
+/* ---------- Collection image (left, fixed) ---------- */
+.cps__media-col {
+  position: relative;
+  min-height: 0;
+}
+
+.cps__media-stack {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--cps-media-radius);
+  background: var(--cps-image-bg);
+}
+
+.cps__media {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.cps__media.is-active,
+.cps__media.is-leaving {
+  display: block;
+}
+
+.cps__media.is-active {
+  z-index: 2;
+}
+
+.cps__media.is-leaving {
+  z-index: 1;
+}
+
+.cps__media-img {
+  position: absolute;
+  inset: 0;
+}
+
+.cps__media-img .cps__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cps__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--cps-image-bg);
+  fill: rgba(120, 120, 120, 0.35);
+}
+
+.cps__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--cps-overlay-color);
+  opacity: var(--cps-overlay-opacity);
+}
+
+.cps--text-bottom .cps__overlay {
+  background: linear-gradient(to top, var(--cps-overlay-color) 0%, transparent 75%);
+}
+
+.cps--text-top .cps__overlay {
+  background: linear-gradient(to bottom, var(--cps-overlay-color) 0%, transparent 75%);
+}
+
+.cps__media-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: clamp(1.25rem, 3.5vw, 3rem);
+  color: var(--cps-media-text);
+}
+
+.cps--text-top .cps__media-content { justify-content: flex-start; }
+.cps--text-center .cps__media-content { justify-content: center; }
+.cps--text-bottom .cps__media-content { justify-content: flex-end; }
+
+.cps--align-left .cps__media-content { align-items: flex-start; text-align: left; }
+.cps--align-center .cps__media-content { align-items: center; text-align: center; }
+.cps--align-right .cps__media-content { align-items: flex-end; text-align: right; }
+
+.cps__media-title {
+  margin: 0;
+  font-family: var(--cps-title-font, inherit);
+  font-style: var(--cps-title-style, normal);
+  font-size: var(--cps-media-title-size);
+  font-weight: var(--cps-title-weight);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--cps-media-text);
+}
+
+.cps--upper .cps__media-title {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cps__media-desc {
+  margin: 0;
+  max-width: 38ch;
+  font-size: var(--cps-media-desc-size);
+  line-height: 1.55;
+  color: var(--cps-media-text);
+  opacity: 0.9;
+}
+
+.cps__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  padding: 0.9em 1.75em;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  background: var(--cps-btn-bg);
+  color: var(--cps-btn-color);
+  border-radius: var(--cps-btn-radius);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.cps__btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+/* ---------- Product column ---------- */
+.cps__products-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.cps__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cps__tabs {
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+}
+
+.cps__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cps__tab {
+  flex: none;
+  padding: 0.55em 1.1em;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--cps-text);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--cps-text) 22%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.cps__tab:hover {
+  border-color: var(--cps-text);
+}
+
+.cps__tab[aria-selected="true"] {
+  background: var(--cps-tab-active-bg);
+  color: var(--cps-tab-active-text);
+  border-color: var(--cps-tab-active-bg);
+}
+
+.cps--tabs-underline .cps__tabs {
+  gap: 1.5rem;
+}
+
+.cps--tabs-underline .cps__tab {
+  padding: 0.5em 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--cps-muted);
+}
+
+.cps--tabs-underline .cps__tab[aria-selected="true"] {
+  background: transparent;
+  color: var(--cps-text);
+  border-bottom-color: var(--cps-tab-active-bg);
+}
+
+.cps__nav-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+}
+
+.cps__arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--cps-text);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--cps-text) 22%, transparent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.cps__arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.cps__arrow:hover:not([disabled]) {
+  border-color: var(--cps-text);
+}
+
+.cps__arrow[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.cps__counter {
+  min-width: 3.5em;
+  text-align: center;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--cps-muted);
+}
+
+.cps__progress {
+  height: 2px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--cps-text) 12%, transparent);
+}
+
+.cps__progress-bar {
+  display: block;
+  height: 100%;
+  background: var(--cps-accent);
+  transform-origin: left center;
+  transform: scaleX(var(--cps-progress));
+  transition: transform 0.12s linear;
+}
+
+/* ---------- Panels ---------- */
+.cps__panels {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.cps__panel {
+  position: relative;
+  display: none;
+  height: 100%;
+}
+
+.cps__panel.is-active {
+  display: block;
+  z-index: 2;
+}
+
+.cps__panel.is-leaving {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cps__scroller {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--cps-text) 25%, transparent) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cps__scroller:focus-visible {
+  outline: 2px solid var(--cps-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Exactly two products per row at every breakpoint */
+.cps__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--cps-col-gap);
+  row-gap: var(--cps-row-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cps__item--empty {
+  grid-column: 1 / -1;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--cps-muted);
+}
+
+/* ---------- Product card ---------- */
+.cps__card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--cps-card-pad);
+  color: var(--cps-text);
+  text-decoration: none;
+  background: var(--cps-card-bg);
+  border: var(--cps-card-border-w) solid var(--cps-card-border);
+  border-radius: var(--cps-card-radius);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.cps--card-shadow .cps__card {
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.35);
+}
+
+.cps--card-shadow .cps__card:hover {
+  box-shadow: 0 16px 36px -18px rgba(0, 0, 0, 0.45);
+}
+
+.cps__card:focus-visible {
+  outline: 2px solid var(--cps-accent);
+  outline-offset: 2px;
+}
+
+.cps__card-media {
+  position: relative;
+  aspect-ratio: var(--cps-ratio);
+  overflow: hidden;
+  background: var(--cps-image-bg);
+  border-radius: calc(var(--cps-card-radius) - var(--cps-card-pad) / 2);
+}
+
+.cps__card-media .cps__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.45s ease, transform 0.8s var(--cps-ease);
+}
+
+.cps--fit-contain .cps__card-media .cps__img {
+  object-fit: contain;
+}
+
+.cps__img--second {
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .cps__card:hover .cps__card-media .cps__img {
+    transform: scale(1.03);
+  }
+  .cps__card:hover .has-second .cps__img--second {
+    opacity: 1;
+  }
+}
+
+.cps__badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 2;
+  padding: 0.3em 0.7em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--cps-badge-text);
+  background: var(--cps-badge-bg);
+  border-radius: 999px;
+}
+
+.cps__badge--sale {
+  background: var(--cps-sale-color);
+}
+
+.cps__card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.8rem;
+}
+
+.cps--card-center .cps__card-info {
+  align-items: center;
+  text-align: center;
+}
+
+.cps__vendor {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--cps-muted);
+}
+
+.cps__card-title {
+  margin: 0;
+  font-size: var(--cps-product-title-size);
+  line-height: 1.35;
+  color: var(--cps-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cps__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: var(--cps-price-size);
+  color: var(--cps-price-color);
+}
+
+.cps--card-center .cps__price {
+  justify-content: center;
+}
+
+.cps__compare {
+  color: var(--cps-muted);
+}
+
+.cps__amount.is-sale {
+  color: var(--cps-sale-color);
+}
+
+/* ---------- End of list + switch indicators ---------- */
+.cps__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 0 1.5rem;
+  text-align: center;
+}
+
+.cps__view-all {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cps-text);
+  text-underline-offset: 4px;
+}
+
+.cps__next-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--cps-muted);
+}
+
+.cps__next-hint strong {
+  color: var(--cps-text);
+  font-weight: 600;
+}
+
+.cps__intent {
+  display: block;
+  width: 120px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--cps-text) 12%, transparent);
+}
+
+.cps__intent-bar {
+  display: block;
+  height: 100%;
+  background: var(--cps-accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.15s ease-out;
+}
+
+.cps__intent-bar--down {
+  transform: scaleX(var(--cps-intent-down, 0));
+}
+
+.cps__intent-bar--up {
+  transform: scaleX(var(--cps-intent-up, 0));
+}
+
+.cps__pull {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: var(--cps-text);
+  background: var(--cps-bg);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translate(-50%, -8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cps__pull .cps__intent {
+  width: 80px;
+}
+
+.cps__panel.is-pulling-up .cps__pull {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------- Switch animations ---------- */
+.cps__panel.is-enter-next,
+.cps__panel.is-enter-prev {
+  animation: cps-fade-in var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps__panel.is-leave-next,
+.cps__panel.is-leave-prev {
+  animation: cps-fade-out var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps--anim-slide .cps__panel.is-enter-next { animation-name: cps-in-from-below; }
+.cps--anim-slide .cps__panel.is-enter-prev { animation-name: cps-in-from-above; }
+.cps--anim-slide .cps__panel.is-leave-next { animation-name: cps-out-upward; }
+.cps--anim-slide .cps__panel.is-leave-prev { animation-name: cps-out-downward; }
+
+.cps__media.is-enter-next,
+.cps__media.is-enter-prev {
+  animation: cps-media-in var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps__media.is-enter-next .cps__media-content > *,
+.cps__media.is-enter-prev .cps__media-content > * {
+  animation: cps-rise var(--cps-speed) var(--cps-ease) both;
+}
+
+.cps__media-content > *:nth-child(2) { animation-delay: 60ms; }
+.cps__media-content > *:nth-child(3) { animation-delay: 120ms; }
+
+@keyframes cps-fade-in { from { opacity: 0; } }
+@keyframes cps-fade-out { to { opacity: 0; } }
+@keyframes cps-in-from-below { from { opacity: 0; transform: translateY(36px); } }
+@keyframes cps-in-from-above { from { opacity: 0; transform: translateY(-36px); } }
+@keyframes cps-out-upward { to { opacity: 0; transform: translateY(-36px); } }
+@keyframes cps-out-downward { to { opacity: 0; transform: translateY(36px); } }
+@keyframes cps-media-in { from { opacity: 0; transform: scale(1.04); } }
+@keyframes cps-rise { from { opacity: 0; transform: translateY(14px); } }
+
+/* ---------- Utilities ---------- */
+.cps__sr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cps__empty {
+  margin: 0;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--cps-muted);
+  border: 1px dashed color-mix(in srgb, var(--cps-text) 30%, transparent);
+  border-radius: 12px;
+}
+
+/* ---------- Tablet ---------- */
+@media screen and (max-width: 989px) {
+  .cps__layout {
+    height: clamp(380px, var(--cps-height), 900px);
+  }
+
+  .cps__counter {
+    display: none;
+  }
+}
+
+/* ---------- Mobile: image on top, products scroll below ---------- */
+@media screen and (max-width: 749px) {
+  .cps__header {
+    margin-bottom: 1.25rem;
+  }
+
+  .cps__layout,
+  .cps--media-right .cps__layout {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    gap: 1.25rem;
+  }
+
+  .cps--media-right .cps__media-col {
+    order: 0;
+  }
+
+  .cps__media-col {
+    height: var(--cps-media-h);
+  }
+
+  .cps__products-col {
+    height: var(--cps-scroll-h);
+  }
+
+  .cps__nav {
+    gap: 0.5rem;
+  }
+
+  .cps__arrow {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cps__scroller {
+    padding-right: 0;
+  }
+
+  .cps__media-desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cps__panel,
+  .cps__media,
+  .cps__media-content > *,
+  .cps__card,
+  .cps__img,
+  .cps__progress-bar,
+  .cps__intent-bar,
+  .cps__pull {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+</style>
+
+{%- liquid
+  assign s = section.settings
+  assign block_count = section.blocks.size
+  assign last_index = block_count | minus: 1
+  assign cid = 'CPS-' | append: section.id
+
+  assign overlay_opacity = s.overlay_opacity | divided_by: 100.0
+  assign heading_size_mobile = s.heading_size | times: 0.75 | round
+  assign media_title_mobile = s.media_title_size | times: 0.75 | round
+
+  assign product_col = 100 | minus: s.media_width
+  assign card_vw = product_col | divided_by: 2
+  assign product_col_t = 100 | minus: s.media_width_tablet
+  assign card_vw_t = product_col_t | divided_by: 2
+  capture product_sizes
+    echo '(min-width: 990px) '
+    echo card_vw
+    echo 'vw, (min-width: 750px) '
+    echo card_vw_t
+    echo 'vw, 50vw'
+  endcapture
+  capture media_sizes
+    echo '(min-width: 990px) '
+    echo s.media_width
+    echo 'vw, (min-width: 750px) '
+    echo s.media_width_tablet
+    echo 'vw, 100vw'
+  endcapture
+
+  case s.scroll_sensitivity
+    when 'short'
+      assign threshold = 90
+    when 'long'
+      assign threshold = 260
+    else
+      assign threshold = 160
+  endcase
+
+  assign switch_on_scroll = false
+  if s.switch_on_scroll and block_count > 1
+    assign switch_on_scroll = true
+  endif
+
+  assign section_position = section.index | default: 99
+  assign eager_section = false
+  if section_position <= 2
+    assign eager_section = true
+  endif
+
+  assign multi = false
+  if block_count > 1
+    assign multi = true
+  endif
+  assign render_tabs = false
+  if multi and s.show_tabs
+    assign render_tabs = true
+  endif
+  assign render_nav = false
+  if multi
+    if s.show_tabs or s.show_arrows or s.show_counter
+      assign render_nav = true
+    endif
+  endif
+
+  assign show_media_content = false
+  if s.show_media_title or s.show_media_description or s.show_media_button
+    assign show_media_content = true
+  endif
+
+  assign view_all_label = s.view_all_text | default: 'View all' | escape
+  assign placeholder_price = 1999 | money
+-%}
+
+{%- if s.use_custom_font -%}
+  {%- style -%}
+    {{ s.title_font | font_face: font_display: 'swap' }}
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  #{{ cid }} {
+    --cps-bg: {{ s.background }};
+    --cps-text: {{ s.text_color }};
+    --cps-muted: {{ s.muted_color }};
+    --cps-accent: {{ s.accent_color }};
+    --cps-pad-top: {{ s.padding_top }}px;
+    --cps-pad-bottom: {{ s.padding_bottom }}px;
+    --cps-pad-x: {{ s.side_padding }}px;
+    --cps-heading-size: {{ s.heading_size }}px;
+    --cps-heading-align: {{ s.heading_alignment }};
+
+    --cps-media-w: {{ s.media_width }}%;
+    --cps-layout-gap: {{ s.layout_gap }}px;
+    --cps-height: {{ s.height_desktop }}vh;
+    --cps-media-radius: {{ s.media_radius }}px;
+    --cps-image-bg: {{ s.image_bg }};
+    --cps-overlay-color: {{ s.overlay_color }};
+    --cps-overlay-opacity: {{ overlay_opacity }};
+    --cps-media-text: {{ s.media_text_color }};
+    --cps-media-title-size: {{ s.media_title_size }}px;
+    --cps-media-desc-size: {{ s.media_description_size }}px;
+    --cps-title-weight: {{ s.title_weight }};
+    {%- if s.use_custom_font %}
+    --cps-title-font: {{ s.title_font.family }}, {{ s.title_font.fallback_families }};
+    --cps-title-style: {{ s.title_font.style }};
+    {%- endif %}
+    --cps-btn-bg: {{ s.button_bg }};
+    --cps-btn-color: {{ s.button_color }};
+    --cps-btn-radius: {{ s.button_radius }}px;
+
+    --cps-col-gap: {{ s.grid_column_gap }}px;
+    --cps-row-gap: {{ s.grid_row_gap }}px;
+    --cps-ratio: {{ s.product_ratio }};
+    --cps-card-bg: {{ s.card_bg }};
+    --cps-card-border: {{ s.card_border_color }};
+    --cps-card-border-w: {{ s.card_border_width }}px;
+    --cps-card-radius: {{ s.card_radius }}px;
+    --cps-card-pad: {{ s.card_padding }}px;
+    --cps-product-title-size: {{ s.product_title_size }}px;
+    --cps-price-size: {{ s.price_size }}px;
+    --cps-price-color: {{ s.price_color }};
+    --cps-sale-color: {{ s.sale_color }};
+    --cps-badge-bg: {{ s.badge_bg }};
+    --cps-badge-text: {{ s.badge_text }};
+
+    --cps-tab-active-bg: {{ s.tab_active_bg }};
+    --cps-tab-active-text: {{ s.tab_active_text }};
+    --cps-speed: {{ s.transition_speed }}ms;
+  }
+
+  @media screen and (max-width: 989px) {
+    #{{ cid }} {
+      --cps-media-w: {{ s.media_width_tablet }}%;
+      --cps-height: {{ s.height_tablet }}vh;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    #{{ cid }} {
+      --cps-pad-top: {{ s.padding_top | times: 0.7 | round }}px;
+      --cps-pad-bottom: {{ s.padding_bottom | times: 0.7 | round }}px;
+      --cps-heading-size: {{ heading_size_mobile }}px;
+      --cps-media-title-size: {{ media_title_mobile }}px;
+      --cps-media-h: {{ s.media_height_mobile }}px;
+      --cps-scroll-h: {{ s.scroll_height_mobile }}vh;
+      --cps-col-gap: {{ s.grid_column_gap_mobile }}px;
+      --cps-row-gap: {{ s.grid_row_gap_mobile }}px;
+    }
+  }
+{%- endstyle -%}
+
+<collection-product-scroll
+  id="{{ cid }}"
+  class="cps cps--media-{{ s.media_position }} cps--text-{{ s.text_position }} cps--align-{{ s.text_alignment }} cps--anim-{{ s.transition_style }} cps--tabs-{{ s.tab_style }} cps--card-{{ s.card_text_alignment }} cps--fit-{{ s.image_fit }}{% if s.full_width %} cps--full{% endif %}{% if s.card_shadow %} cps--card-shadow{% endif %}{% if s.title_uppercase %} cps--upper{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-switch-on-scroll="{{ switch_on_scroll }}"
+  data-loop="{{ s.loop }}"
+  data-threshold="{{ threshold }}"
+  data-speed="{{ s.transition_speed }}"
+>
+  <div class="cps__inner">
+    {%- if s.heading != blank or s.subheading != blank -%}
+      <div class="cps__header">
+        {%- if s.heading != blank -%}
+          <h2 class="cps__heading">{{ s.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if s.subheading != blank -%}
+          <p class="cps__subheading">{{ s.subheading | escape | newline_to_br }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block_count == 0 -%}
+      {%- if request.design_mode -%}
+        <p class="cps__empty">Add a Collection block to show a collection and its products.</p>
+      {%- endif -%}
+    {%- else -%}
+      {%- comment -%}
+        Pass 1: one loop builds every collection's title, its image panel and its tab.
+        (Titles are needed up front so each panel can name the next / previous collection.)
+      {%- endcomment -%}
+      {%- liquid
+        assign titles_raw = ''
+        assign media_html = ''
+        assign tabs_html = ''
+      -%}
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign b = block.settings
+          assign collection = b.collection
+          assign c_title = b.title | default: collection.title | default: 'Collection' | escape
+          unless forloop.first
+            assign titles_raw = titles_raw | append: '||'
+          endunless
+          assign titles_raw = titles_raw | append: c_title
+        -%}
+
+        {%- capture media_item -%}
+          {%- liquid
+            assign c_desc = b.description
+            if c_desc == blank and s.use_collection_description and collection.description != blank
+              assign c_desc = collection.description | strip_html | truncatewords: 30
+            endif
+            assign c_image = b.image | default: collection.featured_image
+            assign btn_label = b.button_label | default: s.button_text
+            assign c_url = collection.url | default: routes.collections_url
+            assign media_loading = 'lazy'
+            assign media_priority = 'auto'
+            if forloop.first and eager_section
+              assign media_loading = 'eager'
+              assign media_priority = 'high'
+            endif
+          -%}
+          <div
+            class="cps__media{% if forloop.first %} is-active{% endif %}"
+            data-cps-media
+            data-index="{{ forloop.index0 }}"
+            {% unless forloop.first %}aria-hidden="true" inert{% endunless %}
+          >
+            <div class="cps__media-img">
+              {%- if c_image != blank -%}
+                {%- assign c_alt = c_image.alt | default: c_title -%}
+                {{
+                  c_image
+                  | image_url: width: 2000
+                  | image_tag:
+                    widths: '480, 720, 960, 1200, 1600, 2000',
+                    sizes: media_sizes,
+                    loading: media_loading,
+                    fetchpriority: media_priority,
+                    alt: c_alt,
+                    class: 'cps__img'
+                }}
+              {%- else -%}
+                {%- assign ph_n = forloop.index0 | modulo: 6 | plus: 1 -%}
+                {{ 'collection-' | append: ph_n | placeholder_svg_tag: 'cps__img cps__placeholder' }}
+              {%- endif -%}
+            </div>
+            <span class="cps__overlay" aria-hidden="true"></span>
+
+            {%- if show_media_content -%}
+              <div class="cps__media-content">
+                {%- if s.show_media_title -%}
+                  <h3 class="cps__media-title">{{ c_title }}</h3>
+                {%- endif -%}
+                {%- if s.show_media_description and c_desc != blank -%}
+                  <p class="cps__media-desc">{{ c_desc | escape }}</p>
+                {%- endif -%}
+                {%- if s.show_media_button and btn_label != blank -%}
+                  <a class="cps__btn" href="{{ c_url }}">
+                    {{ btn_label | escape }}<span class="cps__sr">: {{ c_title }}</span>
+                  </a>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endcapture -%}
+        {%- assign media_html = media_html | append: media_item -%}
+
+        {%- if render_tabs -%}
+          {%- capture tab_item -%}
+            <button
+              type="button"
+              role="tab"
+              class="cps__tab{% if forloop.first %} is-active{% endif %}"
+              id="{{ cid }}-tab-{{ forloop.index0 }}"
+              aria-controls="{{ cid }}-panel-{{ forloop.index0 }}"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+              data-cps-tab
+              data-index="{{ forloop.index0 }}"
+            >
+              {{ c_title }}
+            </button>
+          {%- endcapture -%}
+          {%- assign tabs_html = tabs_html | append: tab_item -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- assign titles = titles_raw | split: '||' -%}
+
+      <div class="cps__layout">
+        {%- comment -%} ---------- Left: collection images ---------- {%- endcomment -%}
+        <div class="cps__media-col">
+          <div class="cps__media-stack">
+            {{- media_html -}}
+          </div>
+        </div>
+
+        {%- comment -%} ---------- Right: navigation + product panels ---------- {%- endcomment -%}
+        <div class="cps__products-col">
+          {%- if render_nav -%}
+            <div class="cps__nav">
+              {%- if render_tabs -%}
+                <div class="cps__tabs" role="tablist" aria-label="Collections" data-cps-tablist>
+                  {{- tabs_html -}}
+                </div>
+              {%- endif -%}
+
+              {%- if s.show_arrows or s.show_counter -%}
+                <div class="cps__nav-arrows">
+                  {%- if s.show_arrows -%}
+                    <button type="button" class="cps__arrow" data-cps-prev aria-label="Previous collection"{% unless s.loop %} disabled{% endunless %}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                  {%- endif -%}
+                  {%- if s.show_counter -%}
+                    <span class="cps__counter" data-cps-counter aria-hidden="true">1 / {{ block_count }}</span>
+                  {%- endif -%}
+                  {%- if s.show_arrows -%}
+                    <button type="button" class="cps__arrow" data-cps-next aria-label="Next collection">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+                    </button>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if s.show_progress -%}
+            <div class="cps__progress" aria-hidden="true"><span class="cps__progress-bar" data-cps-progress></span></div>
+          {%- endif -%}
+
+          <div class="cps__panels">
+            {%- comment -%} Pass 2: the product panels, printed directly. {%- endcomment -%}
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign collection = block.settings.collection
+                assign i = forloop.index0
+                assign c_title = titles[i]
+                assign c_url = collection.url | default: routes.collections_url
+
+                assign has_next = false
+                assign next_i = i | plus: 1
+                if next_i < block_count
+                  assign has_next = true
+                elsif s.loop and multi
+                  assign next_i = 0
+                  assign has_next = true
+                endif
+
+                assign has_prev = false
+                assign prev_i = i | minus: 1
+                if prev_i >= 0
+                  assign has_prev = true
+                elsif s.loop and multi
+                  assign prev_i = last_index
+                  assign has_prev = true
+                endif
+
+                assign eager_panel = false
+                if i == 0 and eager_section
+                  assign eager_panel = true
+                endif
+              -%}
+              <div
+                class="cps__panel{% if forloop.first %} is-active{% endif %}"
+                id="{{ cid }}-panel-{{ i }}"
+                {% if render_tabs %}
+                  role="tabpanel" aria-labelledby="{{ cid }}-tab-{{ i }}"
+                {% else %}
+                  role="region" aria-label="{{ c_title }}"
+                {% endif %}
+                data-cps-panel
+                data-index="{{ i }}"
+                data-block-id="{{ block.id }}"
+                data-title="{{ c_title }}"
+                {% unless forloop.first %}aria-hidden="true" inert{% endunless %}
+                {{ block.shopify_attributes }}
+              >
+                {%- if switch_on_scroll and has_prev -%}
+                  <div class="cps__pull" aria-hidden="true">
+                    <span>Keep scrolling up for {{ titles[prev_i] }}</span>
+                    <span class="cps__intent"><span class="cps__intent-bar cps__intent-bar--up"></span></span>
+                  </div>
+                {%- endif -%}
+
+                <div class="cps__scroller" data-cps-scroller tabindex="0" aria-label="Products in {{ c_title }}">
+                  <ul class="cps__grid" role="list">
+                    {%- if collection == blank -%}
+                      {%- for n in (1..4) -%}
+                        <li class="cps__item">
+                          <div class="cps__card">
+                            <div class="cps__card-media">
+                              {{ 'product-' | append: n | placeholder_svg_tag: 'cps__img cps__placeholder' }}
+                            </div>
+                            <div class="cps__card-info">
+                              <p class="cps__card-title">Product title</p>
+                              <div class="cps__price"><span class="cps__amount">{{ placeholder_price }}</span></div>
+                            </div>
+                          </div>
+                        </li>
+                      {%- endfor -%}
+                    {%- elsif collection.products_count == 0 -%}
+                      <li class="cps__item cps__item--empty">This collection has no products yet.</li>
+                    {%- else -%}
+                      {%- for product in collection.products limit: s.products_limit -%}
+                        {%- liquid
+                          assign media = product.featured_media
+                          assign on_sale = false
+                          if product.compare_at_price > product.price
+                            assign on_sale = true
+                          endif
+                          assign p_loading = 'lazy'
+                          if eager_panel and forloop.index <= 2
+                            assign p_loading = 'eager'
+                          endif
+                          assign second = nil
+                          if s.show_secondary_image and product.media.size > 1
+                            assign second = product.media[1].preview_image
+                          endif
+                        -%}
+                        <li class="cps__item">
+                          <a class="cps__card" href="{{ product.url }}">
+                            <div
+                              class="cps__card-media{% if second %} has-second{% endif %}"
+                              {% if s.product_ratio == 'adapt' %}style="--cps-ratio: {{ media.aspect_ratio | default: 1 }};"{% endif %}
+                            >
+                              {%- if media != blank -%}
+                                {%- assign p_alt = media.alt | default: product.title -%}
+                                {{
+                                  media
+                                  | image_url: width: 900
+                                  | image_tag:
+                                    widths: '240, 360, 480, 600, 720, 900',
+                                    sizes: product_sizes,
+                                    loading: p_loading,
+                                    alt: p_alt,
+                                    class: 'cps__img'
+                                }}
+                                {%- if second -%}
+                                  {{
+                                    second
+                                    | image_url: width: 900
+                                    | image_tag:
+                                      widths: '240, 360, 480, 600, 720, 900',
+                                      sizes: product_sizes,
+                                      loading: 'lazy',
+                                      alt: '',
+                                      class: 'cps__img cps__img--second'
+                                  }}
+                                {%- endif -%}
+                              {%- else -%}
+                                {{ 'product-1' | placeholder_svg_tag: 'cps__img cps__placeholder' }}
+                              {%- endif -%}
+
+                              {%- if product.available == false and s.show_sold_out_badge -%}
+                                <span class="cps__badge">Sold out</span>
+                              {%- elsif on_sale and s.show_sale_badge -%}
+                                <span class="cps__badge cps__badge--sale">Sale</span>
+                              {%- endif -%}
+                            </div>
+
+                            <div class="cps__card-info">
+                              {%- if s.show_vendor and product.vendor != blank -%}
+                                <p class="cps__vendor">{{ product.vendor | escape }}</p>
+                              {%- endif -%}
+                              <p class="cps__card-title">{{ product.title | escape }}</p>
+                              <div class="cps__price">
+                                {%- if on_sale and s.show_compare_price -%}
+                                  <span class="cps__sr">Regular price</span>
+                                  <s class="cps__compare">{{ product.compare_at_price | money }}</s>
+                                  <span class="cps__sr">Sale price</span>
+                                {%- endif -%}
+                                <span class="cps__amount{% if on_sale %} is-sale{% endif %}">
+                                  {%- if product.price_varies -%}From {% endif -%}
+                                  {{- product.price | money -}}
+                                </span>
+                              </div>
+                            </div>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    {%- endif -%}
+                  </ul>
+
+                  <div class="cps__end">
+                    {%- if s.show_view_all and collection != blank -%}
+                      <a class="cps__view-all" href="{{ c_url }}">
+                        {{ view_all_label }}<span class="cps__sr"> {{ c_title }}</span>
+                      </a>
+                    {%- endif -%}
+                    {%- if switch_on_scroll and has_next -%}
+                      <p class="cps__next-hint">Keep scrolling for <strong>{{ titles[next_i] }}</strong></p>
+                      <span class="cps__intent" aria-hidden="true"><span class="cps__intent-bar cps__intent-bar--down"></span></span>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+
+      <div class="cps__sr" aria-live="polite" aria-atomic="true" data-cps-live></div>
+    {%- endif -%}
+  </div>
+</collection-product-scroll>
+
+
+<script>
+/* =========================================================
+   Collection Product Scroll — vanilla JS custom element
+   - Product grid scrolls independently of the fixed image
+   - At the bottom of a collection, an extra deliberate scroll
+     switches to the next one; at the top, to the previous one
+   - Momentum that carries the grid to its edge never switches
+   - One instance per section, cleaned up on Theme Editor reloads
+   ========================================================= */
+(function () {
+  if (window.customElements.get('collection-product-scroll')) return;
+
+  const now = () => performance.now();
+  const GESTURE_GAP = 180;   // ms between wheel events that starts a new gesture
+  const INTENT_RESET = 450;  // ms of no input before switch intent is cleared
+  const ANIM_CLASSES = ['is-leaving', 'is-leave-next', 'is-leave-prev', 'is-enter-next', 'is-enter-prev'];
+
+  class CollectionProductScroll extends HTMLElement {
+    connectedCallback() {
+      if (this._ready) return;
+
+      this.panels = Array.from(this.querySelectorAll('[data-cps-panel]'));
+      this.count = this.panels.length;
+      if (!this.count) return;
+      this._ready = true;
+
+      // Each panel's scroller is looked up once, instead of on every scroll / wheel event.
+      this.scrollers = this.panels.map((p) => p.querySelector('[data-cps-scroller]'));
+      this.medias = Array.from(this.querySelectorAll('[data-cps-media]'));
+      this.tabs = Array.from(this.querySelectorAll('[data-cps-tab]'));
+      this.tablist = this.querySelector('[data-cps-tablist]');
+      this.prevBtn = this.querySelector('[data-cps-prev]');
+      this.nextBtn = this.querySelector('[data-cps-next]');
+      this.counter = this.querySelector('[data-cps-counter]');
+      this.live = this.querySelector('[data-cps-live]');
+      this.progressBar = this.querySelector('[data-cps-progress]');
+
+      this.sectionId = this.dataset.sectionId;
+      this.switchOnScroll = this.dataset.switchOnScroll === 'true' && this.count > 1;
+      this.loop = this.dataset.loop === 'true' && this.count > 1;
+      this.threshold = parseInt(this.dataset.threshold, 10) || 160;
+      this.speed = parseInt(this.dataset.speed, 10) || 500;
+      this.reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      const active = this.panels.findIndex((p) => p.classList.contains('is-active'));
+      this.index = active > -1 ? active : 0;
+
+      this.intent = 0;
+      this.intentDir = 0;
+      this.intentPanel = null;  // the one panel currently showing switch-intent visuals
+      this.animated = [];       // elements carrying enter/leave animation classes
+      this.lastProgress = '';
+      this.switching = false;
+      this.lastWheel = 0;
+      this.gestureStart = 0;
+      this.touch = null;
+      this.resetEdges();
+
+      this.ac = new AbortController();
+      const signal = this.ac.signal;
+
+      this.scrollers.forEach((sc) => {
+        if (!sc) return;
+        sc.addEventListener('scroll', () => this.onScroll(sc), { signal, passive: true });
+        // The blocking (non-passive) wheel / touch listeners are only attached when scroll
+        // switching is on, so with it off the browser can scroll the grid without waiting on JS.
+        if (!this.switchOnScroll) return;
+        sc.addEventListener('wheel', (e) => this.onWheel(e, sc), { signal, passive: false });
+        sc.addEventListener('touchstart', (e) => this.onTouchStart(e, sc), { signal, passive: true });
+        sc.addEventListener('touchmove', (e) => this.onTouchMove(e, sc), { signal, passive: false });
+        sc.addEventListener('touchend', () => this.onTouchEnd(), { signal });
+        sc.addEventListener('touchcancel', () => { this.touch = null; this.resetIntent(); }, { signal });
+        sc.addEventListener('keydown', (e) => this.onKey(e, sc), { signal });
+      });
+
+      this.tabs.forEach((tab) => {
+        tab.addEventListener('click', () => this.activate(parseInt(tab.dataset.index, 10)), { signal });
+        tab.addEventListener('keydown', (e) => this.onTabKey(e), { signal });
+      });
+      if (this.prevBtn) this.prevBtn.addEventListener('click', () => this.prev(), { signal });
+      if (this.nextBtn) this.nextBtn.addEventListener('click', () => this.next(), { signal });
+
+      if (window.Shopify && window.Shopify.designMode) this.bindEditorEvents(signal);
+      this.applyState();
+      this.updateProgress();
+      this.classList.add('is-ready');
+    }
+
+    disconnectedCallback() {
+      this._ready = false;
+      if (this.ac) this.ac.abort();
+      clearTimeout(this.intentTimer);
+      clearTimeout(this.leaveTimer);
+      clearTimeout(this.lockTimer);
+      cancelAnimationFrame(this.progressRaf);
+    }
+
+    /* ---------- Helpers ---------- */
+    get scroller() {
+      return this.scrollers[this.index];
+    }
+
+    hasNext() {
+      return this.count > 1 && (this.loop || this.index < this.count - 1);
+    }
+
+    hasPrev() {
+      return this.count > 1 && (this.loop || this.index > 0);
+    }
+
+    edgesOf(sc) {
+      const max = sc.scrollHeight - sc.clientHeight;
+      return { top: sc.scrollTop <= 1, bottom: sc.scrollTop >= max - 2 };
+    }
+
+    resetEdges() {
+      const t = now();
+      this.arrived = { top: t, bottom: t };
+      this.edge = this.scroller ? this.edgesOf(this.scroller) : { top: true, bottom: false };
+    }
+
+    normalizeDelta(e, sc) {
+      if (e.deltaMode === 1) return e.deltaY * 16;
+      if (e.deltaMode === 2) return e.deltaY * sc.clientHeight;
+      return e.deltaY;
+    }
+
+    /* ---------- Scroll tracking ---------- */
+    onScroll(sc) {
+      if (sc !== this.scroller) return;
+      const edge = this.edgesOf(sc);
+      const t = now();
+      // Record the moment the grid reaches an edge; input that was already
+      // in flight at that moment (momentum) must not trigger a switch.
+      if (edge.bottom && !this.edge.bottom) this.arrived.bottom = t;
+      if (edge.top && !this.edge.top) this.arrived.top = t;
+      if ((this.intentDir > 0 && !edge.bottom) || (this.intentDir < 0 && !edge.top)) this.resetIntent();
+      this.edge = edge;
+
+      if (!this.progressBar) return;
+      cancelAnimationFrame(this.progressRaf);
+      this.progressRaf = requestAnimationFrame(() => this.updateProgress());
+    }
+
+    // The progress value is set on the bar itself (not the whole section), so a scroll
+    // only restyles one element instead of every product card in the section.
+    updateProgress() {
+      const sc = this.scroller;
+      if (!sc || !this.progressBar) return;
+      const max = sc.scrollHeight - sc.clientHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, sc.scrollTop / max)) : 1;
+      const value = p.toFixed(4);
+      if (value === this.lastProgress) return;
+      this.lastProgress = value;
+      this.progressBar.style.setProperty('--cps-progress', value);
+    }
+
+    /* ---------- Wheel / trackpad ---------- */
+    onWheel(e, sc) {
+      if (!this.switchOnScroll || sc !== this.scroller) return;
+
+      const t = now();
+      if (t - this.lastWheel > GESTURE_GAP) this.gestureStart = t;
+      this.lastWheel = t;
+
+      if (this.switching) {
+        e.preventDefault(); // swallow momentum while a switch settles
+        return;
+      }
+
+      const dy = this.normalizeDelta(e, sc);
+      if (!dy || Math.abs(e.deltaX) > Math.abs(dy)) return;
+
+      const dir = dy > 0 ? 1 : -1;
+      const edge = this.edgesOf(sc);
+      const canSwitch = dir > 0 ? edge.bottom && this.hasNext() : edge.top && this.hasPrev();
+
+      if (!canSwitch) {
+        // Normal product scrolling, or the page continues past the first/last collection.
+        if (this.intentDir === dir) this.resetIntent();
+        return;
+      }
+
+      e.preventDefault();
+      const arrivedAt = dir > 0 ? this.arrived.bottom : this.arrived.top;
+      if (this.gestureStart < arrivedAt) return; // same gesture that reached the edge
+
+      this.addIntent(dir, Math.abs(dy));
+    }
+
+    /* ---------- Touch ---------- */
+    onTouchStart(e, sc) {
+      if (!this.switchOnScroll || sc !== this.scroller || e.touches.length !== 1 || this.switching) {
+        this.touch = null;
+        return;
+      }
+      const edge = this.edgesOf(sc);
+      // A switch is only possible when the swipe starts at an edge,
+      // so a fling that reaches the end never changes collection.
+      this.touch = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        atTop: edge.top,
+        atBottom: edge.bottom,
+        dir: 0,
+        amount: 0
+      };
+    }
+
+    onTouchMove(e) {
+      const tch = this.touch;
+      if (!tch) return;
+      const dy = tch.y - e.touches[0].clientY;
+      const dx = tch.x - e.touches[0].clientX;
+      if (Math.abs(dx) > Math.abs(dy)) return;
+
+      const dir = dy > 0 ? 1 : -1;
+      const ok = dir > 0 ? tch.atBottom && this.hasNext() : tch.atTop && this.hasPrev();
+      if (!ok) {
+        if (tch.dir) { tch.dir = 0; this.resetIntent(); }
+        return;
+      }
+      if (e.cancelable) e.preventDefault();
+
+      tch.dir = dir;
+      tch.amount = Math.abs(dy);
+      const p = Math.min(1, tch.amount / this.touchThreshold());
+      this.intentDir = dir;
+      this.setIntentVisual(dir, p);
+    }
+
+    onTouchEnd() {
+      const tch = this.touch;
+      this.touch = null;
+      if (!tch || !tch.dir) return;
+      const done = tch.amount >= this.touchThreshold();
+      this.resetIntent();
+      if (done) tch.dir > 0 ? this.next({ via: 'scroll' }) : this.prev({ via: 'scroll' });
+    }
+
+    touchThreshold() {
+      return Math.max(70, this.threshold * 0.6);
+    }
+
+    /* ---------- Keyboard (inside the product grid) ---------- */
+    onKey(e, sc) {
+      if (!this.switchOnScroll || sc !== this.scroller || this.switching) return;
+      if (e.target !== sc) return; // let links inside the grid behave normally
+
+      let dir = 0;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) dir = 1;
+      if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) dir = -1;
+      if (!dir) return;
+
+      const edge = this.edgesOf(sc);
+      const ok = dir > 0 ? edge.bottom && this.hasNext() : edge.top && this.hasPrev();
+      if (!ok) return;
+
+      e.preventDefault();
+      // Two presses at the edge switch collections.
+      this.addIntent(dir, this.threshold / 2 + 1);
+    }
+
+    onTabKey(e) {
+      let target;
+      switch (e.key) {
+        case 'ArrowRight': target = this.index + 1; break;
+        case 'ArrowLeft': target = this.index - 1; break;
+        case 'Home': target = 0; break;
+        case 'End': target = this.count - 1; break;
+        default: return;
+      }
+      e.preventDefault();
+      if (target < 0) target = this.count - 1;
+      if (target >= this.count) target = 0;
+      this.activate(target);
+      if (this.tabs[this.index]) this.tabs[this.index].focus();
+    }
+
+    /* ---------- Switch intent ---------- */
+    addIntent(dir, amount) {
+      if (this.intentDir !== dir) {
+        this.intent = 0;
+        this.intentDir = dir;
+      }
+      this.intent += amount;
+      const p = Math.min(1, this.intent / this.threshold);
+      this.setIntentVisual(dir, p);
+
+      clearTimeout(this.intentTimer);
+      this.intentTimer = setTimeout(() => this.resetIntent(), INTENT_RESET);
+
+      if (p >= 1) {
+        this.resetIntent();
+        dir > 0 ? this.next({ via: 'scroll' }) : this.prev({ via: 'scroll' });
+      }
+    }
+
+    clearIntentVisual(panel) {
+      panel.style.removeProperty('--cps-intent-down');
+      panel.style.removeProperty('--cps-intent-up');
+      panel.classList.remove('is-pulling-up', 'is-pulling-down');
+    }
+
+    setIntentVisual(dir, p) {
+      const panel = this.panels[this.index];
+      if (this.intentPanel && this.intentPanel !== panel) this.clearIntentVisual(this.intentPanel);
+      this.intentPanel = panel;
+      panel.style.setProperty(dir > 0 ? '--cps-intent-down' : '--cps-intent-up', p.toFixed(3));
+      panel.classList.toggle('is-pulling-up', dir < 0 && p > 0);
+      panel.classList.toggle('is-pulling-down', dir > 0 && p > 0);
+    }
+
+    // Only the panel that actually shows intent visuals is touched (often nothing at all).
+    resetIntent() {
+      clearTimeout(this.intentTimer);
+      this.intent = 0;
+      this.intentDir = 0;
+      if (this.intentPanel) {
+        this.clearIntentVisual(this.intentPanel);
+        this.intentPanel = null;
+      }
+    }
+
+    /* ---------- Switching ---------- */
+    next(opts = {}) {
+      this.activate(this.index + 1, Object.assign({ dir: 1, position: 'top' }, opts));
+    }
+
+    prev(opts = {}) {
+      // Scrolling up into the previous collection lands at its last row.
+      const position = opts.via === 'scroll' ? 'bottom' : 'top';
+      this.activate(this.index - 1, Object.assign({ dir: -1, position }, opts));
+    }
+
+    activate(target, opts = {}) {
+      const n = this.count;
+      let next = target;
+      if (next < 0 || next >= n) {
+        if (!this.loop) return;
+        next = ((next % n) + n) % n;
+      }
+      if (next === this.index) return;
+
+      const dir = opts.dir || (next > this.index ? 1 : -1);
+      const prev = this.index;
+      const hadFocus = this.panels[prev].contains(document.activeElement);
+
+      this.cleanupLeaving();
+      this.resetIntent();
+      this.index = next;
+
+      this.swap(this.panels, prev, next, dir);
+      this.swap(this.medias, prev, next, dir);
+
+      const sc = this.scroller;
+      if (sc) sc.scrollTop = opts.position === 'bottom' ? sc.scrollHeight : 0;
+      this.resetEdges();
+
+      this.applyState();
+      this.updateProgress();
+      this.announce();
+
+      if (hadFocus && sc) sc.focus({ preventScroll: true });
+      if (opts.via === 'scroll') this.lockSwitching();
+
+      this.dispatchEvent(new CustomEvent('cps:change', { bubbles: true, detail: { index: next } }));
+    }
+
+    swap(list, prev, next, dir) {
+      const out = list[prev];
+      const inn = list[next];
+      if (!out || !inn) return;
+      const animate = !this.reduceMQ.matches;
+      const key = dir > 0 ? 'next' : 'prev';
+
+      out.classList.remove('is-active', 'is-enter-next', 'is-enter-prev');
+      inn.classList.remove(...ANIM_CLASSES);
+      inn.classList.add('is-active');
+
+      if (animate) {
+        out.classList.add('is-leaving', 'is-leave-' + key);
+        void inn.offsetWidth; // restart the entrance animation
+        inn.classList.add('is-enter-' + key);
+        this.animated.push(out, inn);
+        clearTimeout(this.leaveTimer);
+        this.leaveTimer = setTimeout(() => this.cleanupLeaving(), this.speed + 80);
+      }
+    }
+
+    // Clears animation classes from the elements that were animated, instead of
+    // searching the whole section (hundreds of product cards) for them.
+    cleanupLeaving() {
+      clearTimeout(this.leaveTimer);
+      for (let i = 0; i < this.animated.length; i++) this.animated[i].classList.remove(...ANIM_CLASSES);
+      this.animated = [];
+    }
+
+    lockSwitching() {
+      this.switching = true;
+      clearTimeout(this.lockTimer);
+      const release = () => {
+        if (now() - this.lastWheel > 200) {
+          this.switching = false;
+          this.resetEdges();
+        } else {
+          this.lockTimer = setTimeout(release, 120);
+        }
+      };
+      this.lockTimer = setTimeout(release, Math.max(this.speed, 350));
+    }
+
+    applyState() {
+      const setVisible = (el, visible) => {
+        if (visible) {
+          el.removeAttribute('aria-hidden');
+          el.inert = false;
+        } else {
+          el.setAttribute('aria-hidden', 'true');
+          el.inert = true;
+        }
+      };
+      this.panels.forEach((p, i) => setVisible(p, i === this.index));
+      this.medias.forEach((m, i) => setVisible(m, i === this.index));
+
+      this.tabs.forEach((tab, i) => {
+        const on = i === this.index;
+        tab.classList.toggle('is-active', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        tab.tabIndex = on ? 0 : -1;
+      });
+      this.scrollTabIntoView();
+
+      if (this.counter) this.counter.textContent = this.index + 1 + ' / ' + this.count;
+      if (this.prevBtn) this.prevBtn.disabled = !this.hasPrev();
+      if (this.nextBtn) this.nextBtn.disabled = !this.hasNext();
+    }
+
+    scrollTabIntoView() {
+      const tab = this.tabs[this.index];
+      if (!this.tablist || !tab) return;
+      const left = tab.offsetLeft - (this.tablist.clientWidth - tab.offsetWidth) / 2;
+      this.tablist.scrollTo({ left, behavior: this.reduceMQ.matches ? 'auto' : 'smooth' });
+    }
+
+    announce() {
+      if (!this.live) return;
+      const title = this.panels[this.index].dataset.title || '';
+      this.live.textContent = title + ', collection ' + (this.index + 1) + ' of ' + this.count;
+    }
+
+    /* ---------- Shopify Theme Editor ---------- */
+    bindEditorEvents(signal) {
+      document.addEventListener(
+        'shopify:block:select',
+        (e) => {
+          if (!e.detail || e.detail.sectionId !== this.sectionId) return;
+          const i = this.panels.findIndex((p) => p.dataset.blockId === e.detail.blockId);
+          if (i > -1) this.activate(i, { position: 'top' });
+        },
+        { signal }
+      );
+    }
+  }
+
+  window.customElements.define('collection-product-scroll', CollectionProductScroll);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Collection product scroll",
+  "tag": "section",
+  "class": "section-collection-product-scroll",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 8,
+  "settings": [
+    { "type": "header", "content": "Heading" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by collection" },
+    { "type": "textarea", "id": "subheading", "label": "Subheading" },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 16, "max": 64, "step": 2, "unit": "px", "default": 36 },
+
+    { "type": "header", "content": "Section layout" },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "Collection image position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    { "type": "range", "id": "media_width", "label": "Image column width (desktop)", "min": 30, "max": 65, "step": 5, "unit": "%", "default": 45 },
+    { "type": "range", "id": "media_width_tablet", "label": "Image column width (tablet)", "min": 30, "max": 60, "step": 5, "unit": "%", "default": 40 },
+    { "type": "range", "id": "height_desktop", "label": "Scroll area height (desktop)", "min": 50, "max": 100, "step": 5, "unit": "vh", "default": 85 },
+    { "type": "range", "id": "height_tablet", "label": "Scroll area height (tablet)", "min": 50, "max": 100, "step": 5, "unit": "vh", "default": 75 },
+    { "type": "range", "id": "media_height_mobile", "label": "Image height (mobile)", "min": 160, "max": 520, "step": 10, "unit": "px", "default": 300 },
+    { "type": "range", "id": "scroll_height_mobile", "label": "Product area height (mobile)", "min": 40, "max": 90, "step": 5, "unit": "vh", "default": 70 },
+    { "type": "range", "id": "layout_gap", "label": "Space between columns", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 40 },
+    { "type": "checkbox", "id": "full_width", "label": "Full width", "default": false },
+    { "type": "range", "id": "side_padding", "label": "Side padding", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 32 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 60 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 60 },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#1c1c1c" },
+    { "type": "color", "id": "muted_color", "label": "Secondary text", "default": "#6b6b6b" },
+    { "type": "color", "id": "accent_color", "label": "Accent", "info": "Used for the scroll progress bar and switch indicator.", "default": "#1c1c1c" },
+    { "type": "color", "id": "image_bg", "label": "Image placeholder background", "default": "#f2f2f2" },
+
+    { "type": "header", "content": "Collection image" },
+    { "type": "range", "id": "media_radius", "label": "Image corner radius", "min": 0, "max": 40, "step": 2, "unit": "px", "default": 12 },
+    { "type": "color", "id": "overlay_color", "label": "Overlay color", "default": "#000000" },
+    { "type": "range", "id": "overlay_opacity", "label": "Overlay opacity", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 35 },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Text position",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    { "type": "color", "id": "media_text_color", "label": "Text color", "default": "#ffffff" },
+    { "type": "checkbox", "id": "show_media_title", "label": "Show collection title", "default": true },
+    { "type": "checkbox", "id": "show_media_description", "label": "Show description", "default": true },
+    { "type": "checkbox", "id": "use_collection_description", "label": "Use collection description when block description is empty", "default": false },
+
+    { "type": "header", "content": "Typography" },
+    { "type": "checkbox", "id": "use_custom_font", "label": "Use custom title font", "info": "Off uses your theme's heading font.", "default": false },
+    { "type": "font_picker", "id": "title_font", "label": "Title font", "default": "assistant_n4" },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Title weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    { "type": "checkbox", "id": "title_uppercase", "label": "Uppercase collection title", "default": false },
+    { "type": "range", "id": "media_title_size", "label": "Collection title size", "min": 18, "max": 64, "step": 2, "unit": "px", "default": 36 },
+    { "type": "range", "id": "media_description_size", "label": "Description size", "min": 12, "max": 22, "step": 1, "unit": "px", "default": 16 },
+    { "type": "range", "id": "product_title_size", "label": "Product title size", "min": 12, "max": 22, "step": 1, "unit": "px", "default": 15 },
+    { "type": "range", "id": "price_size", "label": "Price size", "min": 12, "max": 22, "step": 1, "unit": "px", "default": 14 },
+
+    { "type": "header", "content": "Button" },
+    { "type": "checkbox", "id": "show_media_button", "label": "Show button", "default": true },
+    { "type": "text", "id": "button_text", "label": "Button text", "default": "Shop collection" },
+    { "type": "color", "id": "button_bg", "label": "Button background", "default": "#ffffff" },
+    { "type": "color", "id": "button_color", "label": "Button text color", "default": "#1c1c1c" },
+    { "type": "range", "id": "button_radius", "label": "Button corner radius", "min": 0, "max": 50, "step": 2, "unit": "px", "default": 50 },
+
+    { "type": "header", "content": "Product grid" },
+    { "type": "range", "id": "products_limit", "label": "Products per collection", "min": 2, "max": 48, "step": 2, "default": 12 },
+    { "type": "range", "id": "grid_column_gap", "label": "Column spacing", "min": 4, "max": 40, "step": 2, "unit": "px", "default": 16 },
+    { "type": "range", "id": "grid_row_gap", "label": "Row spacing", "min": 8, "max": 60, "step": 2, "unit": "px", "default": 28 },
+    { "type": "range", "id": "grid_column_gap_mobile", "label": "Column spacing (mobile)", "min": 4, "max": 24, "step": 2, "unit": "px", "default": 10 },
+    { "type": "range", "id": "grid_row_gap_mobile", "label": "Row spacing (mobile)", "min": 8, "max": 40, "step": 2, "unit": "px", "default": 18 },
+    { "type": "checkbox", "id": "show_view_all", "label": "Show “View all” link after products", "default": true },
+    { "type": "text", "id": "view_all_text", "label": "“View all” text", "default": "View all" },
+
+    { "type": "header", "content": "Product card" },
+    {
+      "type": "select",
+      "id": "product_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "adapt", "label": "Adapt to image" },
+        { "value": "1 / 1", "label": "Square" },
+        { "value": "4 / 5", "label": "Portrait (4:5)" },
+        { "value": "3 / 4", "label": "Portrait (3:4)" },
+        { "value": "2 / 3", "label": "Tall (2:3)" },
+        { "value": "4 / 3", "label": "Landscape (4:3)" }
+      ],
+      "default": "4 / 5"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        { "value": "cover", "label": "Fill (crop)" },
+        { "value": "contain", "label": "Fit (no crop)" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "card_text_alignment",
+      "label": "Card text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    { "type": "color", "id": "card_bg", "label": "Card background", "default": "#ffffff" },
+    { "type": "color", "id": "card_border_color", "label": "Card border color", "default": "#e6e6e6" },
+    { "type": "range", "id": "card_border_width", "label": "Card border width", "min": 0, "max": 4, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "card_radius", "label": "Card corner radius", "min": 0, "max": 32, "step": 2, "unit": "px", "default": 8 },
+    { "type": "range", "id": "card_padding", "label": "Card padding", "min": 0, "max": 24, "step": 2, "unit": "px", "default": 0 },
+    { "type": "checkbox", "id": "card_shadow", "label": "Card shadow", "default": false },
+    { "type": "checkbox", "id": "show_secondary_image", "label": "Show second image on hover", "default": true },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_compare_price", "label": "Show compare-at price", "default": true },
+    { "type": "checkbox", "id": "show_sale_badge", "label": "Show sale badge", "default": true },
+    { "type": "checkbox", "id": "show_sold_out_badge", "label": "Show sold out badge", "default": true },
+    { "type": "color", "id": "price_color", "label": "Price color", "default": "#1c1c1c" },
+    { "type": "color", "id": "sale_color", "label": "Sale price color", "default": "#b42318" },
+    { "type": "color", "id": "badge_bg", "label": "Badge background", "default": "#1c1c1c" },
+    { "type": "color", "id": "badge_text", "label": "Badge text", "default": "#ffffff" },
+
+    { "type": "header", "content": "Collection navigation" },
+    {
+      "type": "checkbox",
+      "id": "switch_on_scroll",
+      "label": "Switch collections by scrolling",
+      "info": "Scrolling past the last row moves to the next collection; scrolling up at the top moves to the previous one.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "scroll_sensitivity",
+      "label": "Extra scroll needed to switch",
+      "options": [
+        { "value": "short", "label": "Short" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "long", "label": "Long" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop from last collection to first",
+      "info": "When off, scrolling continues down the page after the last collection.",
+      "default": false
+    },
+    { "type": "checkbox", "id": "show_tabs", "label": "Show collection tabs", "default": true },
+    {
+      "type": "select",
+      "id": "tab_style",
+      "label": "Tab style",
+      "options": [
+        { "value": "pills", "label": "Pills" },
+        { "value": "underline", "label": "Underline" }
+      ],
+      "default": "pills"
+    },
+    { "type": "color", "id": "tab_active_bg", "label": "Active tab background", "default": "#1c1c1c" },
+    { "type": "color", "id": "tab_active_text", "label": "Active tab text", "default": "#ffffff" },
+    { "type": "checkbox", "id": "show_arrows", "label": "Show previous/next arrows", "default": true },
+    { "type": "checkbox", "id": "show_counter", "label": "Show collection counter", "default": true },
+    { "type": "checkbox", "id": "show_progress", "label": "Show scroll progress bar", "default": true },
+    {
+      "type": "select",
+      "id": "transition_style",
+      "label": "Switch animation",
+      "options": [
+        { "value": "slide", "label": "Slide" },
+        { "value": "fade", "label": "Fade" }
+      ],
+      "default": "slide"
+    },
+    { "type": "range", "id": "transition_speed", "label": "Animation speed", "min": 200, "max": 1000, "step": 50, "unit": "ms", "default": 500 }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "image_picker", "id": "image", "label": "Image", "info": "Leave empty to use the collection image." },
+        { "type": "text", "id": "title", "label": "Title", "info": "Leave empty to use the collection name." },
+        { "type": "textarea", "id": "description", "label": "Description" },
+        { "type": "text", "id": "button_label", "label": "Button text override", "info": "Leave empty to use the section button text." }
       ]
     }
   ],
