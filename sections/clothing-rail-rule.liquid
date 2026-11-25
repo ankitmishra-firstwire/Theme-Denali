@@ -610,7 +610,7 @@
         {%- endfor -%}
       {%- endcapture -%}
 
-      <script type="application/json" data-items type="module">[{{ items_json }}]</script>
+      <script type="application/json" data-items type="module" defer>[{{ items_json }}]</script>
 
       <div class="crh__stage" data-stage role="group" aria-label="{{ section.settings.heading | default: 'Clothing rail' | escape }}">
         <div class="crh__rail" data-rail aria-hidden="true">
@@ -686,7 +686,7 @@
   </clothing-rail-hero>
 </div>
 
-<script type="module">
+<script type="module" defer>
   (function () {
     if (!window.customElements || window.customElements.get('clothing-rail-hero')) return;
 
