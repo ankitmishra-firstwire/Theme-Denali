@@ -95,7 +95,7 @@
     {%- if section.settings.button_text != blank -%}--fcx-btn-text: {{ section.settings.button_text }};{%- endif -%}
   "
 >
-  <script type="application/json" data-fcx-config>
+  <script type="application/json" data-fcx-config type="module">
     {
       "moneyFormat": {{ shop.money_format | json }},
       "afterAdd": {{ section.settings.after_add | json }},
