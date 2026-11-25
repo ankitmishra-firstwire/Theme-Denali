@@ -6,11 +6,24 @@
   Text (label, title, description, buttons) can be placed in 9 positions,
   separately for desktop and mobile, with a per-slide override.
   No external libraries: the animation uses the browser's Web Animations API.
+
+  Performance notes:
+  - Only the active slide is rendered (display: none on the others), so the
+    other slides' lazy images are not downloaded during page load and do not
+    compete with the first slide's image.
+  - The first slide's image gets fetchpriority="high" and, where possible, a
+    preload Link header when this slider is the first section on the page.
+  - Autoplay and fetching the next slide wait for the visitor's first scroll,
+    tap, key press or mouse move, so the first slide stays the Largest
+    Contentful Paint.
+  - The strip wipe animates transform only (composited), not clip-path.
+  - The title font stylesheet loads without blocking rendering.
 {%- endcomment -%}
 
 {%- liquid
   assign total = section.blocks.size
   assign total_padded = total | prepend: '0' | slice: -2, 2
+  assign section_index = section.index | default: 1
   assign progress_start = 0
   if total > 0
     assign progress_start = 1.0 | divided_by: total
@@ -28,9 +41,10 @@
 -%}
 
 {%- if section.settings.title_font == 'instrument' -%}
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  {%- assign pss_font_url = 'https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap' -%}
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="preload" as="style" href="{{ pss_font_url }}" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ pss_font_url }}"></noscript>
 {%- endif -%}
 
 {%- style -%}
@@ -98,9 +112,10 @@
     touch-action: pan-y; user-select: none; -webkit-user-select: none;
   }
 
-  /* Slides (bottom layer) */
-  .pss__slide { position: absolute; inset: 0; opacity: 0; }
-  .pss__slide[data-active] { opacity: 1; }
+  /* Slides (bottom layer). Only the active slide is rendered, so the browser
+     does not download the other slides' lazy images during page load. */
+  .pss__slide { position: absolute; inset: 0; display: none; }
+  .pss__slide[data-active] { display: block; }
   .pss__media { position: absolute; inset: 0; }
   .pss__media picture,
   .pss__media img,
@@ -113,9 +128,14 @@
   }
   .pss__placeholder { background: color-mix(in srgb, var(--pss-accent) 8%, var(--pss-bg)); fill: color-mix(in srgb, var(--pss-accent) 35%, transparent); }
 
-  /* Strip reveal layer */
+  /* Strip reveal layer. Each strip is a fixed window; inside it a mover slides
+     in while a counter-mover slides the other way, so the picture stays still
+     while it is uncovered. Only transform is animated, which runs on the GPU. */
   .pss__strips { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-  .pss__strip { position: absolute; top: 0; bottom: 0; overflow: hidden; will-change: clip-path; }
+  .pss__strip { position: absolute; top: 0; bottom: 0; overflow: hidden; }
+  .pss__strip-move,
+  .pss__strip-counter { position: absolute; inset: 0; will-change: transform; }
+  .pss__strip-move { overflow: hidden; }
   .pss__strip-inner { position: absolute; top: 0; bottom: 0; }
   .pss__zoom { position: absolute; inset: 0; will-change: transform; }
 
@@ -216,7 +236,7 @@
     .pss__title { font-size: clamp(min(var(--pss-title-m), 13cqi), 8cqi, var(--pss-title-d)); }
   }
   .pss__word { display: inline-block; max-width: 100%; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; margin-bottom: -.08em; }
-  .pss__char { display: inline-block; will-change: transform; }
+  .pss__char { display: inline-block; }
 
   .pss__desc {
     margin-top: 16px; font-size: calc(var(--pss-desc) * .92); line-height: 1.55;
@@ -319,10 +339,24 @@
               assign chapter = 'Collection ' | append: number
             endif
             assign alt = block.settings.alt | default: img.alt | default: block.settings.title
+
+            # Only the first slide of a slider near the top of the page loads
+            # eagerly; the first slider on the page also gets high priority.
+            # The preload header is skipped when a separate mobile image exists,
+            # because it would make phones download the desktop image as well.
             assign loading = 'lazy'
-            if forloop.first
+            assign priority = 'auto'
+            assign img_preload = false
+            if forloop.first and section_index <= 2
               assign loading = 'eager'
             endif
+            if forloop.first and section_index == 1
+              assign priority = 'high'
+              if img_m == blank or block.settings.image == blank
+                assign img_preload = true
+              endif
+            endif
+
             assign placeholder = forloop.index0 | modulo: 2 | plus: 1 | prepend: 'lifestyle-'
 
             assign pos_d = block.settings.position_desktop
@@ -393,15 +427,11 @@
                   {%- if img_m != blank and block.settings.image != blank -%}
                     <source
                       media="(max-width: 749px)"
-                      srcset="{{ img_m | image_url: width: 750 }} 750w, {{ img_m | image_url: width: 1100 }} 1100w, {{ img_m | image_url: width: 1500 }} 1500w"
+                      srcset="{{ img_m | image_url: width: 550 }} 550w, {{ img_m | image_url: width: 750 }} 750w, {{ img_m | image_url: width: 1100 }} 1100w, {{ img_m | image_url: width: 1500 }} 1500w"
                       sizes="100vw"
                     >
                   {%- endif -%}
-                  {%- if section.index == 1 and forloop.first -%}
-                    {{ img | image_url: width: 3000 | image_tag: widths: '750, 1100, 1500, 1800, 2200, 3000', sizes: '100vw', class: 'pss__img', loading: loading, fetchpriority: 'high', alt: alt, style: img_style, draggable: 'false' }}
-                  {%- else -%}
-                    {{ img | image_url: width: 3000 | image_tag: widths: '750, 1100, 1500, 1800, 2200, 3000', sizes: '100vw', class: 'pss__img', loading: loading, alt: alt, style: img_style, draggable: 'false' }}
-                  {%- endif -%}
+                  {{ img | image_url: width: 3000 | image_tag: widths: '550, 750, 1100, 1500, 1800, 2200, 3000', sizes: '100vw', class: 'pss__img', loading: loading, fetchpriority: priority, preload: img_preload, alt: alt, style: img_style, draggable: 'false' }}
                 </picture>
               {%- else -%}
                 {{ placeholder | placeholder_svg_tag: 'pss__placeholder' }}
@@ -488,6 +518,8 @@
     };
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const POSITION_KEYS = ['yD', 'xD', 'yM', 'xM'];
+    // Any of these means a real visitor is on the page.
+    const ENGAGE_EVENTS = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'wheel', 'touchstart'];
 
     class StripSlider extends HTMLElement {
       connectedCallback() {
@@ -526,6 +558,8 @@
         this.paused = false;
         this.held = false;
         this.inView = true;
+        this.engaged = Boolean(window.Shopify && window.Shopify.designMode);
+        this.frameWidth = 0;
         this.token = 0;
         this.captionToken = 0;
         this.pending = null;
@@ -538,14 +572,19 @@
         };
         this.on = on;
 
-        on(this.querySelector('[data-pss-prev]'), 'click', () => {
+        const prevBtn = this.querySelector('[data-pss-prev]');
+        const nextBtn = this.querySelector('[data-pss-next]');
+        on(prevBtn, 'click', () => {
           if (performance.now() < (this.suppressClick || 0)) return;
           this.prev();
         });
-        on(this.querySelector('[data-pss-next]'), 'click', () => {
+        on(nextBtn, 'click', () => {
           if (performance.now() < (this.suppressClick || 0)) return;
           this.next();
         });
+        // Start fetching a slide's image as soon as the mouse is over its half.
+        on(prevBtn, 'pointerenter', () => this.warmSlide(this.current - 1));
+        on(nextBtn, 'pointerenter', () => this.warmSlide(this.current + 1));
 
         on(this, 'keydown', (event) => {
           if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -601,8 +640,17 @@
           this.observer.observe(this);
         }
 
+        // Keep the frame width up to date without reading layout during a
+        // transition (avoids a forced reflow).
+        if ('ResizeObserver' in window) {
+          this.resizeObserver = new ResizeObserver(([entry]) => {
+            this.frameWidth = entry.contentRect.width;
+          });
+          this.resizeObserver.observe(this.frameEl);
+        }
+
         this.setupCursor();
-        this.warmImages();
+        this.waitForEngagement();
         this.schedule();
       }
 
@@ -611,10 +659,12 @@
         this.ready = false;
         this.token += 1;
         this.controller.abort();
+        if (this.engageController) this.engageController.abort();
         clearTimeout(this.autoTimer);
         this.timers.forEach(clearTimeout);
         this.timers = [];
         if (this.observer) this.observer.disconnect();
+        if (this.resizeObserver) this.resizeObserver.disconnect();
         if (this.stopCursor) this.stopCursor();
       }
 
@@ -631,16 +681,35 @@
       next() { this.goTo(this.current + 1, 'next'); }
       prev() { this.goTo(this.current - 1, 'prev'); }
 
-      // After the page has loaded, fetch the remaining slide images so each
-      // reveal has its picture ready.
-      warmImages() {
-        const warm = () => this.later(() => {
-          this.slides.forEach((slide) => {
-            slide.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = 'eager'; });
-          });
-        }, 300);
-        if (document.readyState === 'complete') warm();
-        else this.on(window, 'load', warm, { once: true });
+      // Autoplay and fetching the next slide wait for the visitor's first
+      // scroll, tap, key press or mouse move. Until then only the first
+      // slide's image is downloaded, so it arrives as early as possible and
+      // remains the page's Largest Contentful Paint.
+      waitForEngagement() {
+        if (this.total < 2) return;
+        if (this.engaged) {
+          this.warmSlide(this.current + 1);
+          return;
+        }
+        this.engageController = new AbortController();
+        const engage = () => {
+          if (this.engaged || !this.ready) return;
+          this.engaged = true;
+          this.engageController.abort();
+          this.warmSlide(this.current + 1);
+          this.schedule();
+        };
+        const options = { capture: true, passive: true, signal: this.engageController.signal };
+        ENGAGE_EVENTS.forEach((type) => window.addEventListener(type, engage, options));
+      }
+
+      // Start downloading one slide's image (hidden slides are display: none,
+      // so their lazy images stay unloaded until asked for).
+      warmSlide(index) {
+        if (this.total < 2) return;
+        const slide = this.slides[((index % this.total) + this.total) % this.total];
+        const img = slide && slide.querySelector('[data-pss-media] img');
+        if (img && img.loading === 'lazy') img.loading = 'eager';
       }
 
       async mediaReady(index) {
@@ -669,12 +738,13 @@
         this.dataset.state = 'animating';
         this.setProgress(next);
 
-        if (this.reduced) {
-          this.jumpTo(next);
-          return;
-        }
-
         try {
+          await this.mediaReady(next);
+          if (!this.ready || token !== this.token) return;
+          if (this.reduced) {
+            this.jumpTo(next);
+            return;
+          }
           await this.transition(next, direction, token);
         } catch (error) {
           // Never leave the slider locked: show the slide without the effect.
@@ -692,18 +762,14 @@
       }
 
       async transition(next, direction, token) {
-        await this.mediaReady(next);
-        if (!this.ready || token !== this.token) return;
-
-        const { strips, zooms, from } = this.buildStrips(next, direction);
+        const { strips, zooms, moveFrom, counterFrom } = this.buildStrips(next, direction);
         const ordered = direction === 'prev' ? strips.slice().reverse() : strips;
         const animations = [];
 
-        ordered.forEach((strip, k) => {
-          animations.push(strip.animate(
-            [{ clipPath: from }, { clipPath: 'inset(0 0 0 0)' }],
-            { duration: this.opts.reveal, delay: k * this.opts.stagger, easing: EASE_OUT_3, fill: 'both' }
-          ));
+        ordered.forEach(({ move, counter }, k) => {
+          const timing = { duration: this.opts.reveal, delay: k * this.opts.stagger, easing: EASE_OUT_3, fill: 'both' };
+          animations.push(move.animate([{ transform: moveFrom }, { transform: 'translateX(0)' }], timing));
+          animations.push(counter.animate([{ transform: counterFrom }, { transform: 'translateX(0)' }], timing));
         });
         zooms.forEach((zoom) => {
           animations.push(zoom.animate(
@@ -738,18 +804,23 @@
             return;
           }
         }
+        if (this.engaged) this.warmSlide(index + 1);
         this.schedule();
       }
 
       // Each strip holds a full-size copy of the incoming image, shifted so
-      // the strips line up into one picture.
+      // the strips line up into one picture. The strip itself stays still;
+      // a mover inside it slides in and a counter-mover slides the opposite
+      // way, so the picture is uncovered without moving.
       buildStrips(index, direction) {
-        const width = this.frameEl.clientWidth;
+        const width = this.frameWidth || this.frameEl.clientWidth;
         const count = this.opts.strips;
         const stripWidth = width / count;
         const source = this.slides[index].querySelector('[data-pss-media]');
         if (!source) throw new Error('Slide has no media');
-        const from = direction === 'prev' ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)';
+        const shift = direction === 'prev' ? 100 : -100;
+        const moveFrom = `translateX(${shift}%)`;
+        const counterFrom = `translateX(${-shift}%)`;
         const fragment = document.createDocumentFragment();
         const strips = [];
         const zooms = [];
@@ -760,7 +831,14 @@
           strip.style.left = `${k * stripWidth}px`;
           // 1px overlap hides hairline seams between neighbouring strips.
           strip.style.width = `${stripWidth + (k < count - 1 ? 1 : 0)}px`;
-          strip.style.clipPath = from;
+
+          const move = document.createElement('div');
+          move.className = 'pss__strip-move';
+          move.style.transform = moveFrom;
+
+          const counter = document.createElement('div');
+          counter.className = 'pss__strip-counter';
+          counter.style.transform = counterFrom;
 
           const inner = document.createElement('div');
           inner.className = 'pss__strip-inner';
@@ -780,14 +858,16 @@
 
           zoom.append(clone);
           inner.append(zoom);
-          strip.append(inner);
+          counter.append(inner);
+          move.append(counter);
+          strip.append(move);
           fragment.append(strip);
-          strips.push(strip);
+          strips.push({ move, counter });
           zooms.push(zoom);
         }
 
         this.stripLayer.replaceChildren(fragment);
-        return { strips, zooms, from };
+        return { strips, zooms, moveFrom, counterFrom };
       }
 
       activate(index) {
@@ -901,7 +981,7 @@
 
       schedule() {
         clearTimeout(this.autoTimer);
-        const running = this.opts.autoplay && !this.paused && !this.held && this.inView
+        const running = this.opts.autoplay && this.engaged && !this.paused && !this.held && this.inView
           && !document.hidden && !this.reduced && !this.busy;
         if (running) this.autoTimer = setTimeout(() => this.next(), this.opts.interval);
         if (this.pauseBtn) {
@@ -923,6 +1003,10 @@
         let targetY = 0;
         let frame = 0;
         let visible = false;
+        // The frame's position is measured once and reused until the page
+        // scrolls or resizes, instead of on every mouse move.
+        let rect = null;
+        const resetRect = () => { rect = null; };
 
         const loop = () => {
           const ease = this.reduced ? 1 : 0.12;
@@ -938,9 +1022,11 @@
           if (value && !frame) frame = requestAnimationFrame(loop);
         };
 
+        this.on(window, 'scroll', resetRect, { passive: true });
+        this.on(window, 'resize', resetRect);
         this.on(this.frameEl, 'pointermove', (event) => {
           if (event.pointerType !== 'mouse') return;
-          const rect = this.frameEl.getBoundingClientRect();
+          if (!rect) rect = this.frameEl.getBoundingClientRect();
           targetX = event.clientX - rect.left;
           targetY = event.clientY - rect.top;
           const overControl = event.target.closest('a, [data-pss-pause], input, select, textarea');
@@ -951,7 +1037,10 @@
           show(!overControl);
           this.cursorEl.classList.toggle('is-left', targetX < rect.width / 2);
         });
-        this.on(this.frameEl, 'pointerleave', () => show(false));
+        this.on(this.frameEl, 'pointerleave', () => {
+          show(false);
+          resetRect();
+        });
         this.stopCursor = () => cancelAnimationFrame(frame);
       }
     }
@@ -1116,7 +1205,8 @@
         { "value": "instrument", "label": "Instrument Serif" },
         { "value": "theme", "label": "Theme heading font" }
       ],
-      "default": "instrument"
+      "default": "instrument",
+      "info": "Theme heading font loads fastest"
     },
     {
       "type": "select",
@@ -1294,7 +1384,7 @@
       "type": "checkbox",
       "id": "autoplay",
       "label": "Change slides automatically",
-      "info": "Adds a pause button. Off for visitors who prefer reduced motion.",
+      "info": "Starts once the visitor scrolls, taps or moves the mouse. Adds a pause button. Off for visitors who prefer reduced motion.",
       "default": false
     },
     {
