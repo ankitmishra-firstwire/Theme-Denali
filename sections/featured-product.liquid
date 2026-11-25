@@ -135,7 +135,7 @@
         </div>
       </div>
 
-      <script type="application/json" data-variant-prices>
+      <script type="application/json" data-variant-prices defer>
         {
           {%- for variant in product.variants -%}
             {%- capture variant_price_html -%}{% render 'price', product: product, variant: variant, class: 'price--large' %}{%- endcapture -%}
