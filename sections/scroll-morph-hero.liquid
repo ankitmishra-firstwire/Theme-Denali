@@ -10,6 +10,12 @@
     page is only released once the final state is actually on screen).
   - The arc heading sits in the center and reveals word by word.
 
+  v4 (performance):
+  - CSS and JS moved to {% stylesheet %} / {% javascript %} (cached, JS deferred).
+  - Card and background images load at low priority with accurate sizes.
+  - Only one background image (desktop or mobile) is downloaded.
+  - Fewer layout reads and memory allocations in the animation.
+
   v3:
   - Optional background image banner. It flows in (circle expand, wipe up
     or fade) at the same moment the arc heading starts revealing, and
@@ -31,6 +37,10 @@
     assign card_count = default_images.size
     assign use_defaults = true
   endif
+
+  assign sizes_mobile = card_w | times: 14 | divided_by: 10
+  assign sizes_desktop = card_w | times: 18 | divided_by: 10
+  assign card_sizes = '(max-width: 767px) ' | append: sizes_mobile | append: 'px, ' | append: sizes_desktop | append: 'px'
 
   assign img_loading = 'eager'
   if section.index > 2
@@ -70,7 +80,7 @@
   }
 {%- endstyle -%}
 
-<style>
+{% stylesheet %}
   scroll-morph-hero { display: block; }
 
   .smh {
@@ -118,15 +128,13 @@
     height: 100%;
     max-width: none;
     object-fit: cover;
+    object-position: var(--smh-focal, center);
     transform: scale(1.18);
     filter: blur(14px);
     transition: transform 0.6s ease, filter 0.6s ease;
-    will-change: transform, filter;
   }
-  .smh .smh__bg-img--mobile { display: none; }
   @media (max-width: 749px) {
-    .smh .smh__bg--has-mobile .smh__bg-img--desktop { display: none; }
-    .smh .smh__bg--has-mobile .smh__bg-img--mobile { display: block; }
+    .smh .smh__bg-img { object-position: var(--smh-focal-m, var(--smh-focal, center)); }
   }
   .smh .smh__bg-overlay {
     position: absolute;
@@ -228,8 +236,8 @@
     cursor: pointer;
     text-decoration: none;
     color: inherit;
-    will-change: transform, opacity;
   }
+  .smh.smh--anim .smh__card { will-change: transform, opacity; }
   .smh .smh__card:focus-visible { outline: 2px solid var(--smh-back-label); outline-offset: 3px; border-radius: 12px; }
   .smh .smh__card-inner {
     position: relative;
@@ -328,7 +336,6 @@
     transform: translateY(0.5em) rotateX(-75deg);
     filter: blur(10px);
     transition: opacity 0.3s ease, transform 0.35s ease, filter 0.3s ease;
-    will-change: transform, opacity, filter;
   }
   .smh .smh__arc.is-revealed .smh__word {
     opacity: 1;
@@ -427,7 +434,7 @@
       transition-delay: 0s !important;
     }
   }
-</style>
+{% endstylesheet %}
 
 <div class="smh-wrap">
   <scroll-morph-hero
@@ -443,43 +450,38 @@
   >
     {%- if section.settings.bg_image != blank -%}
       {%- liquid
-        assign bg_focal = section.settings.bg_image.presentation.focal_point | default: 'center'
-        assign bg_style = 'object-position: ' | append: bg_focal | append: ';'
-        assign bg_has_mobile = false
-        if section.settings.bg_image_mobile != blank
-          assign bg_has_mobile = true
-          assign bg_focal_m = section.settings.bg_image_mobile.presentation.focal_point | default: 'center'
-          assign bg_style_m = 'object-position: ' | append: bg_focal_m | append: ';'
+        assign bg = section.settings.bg_image
+        assign bg_m = section.settings.bg_image_mobile
+        assign bg_focal = bg.presentation.focal_point | default: 'center'
+        assign bg_style = '--smh-focal: ' | append: bg_focal | append: ';'
+        if bg_m != blank
+          assign bg_focal_m = bg_m.presentation.focal_point | default: 'center'
+          assign bg_style = bg_style | append: ' --smh-focal-m: ' | append: bg_focal_m | append: ';'
         endif
       -%}
-      <div
-        class="smh__bg smh__bg--{{ section.settings.bg_reveal }}{% if bg_has_mobile %} smh__bg--has-mobile{% endif %}"
-        aria-hidden="true"
-      >
-        {{
-          section.settings.bg_image
-          | image_url: width: 3000
-          | image_tag:
-            loading: 'lazy',
-            widths: '750, 1100, 1500, 2000, 2500, 3000',
-            sizes: '100vw',
-            alt: '',
-            class: 'smh__bg-img smh__bg-img--desktop',
-            style: bg_style
-        }}
-        {%- if bg_has_mobile -%}
+      <div class="smh__bg smh__bg--{{ section.settings.bg_reveal }}" aria-hidden="true">
+        <picture>
+          {%- if bg_m != blank -%}
+            <source
+              media="(max-width: 749px)"
+              sizes="100vw"
+              srcset="{{ bg_m | image_url: width: 375 }} 375w, {{ bg_m | image_url: width: 550 }} 550w, {{ bg_m | image_url: width: 750 }} 750w, {{ bg_m | image_url: width: 1100 }} 1100w, {{ bg_m | image_url: width: 1500 }} 1500w"
+            >
+          {%- endif -%}
           {{
-            section.settings.bg_image_mobile
-            | image_url: width: 1500
+            bg
+            | image_url: width: 3000
             | image_tag:
               loading: 'lazy',
-              widths: '375, 550, 750, 1100, 1500',
+              fetchpriority: 'low',
+              decoding: 'async',
+              widths: '750, 1100, 1500, 2000, 2500, 3000',
               sizes: '100vw',
               alt: '',
-              class: 'smh__bg-img smh__bg-img--mobile',
-              style: bg_style_m
+              class: 'smh__bg-img',
+              style: bg_style
           }}
-        {%- endif -%}
+        </picture>
         <div class="smh__bg-overlay"></div>
       </div>
     {%- endif -%}
@@ -530,8 +532,10 @@
                   | image_url: width: 400
                   | image_tag:
                     loading: img_loading,
-                    widths: '150, 250, 400',
-                    sizes: '120px',
+                    fetchpriority: 'low',
+                    decoding: 'async',
+                    widths: '100, 150, 200, 300, 400',
+                    sizes: card_sizes,
                     alt: img_alt,
                     draggable: 'false'
                 }}
@@ -542,6 +546,8 @@
                   width="400"
                   height="566"
                   loading="{{ img_loading }}"
+                  fetchpriority="low"
+                  decoding="async"
                   draggable="false"
                 >
               {%- endif -%}
@@ -572,7 +578,7 @@
   </scroll-morph-hero>
 </div>
 
-<script>
+{% javascript %}
   (function () {
     if (!window.customElements || window.customElements.get('scroll-morph-hero')) return;
 
@@ -599,6 +605,11 @@
         var force = -this.k * (this.value - this.target) - this.c * this.velocity;
         this.velocity += force * dt;
         this.value += this.velocity * dt;
+      }
+      // Run all sub-steps; a spring already on its target costs nothing
+      advance(h, sub) {
+        if (this.value === this.target && this.velocity === 0) return;
+        for (var n = 0; n < sub; n++) this.step(h);
       }
       snap() { this.value = this.target; this.velocity = 0; }
       isResting() {
@@ -628,7 +639,10 @@
 
         this.phase = 'scatter';
         this.scroll = 0;
-        this.size = { width: this.clientWidth, height: this.clientHeight };
+        this.size = { width: 0, height: 0 }; // filled by the ResizeObserver
+        this.rect = null;                   // cached for mouse parallax
+        this.scrollWatched = false;
+        this.scrollFrame = null;
         this.visible = false;
         this.started = false;
         this.timers = [];
@@ -676,6 +690,11 @@
             opacity: new Spring(s.opacity, 40, 15, 0.001)
           };
         });
+        this.cardState.forEach(function (st) {
+          st.springs = [st.x, st.y, st.rotation, st.scale, st.opacity];
+          st.opacityText = '';
+        });
+        this.globals = [this.morph, this.rotate, this.mouse];
 
         this.tick = this.tick.bind(this);
         this.onWheel = this.onWheel.bind(this);
@@ -690,15 +709,15 @@
         this.addEventListener('wheel', this.onWheel, { passive: false });
         this.addEventListener('touchstart', this.onTouchStart, { passive: true });
         this.addEventListener('touchmove', this.onTouchMove, { passive: false });
-        this.addEventListener('mousemove', this.onMouseMove);
+        if (this.parallaxEnabled) this.addEventListener('mousemove', this.onMouseMove, { passive: true });
         this.addEventListener('click', this.onClick);
         this.addEventListener('shopify:block:select', this.onBlockSelect);
         this.addEventListener('shopify:block:deselect', this.onBlockDeselect);
-        window.addEventListener('scroll', this.onWindowScroll, { passive: true });
 
         this.resizeObserver = new ResizeObserver(function (entries) {
           var r = entries[0].contentRect;
           self.size = { width: r.width, height: r.height };
+          self.rect = null;
           self.wake();
         });
         this.resizeObserver.observe(this);
@@ -729,7 +748,8 @@
         this.removeEventListener('click', this.onClick);
         this.removeEventListener('shopify:block:select', this.onBlockSelect);
         this.removeEventListener('shopify:block:deselect', this.onBlockDeselect);
-        window.removeEventListener('scroll', this.onWindowScroll);
+        this.watchScroll(false);
+        this.classList.remove('smh--anim');
         if (this.resizeObserver) this.resizeObserver.disconnect();
         if (this.intersectionObserver) this.intersectionObserver.disconnect();
       }
@@ -794,17 +814,35 @@
         return this.completed;
       }
 
+      // The page scroll listener exists only while there is something to reset
+      watchScroll(on) {
+        if (on === this.scrollWatched) return;
+        this.scrollWatched = on;
+        if (on) {
+          window.addEventListener('scroll', this.onWindowScroll, { passive: true });
+        } else {
+          window.removeEventListener('scroll', this.onWindowScroll);
+          if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
+          this.scrollFrame = null;
+        }
+      }
+
       // Visitor went back above the hero: let the animation play again next time
       onWindowScroll() {
-        if (!this.completed && this.scroll === 0) return;
-        var r = this.getBoundingClientRect();
-        if (r.top < window.innerHeight) return;
-        this.completed = false;
-        this.maxReachedAt = 0;
-        this.scroll = 0;
-        this.morph.target = 0;
-        this.rotate.target = 0;
-        this.snapNextFrame = true;
+        if (this.scrollFrame) return;
+        var self = this;
+        this.scrollFrame = requestAnimationFrame(function () {
+          self.scrollFrame = null;
+          if (self.getBoundingClientRect().top < window.innerHeight) return;
+          self.completed = false;
+          self.maxReachedAt = 0;
+          self.scroll = 0;
+          self.morph.target = 0;
+          self.rotate.target = 0;
+          self.snapNextFrame = true;
+          self.watchScroll(false);
+          self.wake();
+        });
       }
 
       /* --- Virtual scroll --- */
@@ -829,6 +867,7 @@
           value = clamp(value, shown - MAX_LEAD, shown + MAX_LEAD);
         }
         this.scroll = clamp(value, 0, this.maxScroll);
+        if (this.scroll > 0) this.watchScroll(true);
         this.morph.target = clamp(this.scroll / MORPH_DISTANCE, 0, 1);
         this.rotate.target = clamp((this.scroll - MORPH_DISTANCE) / (this.maxScroll - MORPH_DISTANCE), 0, 1) * 360;
         this.wake();
@@ -868,8 +907,7 @@
 
       /* --- Mouse parallax --- */
       onMouseMove(e) {
-        if (!this.parallaxEnabled) return;
-        var r = this.getBoundingClientRect();
+        var r = this.rect || (this.rect = this.getBoundingClientRect());
         if (!r.width) return;
         var normalized = ((e.clientX - r.left) / r.width) * 2 - 1;
         this.mouse.target = normalized * 100;
@@ -901,12 +939,14 @@
       wake() {
         if (this.raf || !this.visible || !this._ready) return;
         this.lastTime = null;
+        this.classList.add('smh--anim');
         this.raf = requestAnimationFrame(this.tick);
       }
 
       sleep() {
         if (this.raf) cancelAnimationFrame(this.raf);
         this.raf = null;
+        this.classList.remove('smh--anim');
       }
 
       getTarget(i, morph, rotateValue, parallax) {
@@ -971,16 +1011,21 @@
         // Fixed sub-steps keep the springs stable at any frame rate
         var sub = Math.max(1, Math.ceil(dt * 240));
         var h = dt / sub;
-        var s, j;
+        var j;
 
-        var globals = [this.morph, this.rotate, this.mouse];
-        for (s = 0; s < sub; s++) for (j = 0; j < 3; j++) globals[j].step(h);
-        if (this.snapNextFrame) globals.forEach(function (g) { g.snap(); });
+        if (!this.size.width) this.size = { width: this.clientWidth, height: this.clientHeight };
+
+        var globals = this.globals;
+        var resting = true;
+        for (j = 0; j < 3; j++) {
+          globals[j].advance(h, sub);
+          if (this.snapNextFrame) globals[j].snap();
+          if (!globals[j].isResting()) resting = false;
+        }
 
         var morph = this.morph.value;
         var rotateValue = this.rotate.value;
         var parallax = this.parallaxEnabled ? this.mouse.value : 0;
-        var resting = globals.every(function (g) { return g.isResting(); });
 
         this.checkComplete(now);
 
@@ -993,21 +1038,26 @@
           st.scale.target = t.scale;
           st.opacity.target = t.opacity;
 
-          var springs = [st.x, st.y, st.rotation, st.scale, st.opacity];
-          for (s = 0; s < sub; s++) for (j = 0; j < 5; j++) springs[j].step(h);
-          if (this.snapNextFrame) springs.forEach(function (sp) { sp.snap(); });
-          if (resting && !springs.every(function (sp) { return sp.isResting(); })) resting = false;
+          var springs = st.springs;
+          for (j = 0; j < 5; j++) {
+            springs[j].advance(h, sub);
+            if (this.snapNextFrame) springs[j].snap();
+            if (resting && !springs[j].isResting()) resting = false;
+          }
 
           var opacity = clamp(st.opacity.value, 0, 1);
           var transform =
             'translate3d(' + st.x.value.toFixed(2) + 'px,' + st.y.value.toFixed(2) + 'px,0) ' +
             'scale(' + st.scale.value.toFixed(4) + ') rotate(' + st.rotation.value.toFixed(2) + 'deg)';
-          var key = transform + '|' + opacity.toFixed(3);
-          if (key !== st.last) {
+          if (transform !== st.last) {
             st.el.style.transform = transform;
-            st.el.style.opacity = opacity.toFixed(3);
+            st.last = transform;
+          }
+          var opacityText = opacity.toFixed(3);
+          if (opacityText !== st.opacityText) {
+            st.el.style.opacity = opacityText;
             st.el.style.pointerEvents = opacity < 0.1 ? 'none' : '';
-            st.last = key;
+            st.opacityText = opacityText;
           }
         }
 
@@ -1017,6 +1067,8 @@
         var waitingToComplete = !this.completed && this.maxReachedAt;
         if ((!(resting && this.phase === 'circle') || waitingToComplete) && this.visible) {
           this.raf = requestAnimationFrame(this.tick);
+        } else {
+          this.classList.remove('smh--anim');
         }
       }
 
@@ -1071,7 +1123,7 @@
 
     window.customElements.define('scroll-morph-hero', ScrollMorphHero);
   })();
-</script>
+{% endjavascript %}
 
 {% schema %}
 {
