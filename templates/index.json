@@ -127,7 +127,7 @@
             "description": "A men's regular-fit crew neck t-shirt in a stone beige tone, made from 100% combed cotton jersey. The fit sits close to the body without being tight, with straight side seams, a set-in sleeve construction, and short sleeves that end at the mid-bicep.",
             "details": "",
             "link": "",
-            "image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_fef87cf8-ae74-4931-80b5-6c43c63d872c.png",
+            "image": "shopify://shop_images/mensshirt-preview.png",
             "side_image": "shopify://shop_images/mens-stone-beige-crew-neck-t-shirt_438fcd30-b143-4d43-8376-509767e9ae67.png"
           }
         },
@@ -441,7 +441,7 @@
         "slide_EHNibj"
       ],
       "custom_css": [
-        ".fw__help,.fw__footer{display: none;}"
+        ".fw__help,.fw__footer {display: none;}"
       ],
       "name": "Ferris wheel gallery",
       "settings": {
