@@ -66,9 +66,10 @@ html.cc-cart-drawer-open {
 @keyframes cc-fade-out { to { opacity: 0; } }
 
 .cc-cart-drawer__inner {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .cc-cart-drawer__inner[aria-busy="true"] {
