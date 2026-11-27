@@ -440,6 +440,9 @@
         "slide_yffpRy",
         "slide_EHNibj"
       ],
+      "custom_css": [
+        ".fw__help,.fw__footer{display: none;}"
+      ],
       "name": "Ferris wheel gallery",
       "settings": {
         "show_header": true,
