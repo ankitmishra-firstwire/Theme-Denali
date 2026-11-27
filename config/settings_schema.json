@@ -628,7 +628,18 @@
         "type": "collection",
         "id": "cart_empty_collection",
         "label": "Collection shown in an empty cart"
-      }
+      },
+      {
+        "type": "select",
+        "id": "my_cart_type",
+        "label": "Cart type",
+        "options": [
+          { "value": "drawer", "label": "Drawer" },
+          { "value": "page", "label": "Page" }
+        ],
+        "default": "drawer",
+        "info": "Drawer opens a side panel when customers add a product or click the cart icon. Page takes them to the cart page."
+      },
     ]
   },
   {
