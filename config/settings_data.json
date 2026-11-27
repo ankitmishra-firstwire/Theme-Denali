@@ -19,6 +19,38 @@
     "button_radius": 2,
     "secondary_button_radius": 24,
     "secondary_button_border_width": 3,
+    "sections": {
+      "cart-drawer": {
+        "type": "cart-drawer",
+        "settings": {
+          "position": "right",
+          "drawer_width": 440,
+          "open_on_add": false,
+          "heading": "",
+          "show_item_count": true,
+          "close_label": "Close cart",
+          "image_size": 84,
+          "image_ratio": "square",
+          "show_vendor": false,
+          "show_quantity": true,
+          "show_goal": false,
+          "goal_message": "Add [amount] more to unlock your reward",
+          "goal_success": "You've unlocked your reward",
+          "show_note": false,
+          "checkout_label": "",
+          "show_checkout_icon": true,
+          "show_view_cart": true,
+          "view_cart_label": "View cart",
+          "empty_heading": "",
+          "empty_text": "",
+          "empty_button_label": "",
+          "empty_button_link": "",
+          "corner_radius": 8,
+          "color_scheme": "",
+          "error_message": "Your cart couldn't be updated. Please try again."
+        }
+      }
+    },
     "content_for_index": [],
     "color_schemes": {
       "scheme-1": {
@@ -61,11 +93,11 @@
         "settings": {
           "background": "#000000",
           "background_gradient": "",
-          "text": "#FFFFFF",
-          "accent": "#B7FF00",
-          "button": "#FFFFFF",
+          "text": "#ffffff",
+          "accent": "#b7ff00",
+          "button": "#ffffff",
           "button_label": "#000000",
-          "secondary_button_label": "#B7FF00",
+          "secondary_button_label": "#b7ff00",
           "border": "#000000"
         }
       }
