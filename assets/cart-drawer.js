@@ -8,6 +8,46 @@
   - Fires `cart:updated` on document with { itemCount } after every change
 */
 
+/*
+  Watch for cart changes made by other scripts (the theme's product form,
+  quick add, upsell apps…) and tell the drawer to refresh. The drawer's own
+  requests use the untouched native fetch, so they don't trigger this.
+*/
+const ccNativeFetch = window.fetch.bind(window);
+
+if (!window.__ccCartWatch) {
+  window.__ccCartWatch = true;
+  const CART_MUTATION = /\/cart\/(add|change|update|clear)(\.js|\.json)?$/;
+
+  const notify = (url) => {
+    try {
+      const match = new URL(url, window.location.origin).pathname.match(CART_MUTATION);
+      if (match) {
+        document.dispatchEvent(new CustomEvent('cc:cart-changed', { detail: { action: match[1] } }));
+      }
+    } catch {
+      /* ignore unparsable URLs */
+    }
+  };
+
+  window.fetch = async (...args) => {
+    const response = await ccNativeFetch(...args);
+    if (response.ok) {
+      const input = args[0];
+      notify(typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url);
+    }
+    return response;
+  };
+
+  const nativeOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    this.addEventListener('load', () => {
+      if (this.status >= 200 && this.status < 300) notify(String(url));
+    });
+    return nativeOpen.call(this, method, url, ...rest);
+  };
+}
+
 if (!customElements.get('cc-cart-drawer')) {
   class CCCartDrawer extends HTMLElement {
     connectedCallback() {
@@ -32,6 +72,7 @@ if (!customElements.get('cc-cart-drawer')) {
       document.addEventListener('click', this.onDocumentClick);
       document.addEventListener('submit', this.onDocumentSubmit);
       document.addEventListener('cart:refresh', this.onRefreshRequest);
+      document.addEventListener('cc:cart-changed', this.onExternalChange);
       document.addEventListener('shopify:section:select', this.onEditorSelect);
       document.addEventListener('shopify:section:deselect', this.onEditorDeselect);
       document.addEventListener('shopify:section:load', this.onEditorSelect);
@@ -41,6 +82,7 @@ if (!customElements.get('cc-cart-drawer')) {
       document.removeEventListener('click', this.onDocumentClick);
       document.removeEventListener('submit', this.onDocumentSubmit);
       document.removeEventListener('cart:refresh', this.onRefreshRequest);
+      document.removeEventListener('cc:cart-changed', this.onExternalChange);
       document.removeEventListener('shopify:section:select', this.onEditorSelect);
       document.removeEventListener('shopify:section:deselect', this.onEditorDeselect);
       document.removeEventListener('shopify:section:load', this.onEditorSelect);
@@ -58,6 +100,8 @@ if (!customElements.get('cc-cart-drawer')) {
       this.opener = opener || document.activeElement;
       this.dialog.showModal();
       document.documentElement.classList.add('cc-cart-drawer-open');
+      // Always show the latest cart, whatever changed it
+      this.refresh();
     }
 
     close() {
@@ -107,6 +151,16 @@ if (!customElements.get('cc-cart-drawer')) {
       if (event.detail?.sectionId === this.sectionId) this.close();
     };
 
+    onExternalChange = (event) => {
+      clearTimeout(this.timers.external);
+      this.timers.external = setTimeout(() => {
+        const shouldOpen = event.detail?.action === 'add' && this.dataset.openOnAdd === 'true';
+        // open() refreshes on its own, so only refresh directly when the drawer stays as it is
+        if (shouldOpen && !this.dialog.open) this.open();
+        else this.refresh();
+      }, 100);
+    };
+
     onRefreshRequest = async (event) => {
       await this.refresh();
       if (event.detail?.open) this.open();
@@ -144,7 +198,7 @@ if (!customElements.get('cc-cart-drawer')) {
       body.append('sections_url', window.location.pathname);
 
       try {
-        const response = await fetch(this.routes.add, {
+        const response = await ccNativeFetch(this.routes.add, {
           method: 'POST',
           headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
           body,
@@ -220,7 +274,7 @@ if (!customElements.get('cc-cart-drawer')) {
       if (!note) return;
       clearTimeout(this.timers.note);
       this.timers.note = setTimeout(() => {
-        fetch(this.routes.update, {
+        ccNativeFetch(this.routes.update, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({ note: note.value }),
@@ -246,7 +300,7 @@ if (!customElements.get('cc-cart-drawer')) {
       this.content?.setAttribute('aria-busy', 'true');
 
       try {
-        const response = await fetch(this.routes.change, {
+        const response = await ccNativeFetch(this.routes.change, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
@@ -282,7 +336,7 @@ if (!customElements.get('cc-cart-drawer')) {
 
     async refresh() {
       try {
-        const response = await fetch(`${this.routes.root}/?sections=${this.sectionId}`);
+        const response = await ccNativeFetch(`${this.routes.root}/?sections=${this.sectionId}`);
         const data = await response.json();
         this.render(data[this.sectionId]);
       } catch {
