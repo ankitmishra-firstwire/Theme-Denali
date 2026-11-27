@@ -807,7 +807,7 @@
             id="cart-icon-bubble"
             class="hdr__icon hdr__cart"
             data-cart-link
-            data-cart-drawer-toggle
+            {% if settings.my_cart_type == 'drawer' %} data-cart-drawer-toggle{% endif %}
             aria-label="Cart, {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}"
           >
             {{ icon_cart }}
