@@ -73,8 +73,8 @@
 
     <div class="visually-hidden" aria-live="polite" role="status" data-global-status></div>
 
-    {%- unless template.name == 'cart' -%}
+    {%- if settings.my_cart_type == 'drawer' and template.name != 'cart' -%}
       {% section 'cart-drawer' %}
-    {%- endunless -%}
+    {%- endif -%}
   </body>
 </html>
