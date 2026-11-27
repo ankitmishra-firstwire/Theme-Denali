@@ -1,0 +1,368 @@
+{{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign s = section.settings
+
+  case s.image_ratio
+    when 'portrait'
+      assign media_ratio = '4 / 5'
+    else
+      assign media_ratio = '1 / 1'
+  endcase
+
+  assign empty_link = s.empty_button_link | default: routes.all_products_collection_url
+
+  if s.show_goal and s.goal_threshold > 0 and cart.item_count > 0
+    assign goal_cents = s.goal_threshold | times: 100
+    assign goal_remaining = goal_cents | minus: cart.total_price
+    assign goal_progress = cart.total_price | times: 100.0 | divided_by: goal_cents
+    if goal_progress > 100
+      assign goal_progress = 100
+    endif
+  endif
+-%}
+
+{%- capture media_sizes -%}{{ s.image_size }}px{%- endcapture -%}
+
+{% style %}
+  #CartDrawer-{{ section.id }} {
+    --drawer-width: {{ s.drawer_width }}px;
+    --drawer-radius: {{ s.corner_radius }}px;
+    --line-media: {{ s.image_size }}px;
+    --line-media-ratio: {{ media_ratio }};
+  }
+{% endstyle %}
+
+<cc-cart-drawer
+  id="CartDrawer-{{ section.id }}"
+  class="cc-cart-drawer"
+  data-section-id="{{ section.id }}"
+  data-add-url="{{ routes.cart_add_url }}"
+  data-change-url="{{ routes.cart_change_url }}"
+  data-update-url="{{ routes.cart_update_url }}"
+  data-root-url="{{ routes.root_url }}"
+  data-open-on-add="{{ s.open_on_add }}"
+  data-error-message="{{ s.error_message | escape }}"
+  data-total-label="{{ 'templates.cart.estimated_total' | t | escape }}"
+>
+  <dialog
+    class="cc-cart-drawer__dialog cc-cart-drawer--{{ s.position }} color-{{ s.color_scheme }}"
+    aria-labelledby="CartDrawerTitle-{{ section.id }}"
+  >
+    <div class="cc-cart-drawer__inner" data-drawer-content data-item-count="{{ cart.item_count }}">
+      <div class="cc-drawer-header">
+        <h2 class="cc-drawer-header__title" id="CartDrawerTitle-{{ section.id }}">
+          {%- if s.heading != blank -%}{{ s.heading | escape }}{%- else -%}{{ 'templates.cart.title' | t }}{%- endif -%}
+          {%- if s.show_item_count and cart.item_count > 0 -%}
+            <span class="cc-drawer-header__count"><span class="visually-hidden">(</span>{{ cart.item_count }}<span class="visually-hidden">)</span></span>
+          {%- endif -%}
+        </h2>
+        <button type="button" class="cc-drawer-header__close" id="CartDrawerClose-{{ section.id }}" data-drawer-close>
+          <span class="visually-hidden">{{ s.close_label | escape }}</span>
+          <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      {%- if cart.item_count == 0 -%}
+        <div class="cc-drawer-empty">
+          <p class="cc-drawer-empty__title">
+            {%- if s.empty_heading != blank -%}{{ s.empty_heading | escape }}{%- else -%}{{ 'templates.cart.empty' | t }}{%- endif -%}
+          </p>
+          {%- if s.empty_text != blank -%}
+            <div class="cc-drawer-empty__text rte">{{ s.empty_text }}</div>
+          {%- endif -%}
+          <a class="button" href="{{ empty_link }}">
+            {%- if s.empty_button_label != blank -%}{{ s.empty_button_label | escape }}{%- else -%}{{ 'general.continue_shopping' | t }}{%- endif -%}
+          </a>
+        </div>
+      {%- else -%}
+        <div class="cc-drawer-body">
+          {%- if goal_cents -%}
+            <div class="cc-goal{% if goal_remaining <= 0 %} cc-goal--reached{% endif %}">
+              <p class="cc-goal__message" id="CartDrawerGoal-{{ section.id }}">
+                {%- if goal_remaining > 0 -%}
+                  {%- capture goal_amount -%}<strong>{{ goal_remaining | money }}</strong>{%- endcapture -%}
+                  {{ s.goal_message | escape | replace: '[amount]', goal_amount }}
+                {%- else -%}
+                  {{ s.goal_success | escape }}
+                {%- endif -%}
+              </p>
+              <div
+                class="cc-goal__track"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="{{ goal_progress | round }}"
+                aria-labelledby="CartDrawerGoal-{{ section.id }}"
+              >
+                <span class="cc-goal__fill" data-goal-fill style="--goal: {{ goal_progress | round: 1 }}%;"></span>
+              </div>
+            </div>
+          {%- endif -%}
+
+          <ul class="cc-lines" role="list" aria-label="{{ 'templates.cart.title' | t }}">
+            {%- for item in cart.items -%}
+              {%- assign line = item.index | plus: 1 -%}
+              {%- assign step = item.variant.quantity_rule.increment | default: 1 -%}
+              <li class="cc-line" id="CartDrawerItem-{{ line }}" data-line="{{ line }}">
+                <a
+                  class="cc-line__media"
+                  href="{{ item.url }}"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  {% if s.image_ratio == 'adapt' and item.image %}style="--line-media-ratio: {{ item.image.aspect_ratio }};"{% endif %}
+                >
+                  {%- if item.image -%}
+                    {{ item.image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '80, 120, 160, 240', sizes: media_sizes, alt: '' }}
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  {%- endif -%}
+                </a>
+
+                <div class="cc-line__info">
+                  <div class="cc-line__top">
+                    <div class="cc-line__details">
+                      {%- if s.show_vendor and item.product.vendor != blank -%}
+                        <p class="cc-line__vendor">{{ item.product.vendor | escape }}</p>
+                      {%- endif -%}
+                      <a class="cc-line__name" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+
+                      {%- unless item.product.has_only_default_variant -%}
+                        <p class="cc-line__meta">
+                          {%- for option in item.options_with_values -%}
+                            {{ option.name | escape }}: {{ option.value | escape }}{% unless forloop.last %}<br>{% endunless %}
+                          {%- endfor -%}
+                        </p>
+                      {%- endunless -%}
+
+                      {%- for property in item.properties -%}
+                        {%- assign property_first_char = property.first | slice: 0 -%}
+                        {%- if property.last != blank and property_first_char != '_' -%}
+                          {%- if property.last contains '/uploads/' -%}
+                            <p class="cc-line__meta">{{ property.first | escape }}: <a href="{{ property.last }}" target="_blank" rel="noopener">{{ property.last | split: '/' | last }}</a></p>
+                          {%- else -%}
+                            <p class="cc-line__meta">{{ property.first | escape }}: {{ property.last | escape }}</p>
+                          {%- endif -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {%- if item.selling_plan_allocation -%}
+                        <p class="cc-line__meta">{{ item.selling_plan_allocation.selling_plan.name | escape }}</p>
+                      {%- endif -%}
+
+                      {%- for discount in item.line_level_discount_allocations -%}
+                        <p class="cc-line__discount">{{ discount.discount_application.title | escape }} (-{{ discount.amount | money }})</p>
+                      {%- endfor -%}
+                    </div>
+
+                    <div class="cc-line__price">
+                      {%- if item.original_line_price != item.final_line_price -%}
+                        <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+                        <s>{{ item.original_line_price | money }}</s>
+                        <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+                      {%- endif -%}
+                      <span class="cc-line__price-now">{{ item.final_line_price | money }}</span>
+                    </div>
+                  </div>
+
+                  <div class="cc-line__actions">
+                    {%- if s.show_quantity -%}
+                      <div class="cc-stepper">
+                        <button
+                          type="button"
+                          class="cc-stepper__button"
+                          id="CartDrawerMinus-{{ line }}"
+                          data-qty-step="-1"
+                          data-line="{{ line }}"
+                        >
+                          <span class="visually-hidden">{{ 'products.product.quantity.decrease' | t: product: item.product.title | escape }}</span>
+                          <svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 12 12"><path d="M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        </button>
+                        <label class="visually-hidden" for="CartDrawerQty-{{ line }}">
+                          {{ 'products.product.quantity.label' | t }}: {{ item.product.title | escape }}
+                        </label>
+                        <input
+                          class="cc-stepper__input"
+                          type="number"
+                          inputmode="numeric"
+                          id="CartDrawerQty-{{ line }}"
+                          value="{{ item.quantity }}"
+                          min="0"
+                          step="{{ step }}"
+                          {% if item.variant.quantity_rule.max != null %}max="{{ item.variant.quantity_rule.max }}"{% endif %}
+                          data-qty-input
+                          data-line="{{ line }}"
+                        >
+                        <button
+                          type="button"
+                          class="cc-stepper__button"
+                          id="CartDrawerPlus-{{ line }}"
+                          data-qty-step="1"
+                          data-line="{{ line }}"
+                        >
+                          <span class="visually-hidden">{{ 'products.product.quantity.increase' | t: product: item.product.title | escape }}</span>
+                          <svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 12 12"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        </button>
+                      </div>
+                    {%- elsif item.quantity > 1 -%}
+                      <span class="cc-line__meta">{{ 'products.product.quantity.label' | t }}: {{ item.quantity }}</span>
+                    {%- endif -%}
+
+                    <button type="button" class="cc-line__remove" id="CartDrawerRemove-{{ line }}" data-remove-line="{{ line }}">
+                      {{- 'templates.cart.remove' | t -}}
+                      <span class="visually-hidden">: {{ item.product.title | escape }}</span>
+                    </button>
+                  </div>
+
+                  <p class="cc-line__error" id="CartDrawerLineError-{{ line }}" role="alert" hidden></p>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+
+        <form class="cc-drawer-footer" action="{{ routes.cart_url }}" method="post" id="CartDrawerForm-{{ section.id }}">
+          {%- if s.show_note -%}
+            <details class="cc-note"{% if cart.note != blank %} open{% endif %}>
+              <summary class="cc-note__toggle">
+                <span>{{ 'templates.cart.note' | t }}</span>
+                <svg class="cc-note__icon" aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </summary>
+              <label class="visually-hidden" for="CartDrawerNote-{{ section.id }}">{{ 'templates.cart.note' | t }}</label>
+              <textarea class="cc-note__input" name="note" id="CartDrawerNote-{{ section.id }}" rows="2" data-cart-note>{{ cart.note }}</textarea>
+            </details>
+          {%- endif -%}
+
+          {%- if cart.cart_level_discount_applications.size > 0 -%}
+            <ul class="cc-totals__discounts list-unstyled" role="list" aria-label="{{ 'templates.cart.discount' | t }}">
+              {%- for discount in cart.cart_level_discount_applications -%}
+                <li class="cc-totals__row">
+                  <span>{{ discount.title | escape }}</span>
+                  <span>-{{ discount.total_allocated_amount | money }}</span>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+
+          <div class="cc-totals__row cc-totals__row--total">
+            <span>{{ 'templates.cart.estimated_total' | t }}</span>
+            <span class="cc-totals__value" data-cart-total>{{ cart.total_price | money_with_currency }}</span>
+          </div>
+
+          <p class="cc-totals__note">
+            {%- if cart.duties_included and cart.taxes_included -%}
+              {{ 'templates.cart.duties_and_taxes_included_shipping_at_checkout' | t }}
+            {%- elsif cart.taxes_included -%}
+              {{ 'templates.cart.taxes_included_shipping_at_checkout' | t }}
+            {%- else -%}
+              {{ 'templates.cart.taxes_and_shipping_at_checkout' | t }}
+            {%- endif -%}
+          </p>
+
+          <button type="submit" class="button button--full cc-drawer-footer__checkout" name="checkout">
+            {%- if s.show_checkout_icon -%}
+              <svg aria-hidden="true" focusable="false" width="14" height="16" viewBox="0 0 14 16"><rect x="1.5" y="7" width="11" height="7.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            {%- endif -%}
+            <span>{%- if s.checkout_label != blank -%}{{ s.checkout_label | escape }}{%- else -%}{{ 'templates.cart.checkout' | t }}{%- endif -%}</span>
+          </button>
+
+          {%- if s.show_view_cart -%}
+            <a class="cc-drawer-footer__view-cart" href="{{ routes.cart_url }}">
+              {%- if s.view_cart_label != blank -%}{{ s.view_cart_label | escape }}{%- else -%}{{ 'templates.cart.title' | t }}{%- endif -%}
+            </a>
+          {%- endif -%}
+        </form>
+      {%- endif -%}
+    </div>
+
+    <p class="visually-hidden" role="status" data-cart-status></p>
+  </dialog>
+</cc-cart-drawer>
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "class": "section-cart-drawer",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Opens when customers click the cart icon or add a product. Select this section in the editor to preview it."
+    },
+    { "type": "header", "content": "Drawer" },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Opens from",
+      "options": [
+        { "value": "right", "label": "Right" },
+        { "value": "left", "label": "Left" }
+      ],
+      "default": "right"
+    },
+    { "type": "range", "id": "drawer_width", "label": "Width on desktop", "min": 340, "max": 560, "step": 20, "unit": "px", "default": 440 },
+    { "type": "checkbox", "id": "open_on_add", "label": "Open when a product is added", "default": true },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Leave blank to use the default translation." },
+    { "type": "checkbox", "id": "show_item_count", "label": "Show item count", "default": true },
+    { "type": "text", "id": "close_label", "label": "Close button label", "info": "Read by screen readers.", "default": "Close cart" },
+
+    { "type": "header", "content": "Line items" },
+    { "type": "range", "id": "image_size", "label": "Image size", "min": 56, "max": 120, "step": 4, "unit": "px", "default": 84 },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "adapt", "label": "Adapt to image" },
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait" }
+      ],
+      "default": "square"
+    },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    {
+      "type": "checkbox",
+      "id": "show_quantity",
+      "label": "Show quantity selector",
+      "info": "Turn off for products customers only buy once, such as digital downloads.",
+      "default": true
+    },
+
+    { "type": "header", "content": "Spend goal bar" },
+    { "type": "checkbox", "id": "show_goal", "label": "Show spend goal bar", "default": false },
+    { "type": "number", "id": "goal_threshold", "label": "Goal amount", "info": "In your store's default currency, e.g. 100" },
+    {
+      "type": "text",
+      "id": "goal_message",
+      "label": "Message",
+      "info": "Use [amount] for the remaining amount.",
+      "default": "Add [amount] more to unlock your reward"
+    },
+    { "type": "text", "id": "goal_success", "label": "Goal reached message", "default": "You've unlocked your reward" },
+
+    { "type": "header", "content": "Footer" },
+    { "type": "checkbox", "id": "show_note", "label": "Enable order notes", "default": false },
+    { "type": "text", "id": "checkout_label", "label": "Checkout button label", "info": "Leave blank to use the default translation." },
+    { "type": "checkbox", "id": "show_checkout_icon", "label": "Show lock icon on checkout button", "default": true },
+    { "type": "checkbox", "id": "show_view_cart", "label": "Show link to cart page", "default": true },
+    { "type": "text", "id": "view_cart_label", "label": "Cart page link label", "default": "View cart" },
+
+    { "type": "header", "content": "Empty cart" },
+    { "type": "text", "id": "empty_heading", "label": "Heading", "info": "Leave blank to use the default translation." },
+    { "type": "richtext", "id": "empty_text", "label": "Text" },
+    { "type": "text", "id": "empty_button_label", "label": "Button label", "info": "Leave blank to use the default translation." },
+    { "type": "url", "id": "empty_button_link", "label": "Button link", "info": "Defaults to all products." },
+
+    { "type": "header", "content": "Style" },
+    { "type": "range", "id": "corner_radius", "label": "Image corner radius", "min": 0, "max": 20, "step": 2, "unit": "px", "default": 8 },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    {
+      "type": "text",
+      "id": "error_message",
+      "label": "Error message",
+      "info": "Shown if the cart can't be updated.",
+      "default": "Your cart couldn't be updated. Please try again."
+    }
+  ]
+}
+{% endschema %}
